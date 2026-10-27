@@ -1,0 +1,56 @@
+schema_version: 1
+source_manifest: sources/r19/manifest.json
+order:
+- A
+- B
+- C
+- D
+- E
+- F
+- G
+- H
+session_dependencies:
+  H: continue C conversation explicitly; do not assume A-H share one session
+cases:
+- id: A
+  file: cases/r19/R19-A.yaml
+  blockers:
+  - 整轮输出完成事件与逐轮关联尚未验证
+  - 语义/首词与延迟判定待录音分析或人工复核
+- id: B
+  file: cases/r19/R19-B.yaml
+  blockers:
+  - 已核验设备身份/P2资格未绑定
+  - 查找衔接词完成及任务关联未接入
+  - 声音与事实正确性待复核
+- id: C
+  file: cases/r19/R19-C.yaml
+  blockers:
+  - 已核验设备身份/P2资格未绑定
+  - 语义分析器未接入；30秒观察完成本身不是产品通过
+- id: D
+  file: cases/r19/R19-D.yaml
+  blockers:
+  - 已核验设备身份/P2资格未绑定
+  - 正文中点/设备声学重叠与任务进度映射未接入
+- id: E
+  file: cases/r19/R19-E.yaml
+  blockers:
+  - 已核验设备身份/P2资格未绑定
+  - 搜索受理/取消与旧结果观察窗口待绑定
+- id: F
+  file: cases/r19/R19-F.yaml
+  blockers:
+  - 已核验设备身份/P2资格未绑定
+  - 搜索进行中与替换任务关联尚未映射
+- id: G
+  file: cases/r19/R19-G.yaml
+  blockers:
+  - 已核验设备身份/P2资格未绑定
+  - 正文声学起点、退出/重进动作与跨会话任务关联尚未接入
+  - 2.5秒为来源2–3秒范围内的执行选择；需实测声学起点
+- id: H
+  file: cases/r19/R19-H.yaml
+  blockers:
+  - 依赖C的同会话上下文；不能独立新会话运行
+  - 语义与错误续播判定未接入

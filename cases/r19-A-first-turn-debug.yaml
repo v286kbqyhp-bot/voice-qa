@@ -1,0 +1,62 @@
+schema_version: 1
+case_id: R19-A-01-DEBUG
+title: R19 A 第一条话术调试探针（非完整A验收）
+domain: ai
+severity: normal
+tags:
+- r19
+- debug
+source:
+  manifest: sources/r19/manifest.json
+  original_sha256: 1b7606ba1658c894cf454ca6b78a55718f242949a72cd928a49151b248b6d9c9
+  section: A / first utterance only
+  receipt_template: r19_v1
+  scope: 仅唤醒、确认就绪、第一句与20秒采集；不执行A第二句，不形成完整A结论
+  execution_choices:
+    wake: 框架前置话术，不是R19正文步骤
+    observe_s: 20
+    observe_limit_role: debug collection bound, not product latency threshold
+  readiness_policy: Ordinary chat debug accepts input_ready or explicit input_ready_fallback
+    in the current hardware-wake trace; preserve actual event, never call compatibility
+    normal.
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+preconditions:
+- kind: check
+  name: device_online
+steps:
+- kind: audio_play
+  name: wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: bind_current_wake
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 10
+- kind: wait_event
+  name: ready
+  params:
+    event: input_ready
+    bind_trace: true
+    timeout_s: 20
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+- kind: audio_play
+  name: A_first_utterance
+  params:
+    text: 我今天打球赢了一次。
+- kind: audio_record
+  name: observe_reply
+  params:
+    max_seconds: 20
+artifacts:
+- audio
+- logcat
+- timeline

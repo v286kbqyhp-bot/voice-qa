@@ -1,0 +1,67 @@
+schema_version: 1
+case_id: R19-G
+title: 退出重连（重点）
+domain: ai
+severity: important
+requirement_refs:
+- R19-G
+tags:
+- r19
+- voice
+source:
+  manifest: sources/r19/manifest.json
+  original_sha256: 1b7606ba1658c894cf454ca6b78a55718f242949a72cd928a49151b248b6d9c9
+  section: G
+  expected:
+  - 结果开始播放，听2–3秒退出；1分钟内重进，先静默10秒再明确续讲。
+  - 新会话不抢播；续讲原结果、不重新查；记录退出/重进/续讲时间。
+  - 不承诺跨天或服务重启后恢复。
+  receipt_template: r19_v1
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+blockers:
+- 已核验设备身份/P2资格未绑定
+- 正文声学起点、退出/重进动作与跨会话任务关联尚未接入
+- 2.5秒为来源2–3秒范围内的执行选择；需实测声学起点
+steps:
+- kind: audio_play
+  name: query
+  params:
+    text: 帮我查一下恐龙为什么会灭绝。
+- kind: wait_event
+  name: body_audible_start
+  params:
+    event: r19_search_body_started
+    same_trace: true
+    timeout_s: 30
+    require_audible_device_speech: true
+- kind: sleep
+  name: listen_2_to_3_seconds
+  params:
+    seconds: 2.5
+- kind: expect
+  name: G_exit_chat
+  params:
+    contract: '{{contract.R19.G_exit_chat}}'
+- kind: expect
+  name: G_reenter_within_60s
+  params:
+    contract: '{{contract.R19.G_reenter_within_60s}}'
+- kind: sleep
+  name: silent_10s
+  params:
+    seconds: 10
+- kind: audio_play
+  name: resume
+  params:
+    text: 继续刚才的搜索结果。
+- kind: expect
+  name: G_oracle
+  params:
+    contract: '{{contract.R19.G_oracle}}'
+artifacts:
+- audio
+- logcat
+- timeline

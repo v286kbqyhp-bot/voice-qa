@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "batch_id": "20261027T161044-4a26160e",
+  "suite_id": "FAILURE-POLICY-REPLAY",
+  "mode": "replay",
+  "raw_evidence": "kept_local_not_in_git",
+  "batch_integrity_sha256": "265d907da4f10829e016d5a7c6317313a678ebc34e0ff8c925f6dcbe071d80ef",
+  "cases": [
+    {
+      "id": "first",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261027T161044-7c05ca92",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "f5c858d2f6f93aa8f9b275527392aa61638bf05121c86fe32803a764219461fe"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261027T161044-59dfd99d",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "2dc684a49c719662f9611bb88267567fd92d809c9a0075ee912b9feb89e184ff"
+        }
+      ],
+      "review_index": "batches/20261027T161044-4a26160e/review/first/review_index.md"
+    },
+    {
+      "id": "independent_next",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261027T161045-3e94d47e",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "378e3abd3c6939af9612eaeb29d917549e303277d27a20c143102c48325b0608"
+        }
+      ],
+      "review_index": "batches/20261027T161044-4a26160e/review/independent_next/review_index.md"
+    },
+    {
+      "id": "depends_on_first",
+      "status": "skipped_dependency",
+      "initial_verdict": null,
+      "attempts": [],
+      "review_index": null
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "schema_version": 1,
+  "run_id": "20261027T155316-8d4b9fbe",
+  "case_id": "R19-C-DEBUG",
+  "mode": "live",
+  "execution_status": "blocked",
+  "product_status": "needs_review",
+  "evidence_status": "partial",
+  "steps": [
+    {
+      "step": "wake",
+      "kind": "audio_play",
+      "execution_status": "not_executed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T155316-8d4b9fbe/steps/001-wake.json",
+      "artifact_sha256": "9b9715b7a5444ef6677dbc5d9f3e4d85a0707150fd38092e933c84b44d7371a8"
+    },
+    {
+      "step": "bind_current_wake",
+      "kind": "wait_event",
+      "execution_status": "not_executed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T155316-8d4b9fbe/steps/002-bind_current_wake.json",
+      "artifact_sha256": "af46cb11f46dedd7b07484a5c8644dc0ad4a73decaa05ba0dc6cbf9124f9ad6b"
+    },
+    {
+      "step": "ready",
+      "kind": "wait_event",
+      "execution_status": "not_executed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T155316-8d4b9fbe/steps/003-ready.json",
+      "artifact_sha256": "999c80581a3b300f64542402f050e277a12f1fd56815f792ff82f32f0fa3b122"
+    },
+    {
+      "step": "C_query",
+      "kind": "audio_play",
+      "execution_status": "not_executed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T155316-8d4b9fbe/steps/004-C_query.json",
+      "artifact_sha256": "b520050d5816d3d5ae0b554e4ca9d6423702b53150de403672b3344b22ca50e6"
+    },
+    {
+      "step": "observe_reply",
+      "kind": "audio_record",
+      "execution_status": "not_executed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T155316-8d4b9fbe/steps/005-observe_reply.json",
+      "artifact_sha256": "ce18c63b21de11656a6290688bf69a71974d848b4821bace99d84f9c8d776c0c"
+    }
+  ],
+  "local_bundle_integrity_sha256": "17c0f87152ef2199693cecadd9547ada29a621512800922db5f8685377674534",
+  "source_sha256": "33192e0ea121cadc8421c91e089780d06fbba9e98665b5e2c808a66d15d96fde",
+  "local_evidence_index": "runs/20261027T155316-8d4b9fbe/evidence_index.md",
+  "raw_evidence": "kept_local_not_in_git"
+}

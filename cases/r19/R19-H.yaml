@@ -1,0 +1,38 @@
+schema_version: 1
+case_id: R19-H
+title: 自由追问
+domain: ai
+severity: important
+requirement_refs:
+- R19-H
+tags:
+- r19
+- voice
+source:
+  manifest: sources/r19/manifest.json
+  original_sha256: 1b7606ba1658c894cf454ca6b78a55718f242949a72cd928a49151b248b6d9c9
+  section: H
+  expected:
+  - 必须接在C的回答之后，听懂发球边界主题，回答相关。
+  - 信息不足需说明或追问，不能机械重播原答案。
+  receipt_template: r19_v1
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+blockers:
+- 依赖C的同会话上下文；不能独立新会话运行
+- 语义与错误续播判定未接入
+steps:
+- kind: audio_play
+  name: followup
+  params:
+    text: 那我发到那条线外面一点，是不是就出界了？
+- kind: expect
+  name: H_oracle
+  params:
+    contract: '{{contract.R19.H_oracle}}'
+artifacts:
+- audio
+- logcat
+- timeline

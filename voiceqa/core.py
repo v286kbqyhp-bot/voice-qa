@@ -17,6 +17,13 @@ FIELDS = [
     '字幕、待机状态、灯光/音量等实际表现', '与普通设备相比是否明显慢（哪一轮）',
     '首次/偶发/必现，重复次数', '对应照片或截图时间',
 ]
+R19_FIELDS = ['设备SN末8位','现场版本／截图','测试日期与开始时间（北京时间到秒）','用例编号',
+              '我说了什么','我实际听到什么','等待约几秒／首词是否完整',
+              '插话、取消或重连是否按预期','截图／录音文件名（可选）','结论']
+
+
+def receipt_fields(case):
+    return R19_FIELDS if case.get('source',{}).get('receipt_template')=='r19_v1' else FIELDS
 
 
 class Blocked(RuntimeError):
@@ -71,7 +78,7 @@ def load_case(path: Path) -> dict:
     allowed_params = {
         'audio_play': {'file', 'text', 'voice', 'rate'},
         'audio_record': {'max_seconds'}, 'sleep': {'seconds'},
-        'wait_event': {'event', 'where', 'timeout_s', 'bind_trace', 'same_trace', 'require_audible_device_speech'},
+        'wait_event': {'event', 'alternative_events', 'where', 'timeout_s', 'bind_trace', 'same_trace', 'require_audible_device_speech'},
         'expect': {'contract'}, 'vision_expect': {'contract'},
     }
     for step in data['steps'] + data.get('cleanup', []):
@@ -83,6 +90,10 @@ def load_case(path: Path) -> dict:
                 raise ValueError('step time limit must be 0..60 seconds')
         if step['kind'] == 'wait_event' and not isinstance(params.get('event'), str):
             raise ValueError('wait_event requires an event name')
+        if 'alternative_events' in params and (not isinstance(params['alternative_events'],list) or
+                not 1 <= len(params['alternative_events']) <= 8 or
+                not all(isinstance(x,str) and x for x in params['alternative_events'])):
+            raise ValueError('alternative_events must contain 1..8 event names')
     return data
 
 

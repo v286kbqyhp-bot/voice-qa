@@ -146,3 +146,26 @@ server = AdapterServer(('127.0.0.1', 8765), root, adapter_factory=factory)
 ```
 
 其他语言无需使用本仓库 Python，保持 JSON 结构、证据层级、错误语义和时钟边界即可。未实现能力必须如实声明。Windows TTS、Linux TTS、串口、USB 音频、云端 ASR 可独立替换，不修改 YAML 编排器。
+
+
+## 调试进度与可选就绪事件（2026-10-27）
+
+执行器可通过适配器可选的 `set_observer(callback)` 接收 `wait_started/event_matched/event_rejected/wait_timeout`，不改变既有七方法边界。回调签名为 `callback(event_name, **details)`。Native和Replay可给出逐事件拒绝原因；HTTP客户端只能显示远程等待起止，设备侧逐事件原因须在设备侧日志查看。
+
+能力 `event_alternatives=true` 表示支持明确指定 `alternative_events`。例如主事件input_ready、候选input_ready_fallback、same_trace=true；只接受当前绑定trace的列举事件。不得把所有ready样式日志视为就绪。实际匹配事件保持原名，兼容就绪不会被重命名成正常就绪。
+
+`prepare` 阶段将文本生成PCM16 WAV及资产清单。`run --prepared-assets` 在采集前检查每个步骤的文件、SHA256和准确文本，再将文件交给音频适配器；不会调用文本合成作为缺失回退。HTTP情况下上传准备好的WAV，设备侧同样只播放文件。
+
+本地 `qa.py watch --device-log` 读取运行目录的progress、events和脱敏原始日志，不开启麦克风、不操作设备。每轮运行写入active_run.json供监看器跟随，原始证据在停止采集后生成指纹。终端内容移除控制字符并遮盖敏感字段。
+
+## 批量调度与人工复核包
+
+`python qa.py run-suite <suite.yaml> --mode live --config config.local.yaml --verbose` 按suite.cases的显式顺序执行。每项提供id、file，可提供prepared_assets（本机清单或bindings占位符）、depends_on。真实执行必须有预生成资产；不得在失败重试时临时合成。
+
+策略固定 `diagnostic_repeats: 1`、`continue_after_failure: true`。执行失败/明确oracle未通过触发一次独立采证复测。预置条件阻塞不盲重试；completed但没有oracle为pending_review，不自动报PASS。允许 `initial_run` 引用已完成且源用例指纹和mode相同的运行，配合有reason的initial_verdict登记人工或日志复核决定；不修改原运行。
+
+每次run_manifest.context包含batch_id、attempt_role（initial/diagnostic）、attempt_index、initial_run_id。两次各自独立录音、抓日志并生成指纹，复制到 `batches/<batch_id>/review/<case>/01-initial/` 和 `02-diagnostic/`。`review_index.md`直接链接录音、日志和逐步结果。失败收尾无法获得音频时明确显示未取得。
+
+batch.results.cases包含status（not_passed/blocked/pending_review/passed/skipped_dependency/interrupted）、attempts、review_index。诊断复测结果不覆盖初轮，首次not_passed最终始终not_passed。可注入decision(bundle_path, result)返回结构化status/reason/failure_layer；未配置语义判断器时不凭执行完成推断产品通过。用户停止会停止整个队列。
+
+`python qa.py record-suite batches/<batch_id>`验证完整性并仅登记最小Git摘要，原始采证包留本地。Git hook校验最多一次诊断复测，并拒绝把首轮未通过洗成通过。

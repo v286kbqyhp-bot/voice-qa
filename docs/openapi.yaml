@@ -248,6 +248,10 @@ components:
           type: boolean
         verified_search_body_event:
           type: boolean
+        event_alternatives:
+          type: boolean
+          description: Supports explicit alternative_events; actual matched event
+            is returned unchanged.
       additionalProperties: true
     AssetRequest:
       type: object
@@ -382,6 +386,14 @@ components:
           additionalProperties: *id002
         require_audible_device_speech:
           type: boolean
+        alternative_events:
+          type: array
+          minItems: 1
+          maxItems: 8
+          uniqueItems: true
+          items:
+            type: string
+            minLength: 1
       required:
       - event
       additionalProperties: false

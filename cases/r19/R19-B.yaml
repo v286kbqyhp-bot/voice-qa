@@ -1,0 +1,49 @@
+schema_version: 1
+case_id: R19-B
+title: 搜索时继续聊天
+domain: ai
+severity: important
+requirement_refs:
+- R19-B
+tags:
+- r19
+- voice
+source:
+  manifest: sources/r19/manifest.json
+  original_sha256: 1b7606ba1658c894cf454ca6b78a55718f242949a72cd928a49151b248b6d9c9
+  section: B
+  expected:
+  - 听到查找衔接词后马上说聊天话术；先回应赢球，空闲后补搜索结果。
+  - 版本与发布日期要明确，不能将旧公告说成最新。
+  receipt_template: r19_v1
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+blockers:
+- 已核验设备身份/P2资格未绑定
+- 查找衔接词完成及任务关联未接入
+- 声音与事实正确性待复核
+steps:
+- kind: audio_play
+  name: query
+  params:
+    text: 帮我查一下我的世界基岩版最近正式更新了什么。
+- kind: wait_event
+  name: after_search_bridge
+  params:
+    event: r19_search_acknowledgement_finished
+    same_trace: true
+    timeout_s: 30
+- kind: audio_play
+  name: chat
+  params:
+    text: 我今天打球赢了一次。
+- kind: expect
+  name: B_oracle
+  params:
+    contract: '{{contract.R19.B_oracle}}'
+artifacts:
+- audio
+- logcat
+- timeline

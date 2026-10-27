@@ -8,10 +8,13 @@ import sys
 
 from .adapters import HttpAdapter, NativeAdapter, ReplayAdapter
 from .core import Blocked, ROOT, load_case, load_yaml, resolve
-from .runner import record_bundle, run, verify_bundle
+from .runner import prepare_assets, record_bundle, run, verify_bundle
 
 
 def main():
+    for stream in (sys.stdout,sys.stderr):
+        if hasattr(stream,'reconfigure'):
+            stream.reconfigure(encoding='utf-8',errors='backslashreplace')
     parser = argparse.ArgumentParser(description='Portable YAML voice QA and evidence workflow')
     sub = parser.add_subparsers(dest='command', required=True)
     for command in ('validate', 'inspect'):
@@ -23,8 +26,26 @@ def main():
     p.add_argument('--fixture', type=Path)
     p.add_argument('--config', type=Path)
     p.add_argument('--adapter-url')
-    p.add_argument('--output', type=Path, default=Path('runs'))
-    for command in ('verify', 'record'):
+    p.add_argument('--output', type=Path, default=ROOT/'runs')
+    p.add_argument('--verbose', action='store_true', help='Stream progress to stderr while preserving JSON stdout')
+    p.add_argument('--prepared-assets',type=Path,help='Reuse this prebuilt TTS manifest; missing/mismatched assets block without synthesis')
+    p = sub.add_parser('watch')
+    p.add_argument('--root',type=Path,default=ROOT/'runs')
+    p.add_argument('--run',default='latest')
+    p.add_argument('--device-log',action='store_true')
+    p=sub.add_parser('prepare')
+    p.add_argument('case',type=Path)
+    p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--config',type=Path)
+    p=sub.add_parser('run-suite')
+    p.add_argument('suite',type=Path)
+    p.add_argument('--mode',choices=['replay','live','http'],default='replay')
+    p.add_argument('--fixture',type=Path)
+    p.add_argument('--config',type=Path)
+    p.add_argument('--adapter-url')
+    p.add_argument('--output',type=Path,default=ROOT/'batches')
+    p.add_argument('--verbose',action='store_true')
+    for command in ('verify', 'record', 'record-suite'):
         p = sub.add_parser(command)
         p.add_argument('bundle', type=Path)
     p = sub.add_parser('import-analysis')
@@ -66,14 +87,40 @@ def main():
             else:
                 adapter = NativeAdapter()
             config = load_yaml(args.config) if args.config else {}
-            output, result = run(args.case, adapter, args.mode, config, args.output)
+            output, result = run(args.case, adapter, args.mode, config, args.output,verbose=args.verbose,prepared_assets=args.prepared_assets)
             print(json.dumps({'bundle': str(output.resolve()), 'execution': result['execution_status'],
                               'product': result['product_status'], 'reason': result['reason']}, ensure_ascii=False))
             return 0 if result['execution_status'] == 'completed' else 2
         elif args.command == 'verify':
             print(json.dumps(verify_bundle(args.bundle), ensure_ascii=False))
+        elif args.command=='run-suite':
+            from .batch import run_suite
+            config=load_yaml(args.config) if args.config else {}
+            fixture=json.loads(args.fixture.read_text(encoding='utf-8')) if args.fixture else {}
+            if args.mode=='replay' and not args.fixture:raise ValueError('replay suite requires --fixture')
+            if args.mode=='http' and not args.adapter_url:raise ValueError('HTTP suite requires --adapter-url')
+            def factory(key,role):
+                if args.mode=='replay':return ReplayAdapter(fixture.get('cases',{}).get(key,{}).get(role,fixture.get('events',[])))
+                if args.mode=='http':return HttpAdapter(args.adapter_url,os.environ.get('VQA_API_TOKEN'))
+                return NativeAdapter()
+            output,result=run_suite(args.suite,factory,args.mode,config,args.output,ROOT/'runs',verbose=args.verbose)
+            print(json.dumps({'batch':str(output.resolve()),'cases':[{k:r[k] for k in ['id','status']} for r in result['cases']]},ensure_ascii=False))
+            return 2 if any(r['status'] in ('not_passed','blocked','interrupted') for r in result['cases']) else 0
+        elif args.command == 'prepare':
+            config=load_yaml(args.config) if args.config else {}
+            output=prepare_assets(args.case,args.output,NativeAdapter(),config)
+            print(json.dumps({'prepared_assets':str(output.resolve()),'playback_started':False},ensure_ascii=False))
+        elif args.command == 'watch':
+            from .live import watch
+            try:
+                watch(args.root,args.run,args.device_log)
+            except KeyboardInterrupt:
+                pass
         elif args.command == 'record':
             print(record_bundle(args.bundle).resolve())
+        elif args.command=='record-suite':
+            from .batch import record_suite
+            print(record_suite(args.bundle).resolve())
         elif args.command == 'import-analysis':
             from .analysis import import_analysis
             print(import_analysis(args.bundle, args.analysis).resolve())

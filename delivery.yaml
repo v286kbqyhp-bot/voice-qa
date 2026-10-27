@@ -36,3 +36,11 @@ stages:
     status: blocked
     deliverables: [docs/VALIDATION_20261027.md, cases/legacy-barge-unbound.yaml]
     limitation: 不能用框架自测替代正常搜索、正文打断、重连续讲的声学与语义验收。
+  - id: live_debug_and_r19_import
+    status: partial
+    deliverables: [voiceqa/live.py, tests/test_live.py, tests/test_readiness_and_assets.py, sources/r19/manifest.json, plans/r19/catalog.yaml, docs/R19_DEBUG_20261027.md]
+    limitation: 本机实时日志与预生成文件播放已接入；R19完整A-H中的语义、整轮结束、正文中点及跨会话任务映射仍待验证，HTTP逐事件调试须看设备侧日志。
+  - id: failure_diagnostic_and_continue
+    status: implemented
+    deliverables: [voiceqa/batch.py, tests/test_batch.py, plans/examples/failure-policy.yaml, docs/R19_DEBUG_20261027.md]
+    limitation: 失败门禁与产品根因分开；中文语义判定未配置时待人工。开测前能力/素材阻塞不盲目复测，依赖失败上下文的用例跳过。

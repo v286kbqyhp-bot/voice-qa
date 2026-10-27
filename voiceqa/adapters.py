@@ -224,11 +224,12 @@ def redact(text):
     text = re.sub(r'(?i)((?:token|password|secret|authorization|credential|wifi_password)\s*[=:]\s*)[^\s,;]+',
                   r'\1[REDACTED]', text)
     text = re.sub(r'\beyJ[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+\.[A-Za-z0-9_-]+', '[REDACTED_JWT]', text)
+    text = re.sub(r'\bBJP003[A-Za-z0-9]+\b',lambda m:'<SN末8位:'+m[0][-8:]+'>',text)
     return text
 
 
 TAGS = ['P003VoiceRealCanary', 'P003LiveKitRoom', 'P003VoiceUiState', 'P003VoiceExit',
-        'P003RtcReceipt', 'P003WakePrompt', 'GodotBridge']
+        'P003RtcReceipt', 'P003WakePrompt', 'GodotBridge', 'GodotBridgePlugin']
 
 
 def parse_log(line, received_s, line_number):
@@ -237,6 +238,8 @@ def parse_log(line, received_s, line_number):
         return None
     tag, body = match.groups()
     fields = dict(re.findall(r'\b([a-z_]+)=([A-Za-z0-9_.:-]+)', body))
+    fields = {k:'[REDACTED]' if re.search(r'token|password|secret|authorization|credential',k,re.I) else redact(v)
+              for k,v in fields.items()}
     event = fields.get('state') or fields.get('action') or fields.get('event')
     if not event:
         return None
@@ -323,12 +326,33 @@ class AdbEvents:
 
 
 def match_event(event, params, trace=None):
-    return (event['event'] == params['event']
+    return (event['event'] in [params['event'],*params.get('alternative_events',[])]
             and (not params.get('same_trace') or trace is not None and event.get('trace') == trace)
             and all(event.get('fields', {}).get(k) == str(v) for k, v in params.get('where', {}).items()))
 
 
-class NativeAdapter:
+def rejection_reason(event, params, trace=None):
+    if event['event'] not in [params['event'],*params.get('alternative_events',[])]:
+        return 'event_name_mismatch'
+    if params.get('same_trace') and trace is None:
+        return 'no_bound_trace'
+    if params.get('same_trace') and event.get('trace') != trace:
+        return 'trace_mismatch'
+    return 'field_mismatch'
+
+
+class Observable:
+    _observer = None
+
+    def set_observer(self, observer):
+        self._observer = observer
+
+    def _notify(self, event, **details):
+        if self._observer:
+            self._observer(event, **details)
+
+
+class NativeAdapter(Observable):
     def __init__(self, tts=None, audio=None, event_source=None):
         self.tts = tts or (MacSay() if platform.system() == 'Darwin' else WindowsSapi()
                            if platform.system() == 'Windows' else None)
@@ -343,6 +367,7 @@ class NativeAdapter:
         return {'api_version': '1.0', 'adapter': 'native', 'tts': self.tts is not None,
                 'audio_capture': True, 'audio_play': True, 'device_events': 'adb',
                 'asr': False, 'speaker_attribution': False, 'verified_search_body_event': False,
+                'event_alternatives': True,
                 'playback_backend': getattr(self.audio, 'backend_name', 'injected')}
 
     def prepare(self, params, output):
@@ -390,6 +415,7 @@ class NativeAdapter:
             raise Blocked('device event source not active')
         start = time.monotonic()
         timeout = params.get('timeout_s', 30)
+        self._notify('wait_started',expected=params,bound_trace=self.trace,timeout_s=timeout)
         while time.monotonic() - start < timeout:
             self.logs.healthy()
             events = self.logs.all_events()
@@ -397,12 +423,16 @@ class NativeAdapter:
                 e = events[i]
                 self.cursor = i + 1
                 if e['received_monotonic_s'] < self.anchor:
+                    self._notify('event_ignored',reason='received_before_run_anchor',received=e)
                     continue
                 if match_event(e, params, self.trace):
                     if params.get('bind_trace'):
                         self.trace = e.get('trace')
+                    self._notify('event_matched',received=e,bound_trace=self.trace,layer='device_log')
                     return e
+                self._notify('event_rejected',reason=rejection_reason(e,params,self.trace),expected=params,received=e)
             time.sleep(0.02)
+        self._notify('wait_timeout',expected=params,timeout_s=timeout,bound_trace=self.trace)
         raise Blocked('execution_timeout: no matching event; not a product deadline failure')
 
     def observe(self, seconds):
@@ -426,7 +456,7 @@ class NativeAdapter:
         return result
 
 
-class ReplayAdapter:
+class ReplayAdapter(Observable):
     def __init__(self, events=None):
         self.events = events or []
         self.now = 0.0
@@ -435,7 +465,7 @@ class ReplayAdapter:
         self.played = []
 
     def capabilities(self):
-        return {'api_version': '1.0', 'adapter': 'replay', 'real_device': False}
+        return {'api_version': '1.0', 'adapter': 'replay', 'real_device': False,'event_alternatives':True}
 
     def prepare(self, params, output):
         output.parent.mkdir(parents=True, exist_ok=True)
@@ -454,20 +484,25 @@ class ReplayAdapter:
         return {'start_s': start, 'end_s': self.now, 'simulated': True}
 
     def wait_event(self, params):
+        self._notify('wait_started',expected=params,bound_trace=self.trace,simulated=True)
         end = self.now + params.get('timeout_s', 30)
         for i, event in sorted(enumerate(self.events), key=lambda p: p[1]['at_s']):
             key = event.get('id', i)
             if key in self.used or event['at_s'] < self.now or event['at_s'] > end:
                 continue
             if event.get('occurred_s', event['at_s']) < self.now:
+                self._notify('event_ignored',reason='old_fixture_event',received=event,simulated=True)
                 continue
             if match_event(event, params, self.trace):
                 self.used.add(key)
                 self.now = event['at_s']
                 if params.get('bind_trace'):
                     self.trace = event.get('trace')
+                self._notify('event_matched',received=event,bound_trace=self.trace,simulated=True)
                 return {**event, 'simulated': True}
+            self._notify('event_rejected',reason=rejection_reason(event,params,self.trace),received=event,simulated=True)
         self.now = end
+        self._notify('wait_timeout',expected=params,simulated=True)
         raise Blocked('execution_timeout: fixture contains no current matching event')
 
     def observe(self, seconds):
@@ -478,7 +513,7 @@ class ReplayAdapter:
         return {'real_device': False, 'fixture_replay': True}
 
 
-class HttpAdapter:
+class HttpAdapter(Observable):
     """The runner uses exactly this contract for any remote device/environment."""
     def __init__(self, url, token=None):
         if not url.startswith(('http://', 'https://')):
@@ -528,7 +563,10 @@ class HttpAdapter:
                             {'asset_id': asset['asset_id'], 'request_id': uuid.uuid4().hex})
 
     def wait_event(self, params):
-        return self.request('POST', f'/v1/sessions/{self.session}/wait-event', params)
+        self._notify('wait_started',expected=params,note='远程等待；逐条设备事件请在设备侧监看')
+        result=self.request('POST', f'/v1/sessions/{self.session}/wait-event', params)
+        self._notify('event_matched',received=result,remote=True)
+        return result
 
     def observe(self, seconds):
         return self.request('POST', f'/v1/sessions/{self.session}/observe', {'seconds': seconds})

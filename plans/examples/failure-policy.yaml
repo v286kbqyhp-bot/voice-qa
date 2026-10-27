@@ -1,0 +1,13 @@
+schema_version: 1
+suite_id: FAILURE-POLICY-REPLAY
+policy:
+  diagnostic_repeats: 1
+  continue_after_failure: true
+cases:
+  - id: first
+    file: ../../cases/voice-smoke.yaml
+  - id: independent_next
+    file: ../../cases/voice-smoke.yaml
+  - id: depends_on_first
+    file: ../../cases/voice-smoke.yaml
+    depends_on: [first]

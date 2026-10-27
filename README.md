@@ -20,6 +20,23 @@ python -m venv .venv
 
 以下用 `python` 表示上述虚拟环境解释器。Windows 需 Git for Windows 以运行 Git hooks；麦克风访问和 SAPI 中文音色需在该设备核实。首次 clone 后必须 install-hooks，Git 不自动安装仓库内 hook。
 
+## 实时调试与预生成音频
+
+```bash
+# 窗口1：只读跟随最新运行；停止监看不会停止测试
+python qa.py watch --device-log
+# 窗口2：准备阶段只生成文件，不录音、不播放
+python qa.py prepare cases/r19-A-second-turn-debug.yaml --output .local/prepared/r19-A2
+# 执行阶段仅使用准备好的文件；缺失、指纹或文本不符直接阻塞，不回退合成
+python qa.py run cases/r19-A-second-turn-debug.yaml --mode live --config config.local.yaml --prepared-assets .local/prepared/r19-A2/manifest.json --verbose
+```
+
+`progress.jsonl` 实时记录步骤、预期事件、命中/未命中原因、超时和采集收尾；`events.jsonl` 记录设备事件，`logs/device_redacted.log` 保留脱敏设备正文。`FILE` 表示加载已有文件，`TTS` 只发生在准备阶段，`MATCH` 只表示日志条件命中。准备产物属于本机文件，不提交音频到Git。
+
+普通聊天调试显式允许 `alternative_events: [input_ready_fallback]`，并先用本轮 `started/source=hardware` 绑定trace。返回保留实际事件名；严格用例不写此字段时仍只接受主事件。兼容路径不自动计为正常P2通过。
+
+R19 A–H来源、步骤与缺项见 `plans/r19/catalog.yaml`；完整用例的待接入条件保持阻塞。`R19-A-01-DEBUG`、`R19-A-02-DEBUG` 与 `R19-C-DEBUG` 是单独调试探针，不能拼成完整A–H验收。R19回执采用其原有十字段，产品结论留给实际证据判定。
+
 ## 最短闭环
 
 ```bash
@@ -80,3 +97,15 @@ hook 检查“交付是否可核查”，不会因存在文档就把 partial/blo
 在 Windows 的主项目目录下 clone 本仓库为 `qa-automation`；将 `/qa-automation/` 加入**父仓库本机** `.git/info/exclude`，避免误提交嵌套仓库。这里使用独立仓库，不是 submodule。两边只同步源码/YAML/最小摘要，本机配置和原始证据各自保存。不要把 Mac 的绝对路径、音频设备编号或 ADB transport 照搬到 Windows。
 
 维护时运行 `python -m unittest discover -s tests -v` 和 `python qa.py gate`。`record` 与 Git commit/push 是显式操作，不会自动向飞书或同事发送信息。
+
+## 失败后独立采证复测一次，再继续
+
+```bash
+# 离线验证“首轮失败→复测一次→继续独立用例→跳过失效依赖”
+python qa.py run-suite plans/examples/failure-policy.yaml --mode replay --fixture fixtures/failure-policy.json
+# 实机suite每项指定prepared_assets；完整资产和话术均复用
+python qa.py run-suite <suite.yaml> --mode live --config config.local.yaml --verbose
+python qa.py record-suite batches/<batch_id>
+```
+
+首轮未通过会锁定结果，诊断复测不覆盖它。两次的完整录音、日志、步骤结果分别存到 `batches/<batch_id>/review/<case>/`，人工从review_index.md复核。依赖失败用例的场景跳过，其他独立用例继续。配置/能力阻塞与产品未通过分别记录，缺少判定器保持待复核。Ctrl+C停止执行队列后不会再复测。

@@ -1,0 +1,61 @@
+schema_version: 1
+case_id: R19-C-DEBUG
+title: R19 C 单次查询与30秒采集探针
+domain: ai
+severity: normal
+tags:
+- r19
+- debug
+source:
+  manifest: sources/r19/manifest.json
+  original_sha256: 1b7606ba1658c894cf454ca6b78a55718f242949a72cd928a49151b248b6d9c9
+  section: C
+  receipt_template: r19_v1
+  scope: 单次查询采集，不自动进行事实/语义或产品通过判定
+  execution_choices:
+    wake: 框架前置唤醒
+    observe_s: 30
+    timing_note: 采集窗口从主机文件播放返回计时；物理尾音与正式产品30秒判定需声学核验
+  readiness_policy: Debug accepts explicitly named compatibility readiness; preserves
+    actual path, does not count compatibility as normal P2 acceptance.
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+preconditions:
+- kind: check
+  name: device_online
+steps:
+- kind: audio_play
+  name: wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: bind_current_wake
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 10
+- kind: wait_event
+  name: ready
+  params:
+    event: input_ready
+    bind_trace: true
+    timeout_s: 20
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+- kind: audio_play
+  name: C_query
+  params:
+    text: 羽毛球双打发球后面的线到底算哪条？帮我查查。
+- kind: audio_record
+  name: observe_reply
+  params:
+    max_seconds: 30
+artifacts:
+- audio
+- logcat
+- timeline

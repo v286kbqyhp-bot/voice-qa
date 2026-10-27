@@ -1,0 +1,54 @@
+schema_version: 1
+case_id: R19-A
+title: 普通聊天速度
+domain: ai
+severity: important
+requirement_refs:
+- R19-A
+tags:
+- r19
+- voice
+source:
+  manifest: sources/r19/manifest.json
+  original_sha256: 1b7606ba1658c894cf454ca6b78a55718f242949a72cd928a49151b248b6d9c9
+  section: A
+  expected:
+  - 自然接话，不无故搜索；记录明显慢、丢首词与长时间静音。
+  - P1对照可选；没有对照不能填写比较结论。
+  receipt_template: r19_v1
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+blockers:
+- 整轮输出完成事件与逐轮关联尚未验证
+- 语义/首词与延迟判定待录音分析或人工复核
+steps:
+- kind: audio_play
+  name: win
+  params:
+    text: 我今天打球赢了一次。
+- kind: wait_event
+  name: first_turn_done
+  params:
+    event: r19_turn_output_finished
+    same_trace: true
+    timeout_s: 30
+- kind: audio_play
+  name: pikachu
+  params:
+    text: 我喜欢皮卡丘。
+- kind: wait_event
+  name: second_turn_done
+  params:
+    event: r19_turn_output_finished
+    same_trace: true
+    timeout_s: 30
+- kind: expect
+  name: A_oracle
+  params:
+    contract: '{{contract.R19.A_oracle}}'
+artifacts:
+- audio
+- logcat
+- timeline

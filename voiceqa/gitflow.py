@@ -14,7 +14,7 @@ from .runner import verify_bundle
 
 
 def gate(root=ROOT):
-    cases = list((root / 'cases').glob('*.yaml'))
+    cases = list((root / 'cases').rglob('*.yaml'))
     if not cases:
         raise ValueError('no versioned YAML cases')
     for path in cases:
@@ -25,6 +25,11 @@ def gate(root=ROOT):
     for name, sha in sources['legacy']['files'].items():
         if digest(safe_path(root / 'sources/legacy', name)) != sha:
             raise ValueError('legacy source fingerprint changed')
+    r19_manifest=root/'sources/r19/manifest.json'
+    if r19_manifest.exists():
+        r19=json.loads(r19_manifest.read_text(encoding='utf-8'))
+        if digest(safe_path(r19_manifest.parent,r19['redacted_file'])) != r19['redacted_sha256']:
+            raise ValueError('R19 source fingerprint changed')
     delivery = load_yaml(root / 'delivery.yaml')
     allowed = {'implemented', 'partial', 'blocked', 'not_started'}
     for stage in delivery['stages']:
@@ -36,7 +41,13 @@ def gate(root=ROOT):
     for directory in (root / 'records').glob('*'):
         if not directory.is_dir():
             continue
-        if (directory / 'summary.json').exists():
+        if (directory / 'suite_summary.json').exists():
+            data=json.loads((directory/'suite_summary.json').read_text(encoding='utf-8'))
+            if data.get('raw_evidence')!='kept_local_not_in_git':raise ValueError('raw batch evidence must stay local')
+            for row in data['cases']:
+                if len(row['attempts'])>2:raise ValueError('more than one diagnostic repeat')
+                if row['initial_verdict']=='not_passed' and row['status']!='not_passed':raise ValueError('diagnostic result erased initial failure')
+        elif (directory / 'summary.json').exists():
             data = json.loads((directory / 'summary.json').read_text(encoding='utf-8'))
             if data['product_status'] != 'needs_review' or data['raw_evidence'] != 'kept_local_not_in_git':
                 raise ValueError('unreviewed live run must not claim acceptance')
@@ -44,7 +55,7 @@ def gate(root=ROOT):
             verify_bundle(directory)
     for path in root.rglob('*'):
         relative = path.relative_to(root).parts
-        if any(p in {'.git', '.venv', '.local', 'runs', '__pycache__'} for p in relative) or not path.is_file():
+        if any(p in {'.git', '.venv', '.local', 'runs', 'batches', '__pycache__'} for p in relative) or not path.is_file():
             continue
         if path.stat().st_size > 2_000_000 or path.suffix.lower() in {'.wav', '.aiff', '.log', '.apk', '.jks', '.pem'}:
             raise ValueError('raw/large evidence must remain outside tracked snapshot: ' + path.name)
