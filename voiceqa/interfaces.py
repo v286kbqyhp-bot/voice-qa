@@ -38,6 +38,15 @@ class SemanticReviewer(Protocol):
         ...
 
 
+class SpeechPhaseClassifier(Protocol):
+    def classify(self, context: dict, caption: dict) -> dict | None:
+        """Label a specific run/trace/segment/caption; preserve inferred vs native origin.
+
+        None means unknown. This does not establish audible progress or task identity.
+        """
+        ...
+
+
 class AudioPlayer(Protocol):
     def play(self, asset: dict, output_device=None) -> dict:
         """Play prebuilt audio; return backend observation, never acoustic proof."""

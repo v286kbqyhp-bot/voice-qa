@@ -112,3 +112,14 @@ stages:
   - docs/FILE_INDEX.md
   - docs/INTERFACES.md
   limitation: 仅一份AGENTS.md。实时AI语义组件定义了合同，尚未配置持续模型服务；本轮由Agent读取日志复核。
+- id: speech_phase_trigger_trial
+  status: partial
+  deliverables:
+  - voiceqa/phase_labels.py
+  - tests/test_phase_labels.py
+  - cases/r19-live/D-agent-phase.yaml
+  - cases/r19-live/D-local-phase.yaml
+  - plans/r19/D-phase-rules.example.yaml
+  - docs/PHASE_LABELS.md
+  - docs/D_TRIGGER_VALIDATION_20261027.md
+  limitation: D本地内容规则已实际触发完整打断语音，但设备没有插话ASR，续讲未执行；独立复测未唤醒。外部会话Agent回写约27秒过窗；两者均非服务端原生role，未部署Worker或修改设备，不能保证50%播放进度。

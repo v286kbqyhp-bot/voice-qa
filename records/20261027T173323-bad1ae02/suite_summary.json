@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "batch_id": "20261027T173323-bad1ae02",
+  "suite_id": "R19-D-AGENT-PHASE-20261027",
+  "mode": "live",
+  "raw_evidence": "kept_local_not_in_git",
+  "batch_integrity_sha256": "e1cd00ffb5b78ac1b6161026fe1a1b17465df9944edb5ea42bbbd5cb29bea571",
+  "cases": [
+    {
+      "id": "D",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261027T173150-3604f823",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "a08fc0182184fbed1eaeda791da028b7a902ba445616d88f0e7e932c620a2d54"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261027T173323-05e5e037",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "d18396f59b97d62882566eff01389061322b1ae254f33c57165326e632fb2e28"
+        }
+      ],
+      "review_index": "batches/20261027T173323-bad1ae02/review/D/review_index.md"
+    }
+  ]
+}

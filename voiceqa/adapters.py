@@ -420,6 +420,8 @@ class NativeAdapter(Observable):
 
     def begin(self, output, config):
         self.output = output
+        self.phase_review_file=config.get('phase_review_file')
+        self.phase_rules=config.get('phase_rules',[])
         metadata = {}
         try:
             if config.get('require_device', True):

@@ -214,3 +214,7 @@ cleanup:
 ```
 
 verdict 仅用 `consistent/nonconform/insufficient_evidence`。判断需引用实际存在的当前会话事件，缺失话术、任务 ID、声学转写或版本事实时不得补写。日志语义判断与声学 `EvidenceAnalyzer` 分开；模型评审异步进行，不能让模型延迟阻塞毫秒级动作调度。完整用例的判定可经批次 `decision` 回调返回；只提供日志评审意见不能自动视为产品通过。本轮人工驱动的 Agent 日志复核见 `R19_FULL_FLOW_20261027.md`，并不代表后台持续 AI 服务已经部署。
+
+## 2026-10-27 D 阶段分类试验
+
+新增 Native 可选参数 `wait_speech.phase_role`，可由本机用例内容规则或外部 Agent JSONL 提供阶段分类；必须保留非原生来源及当前 run/trace/segment/字幕指纹。分类后仍核对播放状态和声音活动，才能触发预生成输入。不按 worker 事件次数推断阶段，也不将字幕文本等同音频进度。协议、两条分类源及限制见 [PHASE_LABELS.md](PHASE_LABELS.md)，实测见 [D_TRIGGER_VALIDATION_20261027.md](D_TRIGGER_VALIDATION_20261027.md)。短暂播放窗口不得等待会话 Agent 同步返回。

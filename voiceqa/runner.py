@@ -68,6 +68,8 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
                 not manifest['capabilities'].get('interaction_wait') or
                 not callable(getattr(type(adapter),'wait_interaction',None))):
             raise Blocked('interaction_wait capability unavailable')
+        if any(s.get('params',{}).get('phase_role') for s in all_steps) and not (config.get('phase_review_file') or config.get('phase_rules')):
+            raise Blocked('external phase review capability unavailable')
         prepared=json.loads(prepared_assets.read_text(encoding='utf-8')) if prepared_assets else None
         if prepared_assets:
             manifest['prepared_assets_sha256']=digest(prepared_assets)

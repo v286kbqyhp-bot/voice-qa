@@ -41,6 +41,8 @@ def latest_state(events,trace,floor):
 def wait_interaction(adapter,kind,params):
     if not adapter.logging or adapter.trace is None:raise Blocked('interaction requires a bound device session')
     if not callable(getattr(type(adapter.audio),'levels',None)):raise Blocked('audio levels capability unavailable')
+    if params.get('phase_role') and not (getattr(adapter,'phase_review_file',None) or getattr(adapter,'phase_rules',None)):
+        raise Blocked('external phase review capability unavailable')
     start=time.monotonic();quiet_start=None;last_observation=0;speech_onsets={}
     timeout=params.get('timeout_s',45);role=params.get('role','any')
     floor=adapter.turn_floor
@@ -55,8 +57,16 @@ def wait_interaction(adapter,kind,params):
             raise Blocked('session_ended_while_waiting: '+lifecycle.get('reason',lifecycle['state']))
         if levels.get('errors') or now-levels['updated_monotonic_s']>1:
             raise Blocked('capture stream stale or errored during interaction')
-        relevant=captions(events,adapter.trace,floor,role,params.get('text_contains_any'))
+        relevant=captions(events,adapter.trace,floor,'any' if params.get('phase_role') else role,params.get('text_contains_any'))
+        phase_label=None
+        if params.get('phase_role'):
+            from .phase_labels import matching_label
+            matched=matching_label(adapter,events,params['phase_role'])
+            relevant=[matched[0]] if matched else []
+            phase_label=matched[1] if matched else None
         state=latest_state(events,adapter.trace,floor)
+        if phase_label and state and relevant[0]['received_monotonic_s']<state['received_monotonic_s']-.3:
+            relevant=[];phase_label=None
         speaking=state and state.get('fields',{}).get('speaking')=='true'
         active=levels['rms']>=adapter.sound_threshold
         if speaking and active:
@@ -88,6 +98,11 @@ def wait_interaction(adapter,kind,params):
                     result={'caption':current,'rms':levels['rms'],'threshold':adapter.sound_threshold,
                             'speech_elapsed_proxy_s':round(elapsed,3),'trigger_layer':'device_caption_and_microphone_activity',
                             'speaker_attribution':'unverified','physical_overlap':'requires recording review'}
+                    if phase_label:
+                        from .phase_labels import preserve_label
+                        preserve_label(adapter,phase_label)
+                        result['phase_label']=phase_label
+                        result['phase_origin']=phase_label['evidence_kind']+'_not_device_role'
                     adapter._notify('event_matched',received=result);return result
         if kind=='wait_output' and relevant:
             body_after_ack=role=='ack' and captions(events,adapter.trace,relevant[-1]['received_monotonic_s'],'body')

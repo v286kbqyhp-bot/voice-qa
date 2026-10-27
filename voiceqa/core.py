@@ -79,7 +79,7 @@ def load_case(path: Path) -> dict:
         'audio_play': {'file', 'text', 'voice', 'rate', 'if_session_active', 'idle_finish_before_s', 'startup_budget_s'},
         'audio_record': {'max_seconds'}, 'sleep': {'seconds'},
         'wait_event': {'event', 'alternative_events', 'where', 'text_contains_any', 'after_last_play', 'if_session_active', 'timeout_s', 'bind_trace', 'same_trace', 'require_audible_device_speech'},
-        'wait_speech': {'role','text_contains_any','timeout_s','require_final','require_sound','delay_s','max_elapsed_s'},
+        'wait_speech': {'role','phase_role','text_contains_any','timeout_s','require_final','require_sound','delay_s','max_elapsed_s'},
         'wait_output': {'role','text_contains_any','timeout_s','quiet_s','fail_if_body_started'},
         'expect': {'contract'}, 'vision_expect': {'contract'},
     }
@@ -93,6 +93,8 @@ def load_case(path: Path) -> dict:
             raise ValueError('idle_finish_before_s requires conditional cleanup and must be in (0,4]')
         if 'startup_budget_s' in params and (not params.get('idle_finish_before_s') or not 0<=params['startup_budget_s']<=2):
             raise ValueError('startup_budget_s requires a cleanup deadline and must be in [0,2]')
+        if 'phase_role' in params and params['phase_role'] not in {'search_bridge','search_body','chat','search_failure'}:
+            raise ValueError('unknown external phase role')
         for key in ('seconds', 'max_seconds', 'timeout_s'):
             if key in params and isinstance(params[key], (int, float)) and not 0 <= params[key] <= 60:
                 raise ValueError('step time limit must be 0..60 seconds')
