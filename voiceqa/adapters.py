@@ -10,6 +10,7 @@ import queue
 import re
 import shutil
 import subprocess
+import sys
 import threading
 import time
 import urllib.request
@@ -143,6 +144,81 @@ class PcmAudio:
                 'speaker_attribution': 'unverified', 'physical_onset_timing': 'unverified'}
 
 
+class ProcessAudio:
+    """Own the driver on a child process main thread, with bounded IPC."""
+    def __init__(self):
+        self.process = None
+        self.responses = queue.Queue()
+        self.backend_name = 'MacFilePlayer' if platform.system() == 'Darwin' else 'PortAudioPlayer'
+
+    def _call(self, method, *args):
+        if self.process is None:
+            raise Blocked('audio worker is not running')
+        try:
+            self.process.stdin.write(json.dumps({'method': method, 'args': args}) + '\n')
+            self.process.stdin.flush()
+            response = self.responses.get(timeout=130 if method == 'play' else 30)
+        except (queue.Empty, BrokenPipeError):
+            self.close(force=True)
+            raise Blocked('audio worker timeout/disconnect; incomplete capture retained') from None
+        if response is None:
+            self.close(force=True)
+            raise Blocked('audio worker exited before completing action')
+        if 'error' in response:
+            raise Blocked('audio worker: ' + response['error'])
+        return response['result']
+
+    def start(self, output, config):
+        from .core import ROOT
+        self.responses = queue.Queue()
+        logs = output.parent.parent / 'logs'
+        logs.mkdir(exist_ok=True)
+        self.stderr = (logs / 'audio_worker.log').open('w', encoding='utf-8')
+        self.process = subprocess.Popen([sys.executable, '-u', '-m', 'voiceqa.audio_worker'], cwd=ROOT,
+                                        stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=self.stderr,
+                                        text=True, encoding='utf-8')
+        def read():
+            try:
+                for line in self.process.stdout:
+                    self.responses.put(json.loads(line))
+            finally:
+                self.responses.put(None)
+        self.reader = threading.Thread(target=read, daemon=True)
+        self.reader.start()
+        portable = {k:v for k,v in config.items() if k in {'input_device','output_device','sample_rate'}}
+        try:
+            return self._call('start', str(output.resolve()), portable)
+        except BaseException:
+            self.close(force=True)
+            raise
+
+    def play(self, asset):
+        return self._call('play', asset)
+
+    def stop(self):
+        try:
+            return self._call('stop')
+        finally:
+            self.close()
+
+    def close(self, force=False):
+        if self.process is None:
+            return
+        if force and self.process.poll() is None:
+            self.process.terminate()
+        if self.process.stdin:
+            self.process.stdin.close()
+        try:
+            self.process.wait(timeout=5)
+        except subprocess.TimeoutExpired:
+            self.process.kill()
+            self.process.wait(timeout=5)
+        self.reader.join(timeout=3)
+        self.process.stdout.close()
+        self.stderr.close()
+        self.process = None
+
+
 def redact(text):
     text = re.sub(r'(?i)(Bearer\s+)[^\s,;]+', r'\1[REDACTED]', text)
     text = re.sub(r'(?i)((?:token|password|secret|authorization|credential|wifi_password)\s*[=:]\s*)[^\s,;]+',
@@ -256,7 +332,7 @@ class NativeAdapter:
     def __init__(self, tts=None, audio=None, event_source=None):
         self.tts = tts or (MacSay() if platform.system() == 'Darwin' else WindowsSapi()
                            if platform.system() == 'Windows' else None)
-        self.audio = audio or PcmAudio()
+        self.audio = audio or ProcessAudio()
         self.logs = event_source or AdbEvents()
         self.trace = None
         self.recording = False
@@ -267,7 +343,7 @@ class NativeAdapter:
         return {'api_version': '1.0', 'adapter': 'native', 'tts': self.tts is not None,
                 'audio_capture': True, 'audio_play': True, 'device_events': 'adb',
                 'asr': False, 'speaker_attribution': False, 'verified_search_body_event': False,
-                'playback_backend': type(self.audio.player).__name__ if isinstance(self.audio, PcmAudio) else 'injected'}
+                'playback_backend': getattr(self.audio, 'backend_name', 'injected')}
 
     def prepare(self, params, output):
         output.parent.mkdir(parents=True, exist_ok=True)

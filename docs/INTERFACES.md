@@ -36,6 +36,8 @@ python qa.py run cases/voice-smoke.yaml --mode http --adapter-url http://127.0.0
 6. 可选 `POST …/analyze`；未配置分析器会明确阻塞。外部分析器也可以直接返回 analysis schema，由 `import-analysis` 导入本地证据包。
 7. 生成回执，`verify` 检查完整性，`record` 登记到 Git，再 commit/push 触发 hook。
 
+原生音频运行在独立子进程的主线程，通过私有JSON行IPC接受start/play/stop；HTTP请求线程不直接操作驱动。每次驱动操作有超时，超时会回收子进程并保留不完整采集。
+
 一个服务同时只允许一个采集会话。租约为 180 秒，防止客户端丢失后无限录音；单个等待/观察最多 60 秒。租约到期会收尾，正在执行的有界调用可能使收尾延后最多一个调用。长批次按独立用例拆分；当前未实现续租。
 
 ## 请求与返回
@@ -107,6 +109,8 @@ python qa.py run cases/voice-smoke.yaml --mode http --adapter-url http://127.0.0
 ```json
 {"files":[{"path":"audio/mic_raw.wav","sha256":"…","base64":"…"},{"path":"events.jsonl","sha256":"…","base64":"…"}]}
 ```
+
+收尾失败仍返回已取得的证据，包含`capture_error`和`audio.valid_capture=false`，会话关闭，不能记为通过。
 
 调用方要限制相对路径、验证 SHA256，保留原始音频。`valid_capture` 只说明录到了非全零数据且未记录采集错误，不证明录到了指定设备的声音。日志在采集时脱敏，文件名明确为 `device_redacted.log`，不是未处理的原始日志。
 

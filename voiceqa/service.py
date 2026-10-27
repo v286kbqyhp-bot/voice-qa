@@ -43,16 +43,23 @@ class AdapterServer(ThreadingHTTPServer):
             with self.lock:
                 for session in self.sessions.values():
                     if not session['stopped'] and time.monotonic() > session['deadline']:
-                        session['result'] = session['adapter'].finish()
-                        session['stopped'] = True
+                        self.finish_session(session)
+
+    def finish_session(self, session):
+        try:
+            session['result'] = session['adapter'].finish()
+        except Exception as exc:
+            session['result'] = {'capture_error': type(exc).__name__, 'audio':
+                                 {'valid_capture': False, 'errors': ['capture_finalize_failed']}}
+        finally:
+            session['stopped'] = True
 
     def server_close(self):
         self.closed.set()
         with self.lock:
             for session in self.sessions.values():
                 if not session['stopped']:
-                    session['adapter'].finish()
-                    session['stopped'] = True
+                    self.finish_session(session)
         super().server_close()
 
 
@@ -185,8 +192,7 @@ class Handler(BaseHTTPRequestHandler):
                 raise ValueError('seconds must be 0..60')
             return 200, adapter.observe(seconds)
         if not session['stopped']:
-            session['result'] = adapter.finish()
-            session['stopped'] = True
+            self.server.finish_session(session)
         files = []
         for p in session['output'].rglob('*'):
             if p.is_file():

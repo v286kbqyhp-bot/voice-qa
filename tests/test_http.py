@@ -73,6 +73,16 @@ class ApiTests(unittest.TestCase):
         with self.assertRaisesRegex(Blocked, 'not configured'):
             self.client.request('POST', f'/v1/sessions/{sid}/analyze', {})
 
+    def test_stop_failure_preserves_partial_result_and_closes_session(self):
+        sid = self.client.request('POST', '/v1/sessions', {'config': {}})['session_id']
+        def failed_finish():
+            raise Blocked('driver unavailable')
+        self.server.sessions[sid]['adapter'].finish = failed_finish
+        result = self.client.request('POST', f'/v1/sessions/{sid}/stop', {})
+        self.assertFalse(result['audio']['valid_capture'])
+        self.assertEqual(result['capture_error'], 'Blocked')
+        self.assertTrue(self.server.sessions[sid]['stopped'])
+
     def test_host_paths_are_not_accepted(self):
         with self.assertRaises(Blocked):
             self.client.request('POST', '/v1/assets', {'file': '/etc/passwd'})

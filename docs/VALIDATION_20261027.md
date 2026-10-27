@@ -32,8 +32,8 @@
 - 参考服务支持Token鉴权、单会话资源锁、180秒采集租约、同request_id防重复播放、stop重复调用、证据SHA256和路径约束。
 - OpenAPI输入校验在实际服务中执行；测试核对响应结构，不只交付静态文档。
 - 离线回归覆盖YAML重复键/危险标签、未绑定旧用例、旧事件/错trace、超时停止、重试历史、证据篡改、分析音频指纹/时间范围、HTTP鉴权与幂等、暂存快照隔离、ADB远端引用和活动版本读取。
-- 本机28项回归通过。pre-commit实际拒绝了无效的暂存YAML，即使工作区已有正确版本；pre-push实际拒绝了包含无效用例的revision；正常提交通过hook，post-commit登记了提交SHA。原始hook输出保存在本机`.local/negative-precommit.txt`与`.local/negative-prepush.txt`。
-- 跨平台CI由推送触发，结果见仓库Actions；其范围是离线流程，不包含Windows真机音频验收。
+- 本机回归通过（最终数量见validation-summary.json）。pre-commit实际拒绝了无效的暂存YAML，即使工作区已有正确版本；pre-push实际拒绝了包含无效用例的revision；正常提交通过hook，post-commit登记了提交SHA。原始hook输出保存在本机`.local/negative-precommit.txt`与`.local/negative-prepush.txt`。
+- 代码提交3fea8ba的Mac/Windows/Linux离线CI均通过：[Actions运行](https://github.com/v286kbqyhp-bot/p003-voice-qa/actions/runs/40464408724)。后续修复由最新推送继续验证；CI不包含Windows真机音频验收。
 - 已固定UTF-8读写与Git LF检出，源附件保留原字节，避免Windows默认编码/CRLF破坏用例和证据指纹。
 
 ## 尚未完成
@@ -51,3 +51,11 @@
 - 代码提交后的8步骤回放：`records/20261027T145815-45e39679/`，执行completed，产品not_applicable。
 - 原始旧YAML的缺绑定运行：`records/20261027T145815-16af4723/`，执行blocked，所有依赖步骤保持未执行。
 - 阶段交付路径与限制：`delivery.yaml`；接口：`docs/INTERFACES.md`、`docs/openapi.yaml`。
+
+## 原生HTTP音频补充验证
+
+- `20261027T150041-2547bda0`：HTTP实际播放/采集完成，收尾阻塞；终止本次测试进程，保留未完成录音和失败摘要。
+- `20261027T150402-f4d4aee1`：单独音频线程仍在sounddevice.stop阻塞，30秒超时返回失败；这一方案未作为最终实现保留。
+- 最终改为独立音频子进程的主线程管理驱动，私有JSON行IPC有超时与进程回收。
+- `20261027T150638-00d66453`：真实HTTP三步骤完整完成，取回原始WAV并验证SHA256；94830采样/16000Hz、峰值3140、无采集错误。产品仍needs_review，不据此判断真机回答。
+- 同时验证了HTTP收尾失败返回部分证据与无效标记，避免丢失失败记录。

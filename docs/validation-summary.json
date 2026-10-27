@@ -2,7 +2,7 @@
   "date": "2026-10-27",
   "timezone": "Asia/Shanghai",
   "unit_tests": {
-    "total": 28,
+    "total": 31,
     "result": "passed_on_macos"
   },
   "git_hooks": {
@@ -17,7 +17,14 @@
     "afplay_probe_sample_rate": 16000,
     "afplay_probe_peak": 12718,
     "capture_errors": [],
-    "speaker_attribution": "unverified"
+    "speaker_attribution": "unverified",
+    "native_http": {
+      "run_id": "20261027T150638-00d66453",
+      "execution": "completed",
+      "audio_downloaded_and_sha256_verified": true,
+      "frames": 94830,
+      "errors": []
+    }
   },
   "real_device": {
     "installed_version": "319 / 1.2.2-canary.305",
@@ -25,5 +32,15 @@
     "execution": "blocked_waiting_for_input_ready",
     "product_acceptance": "not_completed"
   },
-  "ci": "See repository Actions for current cross-platform offline result"
+  "ci": {
+    "source_commit": "3fea8ba",
+    "os": [
+      "macos",
+      "windows",
+      "linux"
+    ],
+    "result": "success",
+    "url": "https://github.com/v286kbqyhp-bot/p003-voice-qa/actions/runs/40464408724",
+    "latest_revision": "see latest Actions"
+  }
 }
