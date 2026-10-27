@@ -15,6 +15,29 @@ class AudioIO(Protocol):
     def stop(self) -> dict: ...
 
 
+class AudioActivity(Protocol):
+    def levels(self) -> dict:
+        """Optional RMS, updated_monotonic_s, short history and errors; no speaker identity."""
+        ...
+
+
+class InteractionScheduler(Protocol):
+    """Optional local Adapter extension; HTTP v1.0 does not expose these methods."""
+    def wait_interaction(self, kind: str, params: dict) -> dict: ...
+    def session_status(self) -> dict: ...
+    def play_cleanup(self, asset: dict, params: dict) -> dict: ...
+
+
+class SemanticReviewer(Protocol):
+    def review(self, context: dict, events: list[dict]) -> dict:
+        """Integration contract only; return verdict, reasons, evidence and limitations.
+
+        Logs do not establish audible speech. No provider is configured by default.
+        Model inference must not hold the audio scheduler's timing loop.
+        """
+        ...
+
+
 class AudioPlayer(Protocol):
     def play(self, asset: dict, output_device=None) -> dict:
         """Play prebuilt audio; return backend observation, never acoustic proof."""

@@ -1,0 +1,27 @@
+schema_version: 1
+suite_id: R19-LIVE-A-H
+policy:
+  diagnostic_repeats: 1
+  continue_after_failure: true
+cases:
+  - id: A
+    file: ../../cases/r19-live/A.yaml
+    prepared_assets: '{{prepared.A}}'
+  - id: B
+    file: ../../cases/r19-live/B.yaml
+    prepared_assets: '{{prepared.B}}'
+  - id: C_H
+    file: ../../cases/r19-live/C_H.yaml
+    prepared_assets: '{{prepared.C_H}}'
+  - id: D
+    file: ../../cases/r19-live/D.yaml
+    prepared_assets: '{{prepared.D}}'
+  - id: E
+    file: ../../cases/r19-live/E.yaml
+    prepared_assets: '{{prepared.E}}'
+  - id: F
+    file: ../../cases/r19-live/F.yaml
+    prepared_assets: '{{prepared.F}}'
+  - id: G
+    file: ../../cases/r19-live/G.yaml
+    prepared_assets: '{{prepared.G}}'

@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "run_id": "20261027T165620-91ff043f",
+  "case_id": "R19-LIVE-D",
+  "mode": "live",
+  "execution_status": "blocked",
+  "product_status": "needs_review",
+  "evidence_status": "audio_and_logs",
+  "steps": [
+    {
+      "step": "wake",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T165620-91ff043f/steps/001-wake.json",
+      "artifact_sha256": "83d4c387ae5346178294929847b1e52af95ccf368154b0a39fafcabcc766f83f"
+    },
+    {
+      "step": "bind_current_wake",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T165620-91ff043f/steps/002-bind_current_wake.json",
+      "artifact_sha256": "f3ebff61d035e40f4e222819bfd8756bd3ace019816b1c1f97fee7a75a83e5d0"
+    },
+    {
+      "step": "input_ready",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T165620-91ff043f/steps/003-input_ready.json",
+      "artifact_sha256": "22e7e4db37505037d21cf354fc84e30dd0ee1be7813d8d6eed9d2bb0169e506e"
+    },
+    {
+      "step": "D_query",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T165620-91ff043f/steps/004-D_query.json",
+      "artifact_sha256": "ce591a899bb92d202632b87a03f44525eee96bf40a5b5646a660b75b5d5f9add"
+    },
+    {
+      "step": "D_body_active",
+      "kind": "wait_speech",
+      "execution_status": "blocked",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T165620-91ff043f/steps/005-D_body_active.json",
+      "artifact_sha256": "12035e8ff6d1beaa226f12bb7cc3f8b3d1829a74b3ba97d6921a57bcd5047977"
+    },
+    {
+      "step": "D_interrupt",
+      "kind": "audio_play",
+      "execution_status": "not_executed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T165620-91ff043f/steps/006-D_interrupt.json",
+      "artifact_sha256": "6755a8421974af30b329b3c6618fbe6ecae31ca2cf89c05ff8f18067cbe1b834"
+    },
+    {
+      "step": "D_chat_done",
+      "kind": "wait_output",
+      "execution_status": "not_executed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T165620-91ff043f/steps/007-D_chat_done.json",
+      "artifact_sha256": "779233147e5ff5828b2aac6467eec27e6dc41ec7ab7028b429e19d1ae5885523"
+    },
+    {
+      "step": "D_resume",
+      "kind": "audio_play",
+      "execution_status": "not_executed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T165620-91ff043f/steps/008-D_resume.json",
+      "artifact_sha256": "3f3318b0e902f437d81079aff98a9f363b5000ff049c0f62921ecbc3ee20fadc"
+    },
+    {
+      "step": "D_resume_done",
+      "kind": "wait_output",
+      "execution_status": "not_executed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T165620-91ff043f/steps/009-D_resume_done.json",
+      "artifact_sha256": "6f767ab15a613d0402da6bfe44d2e436bba0c9c8d0160b6d853883a1a13efe7e"
+    },
+    {
+      "step": "cleanup_exit",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T165620-91ff043f/steps/010-cleanup_exit.json",
+      "artifact_sha256": "37854bbf1e6718a5f13bcc2161e73de0365ecd2ab4f28936cc0e57d0721c559e"
+    },
+    {
+      "step": "cleanup_closed",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T165620-91ff043f/steps/011-cleanup_closed.json",
+      "artifact_sha256": "ac48d7232c8885b10882404be4035a2272697704896d58c2171128cdd22cc321"
+    }
+  ],
+  "local_bundle_integrity_sha256": "f641a9b1d1797c3a88a26a511df390cce73096a87ac45ff3d65d94ad33cae0c8",
+  "source_sha256": "1caab7154ed0592bdb66d8e6297625018838f21cec8f69513b472d0eb100d772",
+  "local_evidence_index": "runs/20261027T165620-91ff043f/evidence_index.md",
+  "raw_evidence": "kept_local_not_in_git"
+}

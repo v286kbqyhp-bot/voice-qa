@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import array
 import base64
+from collections import deque
 import json
 from pathlib import Path
 import os
@@ -82,6 +83,7 @@ class PcmAudio:
         self.errors = []
         self.frames = 0
         self.peak = 0
+        self.level_history=deque(maxlen=600)
         self.blocks = queue.Queue(maxsize=1024)
         self.wave = wave.open(str(output), 'wb')
         self.wave.setparams((1, 2, self.rate, 0, 'NONE', 'not compressed'))
@@ -97,6 +99,8 @@ class PcmAudio:
                     self.frames += len(block) // 2
                     values = array.array('h', block)
                     self.peak = max(self.peak, max(map(abs, values), default=0))
+                    rms=(sum(v*v for v in values)/max(1,len(values)))**0.5
+                    self.level_history.append((time.monotonic(),round(rms,2)))
             except Exception as exc:
                 self.errors.append(type(exc).__name__)
 
@@ -142,6 +146,12 @@ class PcmAudio:
         return {'frames': self.frames, 'peak': self.peak, 'sample_rate': self.rate,
                 'errors': self.errors, 'valid_capture': bool(self.frames and self.peak and not self.errors),
                 'speaker_attribution': 'unverified', 'physical_onset_timing': 'unverified'}
+
+    def levels(self):
+        history=list(self.level_history)
+        recent=[rms for stamp,rms in history if time.monotonic()-stamp<0.18]
+        return {'rms':sum(recent)/max(1,len(recent)),'updated_monotonic_s':history[-1][0] if history else 0,
+                'history':history[-400:],'frames':self.frames,'errors':list(self.errors)}
 
 
 class ProcessAudio:
@@ -195,6 +205,9 @@ class ProcessAudio:
     def play(self, asset):
         return self._call('play', asset)
 
+    def levels(self):
+        return self._call('levels')
+
     def stop(self):
         try:
             return self._call('stop')
@@ -237,10 +250,26 @@ def parse_log(line, received_s, line_number):
     if not match:
         return None
     tag, body = match.groups()
+    if tag=='GodotBridgePlugin' and 'payload=' in body:
+        try:
+            payload=json.loads(body.split('payload=',1)[1])
+            data=payload.get('data',{})
+            if not isinstance(data,dict) or not str(payload.get('event','')).startswith('voice.'):
+                return None
+            fields={k:'[REDACTED]' if re.search(r'token|password|secret|authorization|credential',k,re.I)
+                    else redact(str(v).lower() if isinstance(v,bool) else str(v))
+                    for k,v in data.items() if isinstance(v,(str,int,float,bool))}
+            return {'event':payload['event'],'tag':tag,'trace':fields.get('trace_id'),'fields':fields,
+                    'device_timestamp_ms':payload.get('ts_ms'),'event_id':payload.get('event_id'),
+                    'received_monotonic_s':received_s,'raw_line':line_number,'evidence_layer':'device_log'}
+        except (ValueError,TypeError,AttributeError):
+            return None
     fields = dict(re.findall(r'\b([a-z_]+)=([A-Za-z0-9_.:-]+)', body))
     fields = {k:'[REDACTED]' if re.search(r'token|password|secret|authorization|credential',k,re.I) else redact(v)
               for k,v in fields.items()}
     event = fields.get('state') or fields.get('action') or fields.get('event')
+    if event is None and body.startswith(('remote_audio ','control ','worker_playout ')):
+        event=body.split(' ',1)[0]
     if not event:
         return None
     # Names reflect literal logs. No inferred search-body or acoustic events.
@@ -328,7 +357,8 @@ class AdbEvents:
 def match_event(event, params, trace=None):
     return (event['event'] in [params['event'],*params.get('alternative_events',[])]
             and (not params.get('same_trace') or trace is not None and event.get('trace') == trace)
-            and all(event.get('fields', {}).get(k) == str(v) for k, v in params.get('where', {}).items()))
+            and all(event.get('fields', {}).get(k) == (str(v).lower() if isinstance(v,bool) else str(v)) for k, v in params.get('where', {}).items())
+            and (not params.get('text_contains_any') or any(x in event.get('fields',{}).get('text','') for x in params['text_contains_any'])))
 
 
 def rejection_reason(event, params, trace=None):
@@ -362,12 +392,16 @@ class NativeAdapter(Observable):
         self.recording = False
         self.logging = False
         self.cursor = 0
+        self.turn_floor=0
+        self.last_play_end=0
+        self.sound_threshold=80
 
     def capabilities(self):
         return {'api_version': '1.0', 'adapter': 'native', 'tts': self.tts is not None,
                 'audio_capture': True, 'audio_play': True, 'device_events': 'adb',
                 'asr': False, 'speaker_attribution': False, 'verified_search_body_event': False,
                 'event_alternatives': True,
+                'interaction_wait': callable(getattr(type(self.audio),'levels',None)),
                 'playback_backend': getattr(self.audio, 'backend_name', 'injected')}
 
     def prepare(self, params, output):
@@ -394,6 +428,15 @@ class NativeAdapter(Observable):
             metadata['audio'] = self.audio.start(output / 'audio/mic_raw.wav', config)
             self.recording = True
             self.anchor = time.monotonic()
+            if callable(getattr(type(self.audio),'levels',None)):
+                samples=[]
+                for _ in range(6):
+                    time.sleep(0.1)
+                    samples.append(self.audio.levels()['rms'])
+                samples.sort()
+                self.sound_threshold=max(65,min(400,samples[len(samples)//2]*2.5+30))
+                metadata['sound_activity_threshold']=self.sound_threshold
+                metadata['speaker_attribution']='unverified; activity assists scheduling only'
             return metadata
         except BaseException:
             if self.logging:
@@ -406,7 +449,10 @@ class NativeAdapter(Observable):
             raise Blocked('continuous recording is not running')
         if self.logging:
             self.logs.healthy()
-        return self.audio.play(asset)
+        self.turn_floor=time.monotonic()
+        result=self.audio.play(asset)
+        self.last_play_end=time.monotonic()
+        return result
 
     def wait_event(self, params):
         if params.get('require_audible_device_speech'):
@@ -425,6 +471,8 @@ class NativeAdapter(Observable):
                 if e['received_monotonic_s'] < self.anchor:
                     self._notify('event_ignored',reason='received_before_run_anchor',received=e)
                     continue
+                if params.get('after_last_play') and e['received_monotonic_s']<self.turn_floor:
+                    continue
                 if match_event(e, params, self.trace):
                     if params.get('bind_trace'):
                         self.trace = e.get('trace')
@@ -434,6 +482,40 @@ class NativeAdapter(Observable):
             time.sleep(0.02)
         self._notify('wait_timeout',expected=params,timeout_s=timeout,bound_trace=self.trace)
         raise Blocked('execution_timeout: no matching event; not a product deadline failure')
+
+    def wait_interaction(self,kind,params):
+        from .interaction import wait_interaction
+        return wait_interaction(self,kind,params)
+
+    def session_status(self):
+        from .lifecycle import session_status
+        if not self.logging:
+            raise Blocked('device lifecycle observation unavailable')
+        self.logs.healthy()
+        return session_status(self.logs.all_events(), self.trace)
+
+    def play_cleanup(self, asset, params):
+        """Budget the complete file against the device's literal idle countdown."""
+        start=time.monotonic()
+        while time.monotonic()-start<10:
+            lifecycle=self.session_status()
+            if lifecycle['state'] in ('ending','closed','superseded'):
+                return {'action':'no_op','playback_started':False,'lifecycle':lifecycle}
+            countdowns=[e for e in self.logs.all_events() if e['event']=='voice.idle_countdown' and e.get('trace')==self.trace]
+            if countdowns and countdowns[-1]['fields'].get('running')=='true':
+                from .lifecycle import cleanup_budget
+                budget=cleanup_budget(countdowns[-1],time.monotonic(),asset['duration_s'],
+                                      params['idle_finish_before_s'],params.get('startup_budget_s',1))
+                self._notify('cleanup_budget',**budget)
+                if not budget['can_finish_in_budget']:
+                    return {'action':'no_op','playback_started':False,'reason':'cleanup_deadline_missed',
+                            'budget':budget,'lifecycle':lifecycle}
+                result=self.play(asset)
+                return {**result,'budget':budget,'host_playback_finished_in_budget':
+                        result['end_monotonic_s']<=budget['finish_deadline_monotonic_s'],
+                        'physical_onset_and_device_recognition':'not_verified'}
+            time.sleep(.04)
+        raise Blocked('cleanup idle countdown unavailable; cannot guarantee four-second window')
 
     def observe(self, seconds):
         start = time.monotonic()
@@ -536,7 +618,9 @@ class HttpAdapter(Observable):
             raise Blocked(f"adapter {error.get('code')}: {error.get('message')}") from None
 
     def capabilities(self):
-        return self.request('GET', '/v1/capabilities')
+        response=self.request('GET', '/v1/capabilities')
+        # These optional local methods have no HTTP v1.0 transport endpoint.
+        return {**response,'interaction_wait':False}
 
     def prepare(self, params, output):
         params = dict(params)

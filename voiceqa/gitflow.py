@@ -14,6 +14,8 @@ from .runner import verify_bundle
 
 
 def gate(root=ROOT):
+    from .speech_library import validate_library
+    library_assets=validate_library(root/'speech-library')
     cases = list((root / 'cases').rglob('*.yaml'))
     if not cases:
         raise ValueError('no versioned YAML cases')
@@ -56,6 +58,10 @@ def gate(root=ROOT):
     for path in root.rglob('*'):
         relative = path.relative_to(root).parts
         if any(p in {'.git', '.venv', '.local', 'runs', 'batches', '__pycache__'} for p in relative) or not path.is_file():
+            continue
+        if path.resolve() in library_assets:
+            if path.stat().st_size>2_000_000:
+                raise ValueError('speech-library clip exceeds 2 MB: '+path.name)
             continue
         if path.stat().st_size > 2_000_000 or path.suffix.lower() in {'.wav', '.aiff', '.log', '.apk', '.jks', '.pem'}:
             raise ValueError('raw/large evidence must remain outside tracked snapshot: ' + path.name)

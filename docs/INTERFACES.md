@@ -169,3 +169,48 @@ server = AdapterServer(('127.0.0.1', 8765), root, adapter_factory=factory)
 batch.results.cases包含status（not_passed/blocked/pending_review/passed/skipped_dependency/interrupted）、attempts、review_index。诊断复测结果不覆盖初轮，首次not_passed最终始终not_passed。可注入decision(bundle_path, result)返回结构化status/reason/failure_layer；未配置语义判断器时不凭执行完成推断产品通过。用户停止会停止整个队列。
 
 `python qa.py record-suite batches/<batch_id>`验证完整性并仅登记最小Git摘要，原始采证包留本地。Git hook校验最多一次诊断复测，并拒绝把首轮未通过洗成通过。
+
+## Native 可选扩展：交互等待与会话收尾
+
+本节方法是本地 Python 扩展，见 `InteractionScheduler`，尚未映射为 HTTP v1.0 端点。HTTP 适配器不能仅因为服务器是 Native 就宣称支持这些方法；当前用例会在采集前阻塞。其他设备可独立实现同一合同，不必使用 ADB 或 Mac 音频。
+
+| 方法 | 输入 | 返回 |
+|---|---|---|
+| `wait_interaction(kind, params)` | `wait_speech` 或 `wait_output`；role、timeout_s；可选 delay_s、max_elapsed_s、quiet_s、text_contains_any | 原始字幕依据、声音活动阈值、调度触发层；不返回产品 PASS |
+| `session_status()` | 无；使用当前已绑定会话 | state=`unknown/active/ending/closed/superseded`，trace、reason、原始事件依据 |
+| `play_cleanup(asset, params)` | 已准备的资产；idle_finish_before_s、startup_budget_s | 播放起止及预算，或 action=`no_op`、playback_started=false、原因及会话依据 |
+| `AudioActivity.levels()` | 无 | rms、updated_monotonic_s、history=`[[stamp,rms],…]`、errors；单调时钟必须与本地执行器可比较 |
+
+`wait_speech` 联合当前 trace 的字面字幕、worker 状态和麦克风活动；声音段首次活动时间锁定，不随短滚动缓冲向后移动。`wait_output` 联合 final 字幕、非 speaking 状态、稳定静音和远端 PCM 统计作为调度代理。二者都不能证明说话者身份、搜索正文类型、物理打断或播放队列清空。观察到会话提前结束立即返回带实际原因的阻塞，不继续空等。
+
+条件收尾示例，仅支持 cleanup：
+
+```yaml
+cleanup:
+  - kind: audio_play
+    name: cleanup_exit
+    params:
+      text: 不聊了
+      if_session_active: true
+      idle_finish_before_s: 4.0
+      startup_budget_s: 1.0
+  - kind: wait_event
+    name: cleanup_closed
+    params:
+      event: ready_next_wake
+      after_last_play: true
+      if_session_active: true
+      timeout_s: 15
+```
+
+已结束或正在结束的会话跳过多余语音，保留 `idle_timeout` 等真实原因。仍活跃时，Native 等待同 trace 的 `voice.idle_countdown.running=true`，以 `timeout_ms/remaining_ms` 计算空闲第 4 秒之前播完的预算，扣除 WAV 时长与默认 1 秒播放器启动余量；预算不足记录 `cleanup_deadline_missed` 并等待自然关闭。预算基于主机收到的客户端倒计时，不能证明物理起音或设备在第 4 秒前识别了退出词。G 的主动退出测试仍需独立核对 `reason=user_session_exit`，不能用自然超时代替。
+
+## 实时语义评审接入合同
+
+`SemanticReviewer.review(context, events)` 是供其他 Agent 实现的组件合同，当前未配置自动模型服务。Agent 可增量读取同一次运行的 `events.jsonl` 和 `progress.jsonl`，按 `raw_line` 去重，并携带 case/source SHA256、run_id、trace、当前步骤、完整本轮上下文和明确的验收要求。模型输出应至少包含：
+
+```json
+{"verdict":"insufficient_evidence","reason":"待审原因","evidence":[{"raw_line":123,"event":"voice.tts_text_changed"}],"limitations":["仅日志语义；未复听原始录音"]}
+```
+
+verdict 仅用 `consistent/nonconform/insufficient_evidence`。判断需引用实际存在的当前会话事件，缺失话术、任务 ID、声学转写或版本事实时不得补写。日志语义判断与声学 `EvidenceAnalyzer` 分开；模型评审异步进行，不能让模型延迟阻塞毫秒级动作调度。完整用例的判定可经批次 `decision` 回调返回；只提供日志评审意见不能自动视为产品通过。本轮人工驱动的 Agent 日志复核见 `R19_FULL_FLOW_20261027.md`，并不代表后台持续 AI 服务已经部署。

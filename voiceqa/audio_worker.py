@@ -13,7 +13,7 @@ def dispatch(backend, source, target):
             try:
                 request = json.loads(line)
                 method = request['method']
-                if method not in ('start', 'play', 'stop'):
+                if method not in ('start', 'play', 'stop', 'levels'):
                     raise ValueError('unsupported audio command')
                 result = getattr(backend, method)(*request['args'])
                 active = method != 'stop'

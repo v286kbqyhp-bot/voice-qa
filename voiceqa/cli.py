@@ -37,6 +37,19 @@ def main():
     p.add_argument('case',type=Path)
     p.add_argument('--output',type=Path,required=True)
     p.add_argument('--config',type=Path)
+    p=sub.add_parser('library-sync',help='Reuse library speech and generate only missing phrases; never plays audio')
+    p.add_argument('inputs',nargs='*',type=Path)
+    p.add_argument('--library-root',type=Path,default=ROOT/'speech-library')
+    p.add_argument('--config',type=Path)
+    p.add_argument('--adapter-url',help='Optional remote synthesis adapter')
+    p.add_argument('--provider',default='macos_say')
+    p=sub.add_parser('library-prepare',help='Prepare one case entirely from the reusable speech library')
+    p.add_argument('case',type=Path)
+    p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--library-root',type=Path,default=ROOT/'speech-library')
+    p.add_argument('--config',type=Path)
+    p.add_argument('--adapter-url')
+    p.add_argument('--provider',default='macos_say')
     p=sub.add_parser('run-suite')
     p.add_argument('suite',type=Path)
     p.add_argument('--mode',choices=['replay','live','http'],default='replay')
@@ -110,6 +123,17 @@ def main():
             config=load_yaml(args.config) if args.config else {}
             output=prepare_assets(args.case,args.output,NativeAdapter(),config)
             print(json.dumps({'prepared_assets':str(output.resolve()),'playback_started':False},ensure_ascii=False))
+        elif args.command in ('library-sync','library-prepare'):
+            from .speech_library import SpeechLibrary, sync_cases
+            config=load_yaml(args.config) if args.config else {}
+            synthesizer=HttpAdapter(args.adapter_url,os.environ.get('VQA_API_TOKEN')) if args.adapter_url else None
+            library=SpeechLibrary(args.library_root,synthesizer=synthesizer,provider=args.provider)
+            if args.command=='library-sync':
+                inputs=args.inputs or [ROOT/'cases/r19']
+                print(json.dumps(sync_cases(inputs,library,config),ensure_ascii=False))
+            else:
+                output=library.prepare_case(args.case,args.output,config)
+                print(json.dumps({'prepared_assets':str(output.resolve()),'playback_started':False,'source':'speech_library'},ensure_ascii=False))
         elif args.command == 'watch':
             from .live import watch
             try:

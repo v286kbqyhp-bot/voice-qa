@@ -64,6 +64,10 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
             raise Blocked('adapter evidence layer and requested mode do not match')
         if case.get('blockers'):
             raise Blocked('case declares blockers: ' + '; '.join(case['blockers']))
+        if any(s['kind'] in ('wait_speech','wait_output') for s in all_steps) and (
+                not manifest['capabilities'].get('interaction_wait') or
+                not callable(getattr(type(adapter),'wait_interaction',None))):
+            raise Blocked('interaction_wait capability unavailable')
         prepared=json.loads(prepared_assets.read_text(encoding='utf-8')) if prepared_assets else None
         if prepared_assets:
             manifest['prepared_assets_sha256']=digest(prepared_assets)
@@ -92,12 +96,18 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
         for params in params_by_name.values():
             if params.get('alternative_events') and not manifest['capabilities'].get('event_alternatives'):
                 raise Blocked('adapter does not declare event_alternatives support')
+            if params.get('if_session_active') and not callable(getattr(type(adapter),'session_status',None)):
+                raise Blocked('session lifecycle capability unavailable')
+            if params.get('idle_finish_before_s') and not callable(getattr(type(adapter),'play_cleanup',None)):
+                raise Blocked('cleanup deadline capability unavailable')
         unsupported = set(case.get('artifacts', [])) - {'audio', 'logcat', 'timeline'}
         if unsupported:
             raise Blocked('required artifact capability unavailable: ' + ', '.join(sorted(unsupported)))
-        unsupported = set(case.get('requires', {}).get('capabilities', [])) - {'audio_hil'}
+        unsupported = set(case.get('requires', {}).get('capabilities', [])) - {'audio_hil','interaction_wait'}
         if unsupported:
             raise Blocked('required adapter capability unavailable: ' + ', '.join(sorted(unsupported)))
+        if 'interaction_wait' in case.get('requires',{}).get('capabilities',[]) and not manifest['capabilities'].get('interaction_wait'):
+            raise Blocked('interaction_wait capability unavailable')
         cfg = {**config, 'require_device': case.get('requires', {}).get('target', 'real_device') == 'real_device'}
         log.emit('capture_starting',require_device=cfg['require_device'])
         manifest['device'] = adapter.begin(output, cfg)
@@ -109,14 +119,32 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
             record = {'step': step['name'], 'kind': step['kind'], 'index': index,
                       'phase': 'cleanup' if index > len(case['steps']) else 'test',
                       'started_at': now(), 'execution_status': 'running', 'product_status': 'needs_review'}
-            append(output / 'timeline.jsonl', {**record, 'event': 'step_started'})
             params = params_by_name[step['name']]
+            if failure and record['phase']!='cleanup':
+                record.update(execution_status='not_executed',reason=failure)
+                dump(output/'steps'/(f'{index:03d}-'+step['name']+'.json'),record)
+                steps.append(record)
+                log.emit('step_finished',execution_status='not_executed',reason=failure)
+                append(output/'timeline.jsonl',{**record,'event':'step_skipped'})
+                continue
+            append(output / 'timeline.jsonl', {**record, 'event': 'step_started'})
             log.emit('step_started',index=index,kind=step['kind'],params=params)
             try:
-                if step['kind'] == 'audio_play':
-                    record['actual'] = adapter.play(assets[step['name']])
-                    record['text'] = params.get('text', '预制 WAV；文本未提供')
-                    append(output / 'playback.jsonl', {**record, 'asset': 'tts/' + step['name'] + '.wav'})
+                lifecycle = adapter.session_status() if params.get('if_session_active') else None
+                if lifecycle and lifecycle['state']=='unknown':
+                    raise Blocked('cannot condition cleanup on an unbound session')
+                skip_cleanup = lifecycle and (lifecycle['state'] in ('closed','superseded') or
+                    step['kind']=='audio_play' and lifecycle['state']=='ending')
+                if skip_cleanup:
+                    record['actual']={'action':'no_op','playback_started':False,'lifecycle':lifecycle,
+                                      'reason':'session already ending or closed; redundant cleanup skipped'}
+                    log.emit('cleanup_skipped',lifecycle=lifecycle)
+                elif step['kind'] == 'audio_play':
+                    record['actual'] = (adapter.play_cleanup(assets[step['name']],params) if params.get('idle_finish_before_s')
+                                        else adapter.play(assets[step['name']]))
+                    if record['actual'].get('playback_started') is not False:
+                        record['text'] = params.get('text', '预制 WAV；文本未提供')
+                        append(output / 'playback.jsonl', {**record, 'asset': 'tts/' + step['name'] + '.wav'})
                 elif step['kind'] in ('audio_record', 'sleep'):
                     seconds = params.get('seconds', params.get('max_seconds', 1))
                     if not 0 <= seconds <= 60:
@@ -124,6 +152,8 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
                     record['actual'] = adapter.observe(seconds)
                 elif step['kind'] == 'wait_event':
                     record['actual'] = adapter.wait_event(params)
+                elif step['kind'] in ('wait_speech','wait_output'):
+                    record['actual']=adapter.wait_interaction(step['kind'],params)
                 elif step['kind'] == 'expect':
                     contract = params.get('contract')
                     if not isinstance(contract, dict) or contract.get('type') != 'log_event':
@@ -136,19 +166,17 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
             except Blocked as exc:
                 record['execution_status'] = 'blocked'
                 record['reason'] = str(exc)
-                failure = str(exc)
+                failure = failure or str(exc)
             except Exception as exc:
                 record['execution_status'] = 'error'
                 record['reason'] = type(exc).__name__
-                failure = record['reason']
+                failure = failure or record['reason']
             record['ended_at'] = now()
             dump(output / 'steps' / (f'{index:03d}-' + step['name'] + '.json'), record)
             steps.append(record)
             log.emit('step_finished',execution_status=record['execution_status'],product_status=record['product_status'],
                      reason=record.get('reason'),actual=record.get('actual'))
             append(output / 'timeline.jsonl', {**record, 'event': 'step_finished'})
-            if failure:
-                break
     except Blocked as exc:
         failure = str(exc)
         log.emit('execution_blocked',reason=failure)
@@ -216,7 +244,7 @@ def prepare_assets(case_path, output, adapter, config=None):
 
 def render_receipt(output, manifest, results):
     spoken = [s.get('text', s['step']) for s in results['steps']
-              if s['kind'] == 'audio_play' and s['execution_status'] == 'completed']
+              if s['kind'] == 'audio_play' and s['execution_status'] == 'completed' and s.get('actual',{}).get('playback_started') is not False]
     device = manifest.get('device', {})
     device = device.get('metadata', device)
     values = [

@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "batch_id": "20261027T164232-041b5832",
+  "suite_id": "R19-FULL-FLOW-20261027",
+  "mode": "live",
+  "raw_evidence": "kept_local_not_in_git",
+  "batch_integrity_sha256": "6b2371ff53593597146e588e4fe7efaae4702e12e196ba8bf2b277887c24cf33",
+  "cases": [
+    {
+      "id": "A",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261027T164232-d4e0cb78",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "7795e731a7b063114eddd7da6c9a574a082c8f0b4f5fa594e26720d57f17edbf"
+        }
+      ],
+      "review_index": "batches/20261027T164232-041b5832/review/A/review_index.md"
+    },
+    {
+      "id": "B",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261027T164308-b0d4acd0",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "ffe6d8029341a218358b916b31439a82decdd8a10e1c5004fce41b36a5ba62f9"
+        }
+      ],
+      "review_index": "batches/20261027T164232-041b5832/review/B/review_index.md"
+    },
+    {
+      "id": "C_H",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261027T164409-9a4a6f0e",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "adac24c4f90d9f6320eb4bae044d71cdfd4cf19fddb7750364c1f99eeff5c4fb"
+        }
+      ],
+      "review_index": "batches/20261027T164232-041b5832/review/C_H/review_index.md"
+    },
+    {
+      "id": "D",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261027T164508-c17458af",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "2d4e8dac5de51b74346ebcc3b8e2d57c9f5e7223746106a29acbedb139201f94"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261027T164617-a391cafa",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "0095d65912c747fac2fc7e6df1b34d2893571b2f4cb50f1d05041adac2bd59f6"
+        }
+      ],
+      "review_index": "batches/20261027T164232-041b5832/review/D/review_index.md"
+    },
+    {
+      "id": "E",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261027T164725-03bfdc8f",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "6dc8d87a97d867a39fe122746ee82f31b59583900a50f066bb92eabc4bc93142"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261027T164839-0ca166e6",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "4c1fdac02a5fe87023d1b6b8c1f788c59a1dd811af966ff0bb4aa314cb17b1e3"
+        }
+      ],
+      "review_index": "batches/20261027T164232-041b5832/review/E/review_index.md"
+    },
+    {
+      "id": "F",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261027T164950-d59594c9",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "b3824e13f06b7a94fc52995b621df354438cf674042d802371ceb6183be53c46"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261027T165059-d87684cb",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "ffaac9eac10f69c3e7fe7fac24751614a0dd6d86da8df53a71f7658cec01a165"
+        }
+      ],
+      "review_index": "batches/20261027T164232-041b5832/review/F/review_index.md"
+    },
+    {
+      "id": "G",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261027T165208-92c9d2b7",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "ab4086b5a0d45da9b73d7a20a9db7392e3fe1d9abcb84848482caad3450bd537"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261027T165316-22dc3cca",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "84045d01cf374a6d06f9c71331d68c1db42d547191c3bc996d281d31ddf5f1ed"
+        }
+      ],
+      "review_index": "batches/20261027T164232-041b5832/review/G/review_index.md"
+    }
+  ]
+}

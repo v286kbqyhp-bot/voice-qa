@@ -10,7 +10,7 @@ import jsonschema
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-KINDS = {'audio_play', 'audio_record', 'wait_event', 'sleep', 'expect', 'vision_expect'}
+KINDS = {'audio_play', 'audio_record', 'wait_event', 'wait_speech', 'wait_output', 'sleep', 'expect', 'vision_expect'}
 FIELDS = [
     '设备SN末8位 / 当前安装版本', '测试人 / 北京时间开始、结束',
     '用例编号或名称', '实际话术与先后顺序', '实际听到的内容',
@@ -76,15 +76,23 @@ def load_case(path: Path) -> dict:
     if len(set(names)) != len(names):
         raise ValueError('step names must be unique including cleanup')
     allowed_params = {
-        'audio_play': {'file', 'text', 'voice', 'rate'},
+        'audio_play': {'file', 'text', 'voice', 'rate', 'if_session_active', 'idle_finish_before_s', 'startup_budget_s'},
         'audio_record': {'max_seconds'}, 'sleep': {'seconds'},
-        'wait_event': {'event', 'alternative_events', 'where', 'timeout_s', 'bind_trace', 'same_trace', 'require_audible_device_speech'},
+        'wait_event': {'event', 'alternative_events', 'where', 'text_contains_any', 'after_last_play', 'if_session_active', 'timeout_s', 'bind_trace', 'same_trace', 'require_audible_device_speech'},
+        'wait_speech': {'role','text_contains_any','timeout_s','require_final','require_sound','delay_s','max_elapsed_s'},
+        'wait_output': {'role','text_contains_any','timeout_s','quiet_s','fail_if_body_started'},
         'expect': {'contract'}, 'vision_expect': {'contract'},
     }
     for step in data['steps'] + data.get('cleanup', []):
         params = step.get('params', {})
         if set(params) - allowed_params[step['kind']]:
             raise ValueError('unsupported parameters in step: ' + step['name'])
+        if 'if_session_active' in params and (step not in data.get('cleanup',[]) or params['if_session_active'] is not True):
+            raise ValueError('if_session_active=true is only supported in cleanup')
+        if 'idle_finish_before_s' in params and (not params.get('if_session_active') or not 0<params['idle_finish_before_s']<=4):
+            raise ValueError('idle_finish_before_s requires conditional cleanup and must be in (0,4]')
+        if 'startup_budget_s' in params and (not params.get('idle_finish_before_s') or not 0<=params['startup_budget_s']<=2):
+            raise ValueError('startup_budget_s requires a cleanup deadline and must be in [0,2]')
         for key in ('seconds', 'max_seconds', 'timeout_s'):
             if key in params and isinstance(params[key], (int, float)) and not 0 <= params[key] <= 60:
                 raise ValueError('step time limit must be 0..60 seconds')

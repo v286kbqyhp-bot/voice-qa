@@ -102,7 +102,9 @@
               "wait_event",
               "sleep",
               "expect",
-              "vision_expect"
+              "vision_expect",
+              "wait_speech",
+              "wait_output"
             ]
           },
           "name": {
@@ -132,7 +134,9 @@
               "wait_event",
               "sleep",
               "expect",
-              "vision_expect"
+              "vision_expect",
+              "wait_speech",
+              "wait_output"
             ]
           },
           "name": {
