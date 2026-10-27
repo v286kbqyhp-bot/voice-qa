@@ -95,7 +95,7 @@
 
 `tests/test_workflow.py`、`test_live.py`、`test_readiness_and_assets.py` 覆盖编排/资产/监看；`test_audio_ownership.py` 覆盖音频生命周期；`test_interaction.py` 覆盖 JSON 事件、声音 onset 锁定、提前结束、会话隔离、条件 cleanup 与完整音频预算；`test_http.py` 覆盖接口；`test_batch.py` 覆盖复测/依赖；`test_analysis.py` 覆盖分析；`test_speech_library.py` 覆盖语音库；`test_gitflow.py` 覆盖快照/摘要。证明层级以具体断言为准。
 
-当前阶段（2026-10-27）测试集合共 68 项，运行 `python -m unittest discover -s tests -v`；门禁运行 `python qa.py gate`，CI 入口是 `.github/workflows/verify.yaml`。历史报告中的数量是当时快照，不覆盖历史数字。离线测试不是产品声学验收。Native 可选扩展与 SemanticReviewer 合同见 INTERFACES.md；持续 AI 语义服务尚未配置。
+当前阶段（2026-10-27）测试集合共 69 项，运行 `python -m unittest discover -s tests -v`；门禁运行 `python qa.py gate`，CI 入口是 `.github/workflows/verify.yaml`。历史报告中的数量是当时快照，不覆盖历史数字。离线测试不是产品声学验收。Native 可选扩展与 SemanticReviewer 合同见 INTERFACES.md；持续 AI 语义服务尚未配置。
 
 ## 本机运行目录
 

@@ -140,7 +140,7 @@ replay 不播放、不录音、不操作设备，产品结论为 not_applicable�
 | post-commit | 向本机 .local/hook-events.jsonl 登记提交 SHA，不递归提交/推送 |
 | GitHub Actions | Mac/Windows/Linux 离线测试、门禁与 replay smoke |
 
-当前阶段（2026-10-27）的 [离线测试集合](tests/) 有 68 项；维护运行 `python -m unittest discover -s tests -v` 与 `python qa.py gate`，交付检查入口为 [.github/workflows/verify.yaml](.github/workflows/verify.yaml) 和 hooks。历史报告保留各自当时的测试数。hooks 可被用户绕过，远端 CI 是补充证据；尚未配置分支保护。离线 CI 通过不能代表 Windows 真机音频验收通过。
+当前阶段（2026-10-27）的 [离线测试集合](tests/) 有 69 项；维护运行 `python -m unittest discover -s tests -v` 与 `python qa.py gate`，交付检查入口为 [.github/workflows/verify.yaml](.github/workflows/verify.yaml) 和 hooks。历史报告保留各自当时的测试数。hooks 可被用户绕过，远端 CI 是补充证据；尚未配置分支保护。离线 CI 通过不能代表 Windows 真机音频验收通过。
 
 ## 其他设备和 Agent 接口
 
@@ -154,6 +154,8 @@ python qa.py run <case.yaml> --mode http --adapter-url http://127.0.0.1:8765 --p
 服务负责设备路由，调用方负责 YAML、资产和证据。默认只监听本机；局域网用环境变量 VQA_API_TOKEN，不写入 YAML/Git。接口不接收远程 shell 或任意主机路径。一个服务只允许一个采集会话，当前租约 180 秒、单次等待/观察最多 60 秒，尚无续租。跨电脑单调时钟不能直接相减。
 
 现有 HTTP 合同提供资产、播放、wait-event、observe 与 stop。新增 wait_speech/wait_output、session_status 和 play_cleanup 当前由 NativeAdapter 提供；HTTP 客户端尚未提供同等联合等待与条件收尾能力，r19-live 用例应使用 live 模式，远端接入需先补齐相应合同。
+
+HTTP 客户端明确返回 interaction_wait=false；执行器还会在采集前核对真实方法，不能因服务端 Native 的能力声明就把 HTTP 传输当作已支持这些扩展。
 
 组件、能力、JSON 返回、错误、分析导入与时钟边界见 [INTERFACES.md](docs/INTERFACES.md)。其中 SemanticReviewer.review(context, events) 已定义语义评审合同，后台持续 AI 服务尚未配置；本轮 Agent 读取日志复核不能当作实时模型系统已部署。未实现的能力须显式声明，不编造设备识别结果。
 
