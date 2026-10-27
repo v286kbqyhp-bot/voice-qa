@@ -1,0 +1,109 @@
+from __future__ import annotations
+
+import argparse
+import json
+import os
+from pathlib import Path
+import sys
+
+from .adapters import HttpAdapter, NativeAdapter, ReplayAdapter
+from .core import Blocked, ROOT, load_case, load_yaml, resolve
+from .runner import record_bundle, run, verify_bundle
+
+
+def main():
+    parser = argparse.ArgumentParser(description='Portable YAML voice QA and evidence workflow')
+    sub = parser.add_subparsers(dest='command', required=True)
+    for command in ('validate', 'inspect'):
+        p = sub.add_parser(command)
+        p.add_argument('case', type=Path)
+    p = sub.add_parser('run')
+    p.add_argument('case', type=Path)
+    p.add_argument('--mode', choices=['replay', 'live', 'http'], default='replay')
+    p.add_argument('--fixture', type=Path)
+    p.add_argument('--config', type=Path)
+    p.add_argument('--adapter-url')
+    p.add_argument('--output', type=Path, default=Path('runs'))
+    for command in ('verify', 'record'):
+        p = sub.add_parser(command)
+        p.add_argument('bundle', type=Path)
+    p = sub.add_parser('import-analysis')
+    p.add_argument('bundle', type=Path)
+    p.add_argument('analysis', type=Path)
+    sub.add_parser('gate')
+    sub.add_parser('install-hooks')
+    p = sub.add_parser('hook')
+    p.add_argument('name', choices=['pre-commit', 'pre-push', 'post-commit'])
+    p = sub.add_parser('serve')
+    p.add_argument('--host', default='127.0.0.1')
+    p.add_argument('--port', type=int, default=8765)
+    p.add_argument('--config', type=Path)
+    p.add_argument('--root', type=Path, default=Path('.local/adapter-service'))
+    sub.add_parser('doctor')
+    p = sub.add_parser('synthesize')
+    p.add_argument('text')
+    p.add_argument('--output', type=Path, required=True)
+    args = parser.parse_args()
+    try:
+        if args.command in ('validate', 'inspect'):
+            case = load_case(args.case)
+            missing = []
+            for step in case['steps']:
+                try:
+                    resolve(step.get('params', {}), {})
+                except Blocked as exc:
+                    missing.append({'step': step['name'], 'blocker': str(exc)})
+            print(json.dumps({'case_id': case['case_id'], 'schema_valid': True, 'unbound': missing}, ensure_ascii=False))
+        elif args.command == 'run':
+            if args.mode == 'replay':
+                if not args.fixture:
+                    raise ValueError('replay requires --fixture; fixture events are never live evidence')
+                adapter = ReplayAdapter(json.loads(args.fixture.read_text())['events'])
+            elif args.mode == 'http':
+                if not args.adapter_url:
+                    raise ValueError('--adapter-url required')
+                adapter = HttpAdapter(args.adapter_url, os.environ.get('VQA_API_TOKEN'))
+            else:
+                adapter = NativeAdapter()
+            config = load_yaml(args.config) if args.config else {}
+            output, result = run(args.case, adapter, args.mode, config, args.output)
+            print(json.dumps({'bundle': str(output.resolve()), 'execution': result['execution_status'],
+                              'product': result['product_status'], 'reason': result['reason']}, ensure_ascii=False))
+            return 0 if result['execution_status'] == 'completed' else 2
+        elif args.command == 'verify':
+            print(json.dumps(verify_bundle(args.bundle), ensure_ascii=False))
+        elif args.command == 'record':
+            print(record_bundle(args.bundle).resolve())
+        elif args.command == 'import-analysis':
+            from .analysis import import_analysis
+            print(import_analysis(args.bundle, args.analysis).resolve())
+        elif args.command == 'gate':
+            from .gitflow import gate
+            gate()
+        elif args.command == 'install-hooks':
+            from .gitflow import install_hooks
+            install_hooks()
+        elif args.command == 'hook':
+            from .gitflow import hook
+            hook(args.name)
+        elif args.command == 'serve':
+            from .service import AdapterServer
+            config = load_yaml(args.config) if args.config else {}
+            server = AdapterServer((args.host, args.port), args.root, os.environ.get('VQA_API_TOKEN'), config=config)
+            print(f'Adapter API listening on {args.host}:{server.server_port}; lease 180s', flush=True)
+            try:
+                server.serve_forever()
+            except KeyboardInterrupt:
+                pass
+            finally:
+                server.server_close()
+        elif args.command == 'synthesize':
+            print(json.dumps(NativeAdapter().prepare({'text': args.text}, args.output), ensure_ascii=False))
+        elif args.command == 'doctor':
+            import sounddevice as sd
+            print(json.dumps({'python': sys.version.split()[0], 'audio_devices': list(sd.query_devices()),
+                              'adapter': NativeAdapter().capabilities()}, ensure_ascii=False))
+    except (Blocked, ValueError, OSError, json.JSONDecodeError) as exc:
+        print(json.dumps({'error': type(exc).__name__, 'message': str(exc)}, ensure_ascii=False), file=sys.stderr)
+        return 2
+    return 0

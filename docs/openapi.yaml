@@ -1,0 +1,453 @@
+openapi: 3.1.0
+info:
+  title: Portable Voice QA Adapter API
+  version: 1.0.0
+  description: Orchestrator-neutral audio, device events and evidence. Implementation
+    capability is distinct from device readiness. See INTERFACES.md.
+servers:
+- url: http://127.0.0.1:8765
+security:
+- adapterToken: []
+- {}
+paths:
+  /v1/capabilities:
+    get:
+      operationId: getCapabilities
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Capabilities'
+        '400': &id001
+          description: Structured error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401': *id001
+        '404': *id001
+        '409': *id001
+        '413': *id001
+        '500': *id001
+  /v1/assets:
+    post:
+      operationId: prepareAsset
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Asset'
+        '400': *id001
+        '401': *id001
+        '404': *id001
+        '409': *id001
+        '413': *id001
+        '500': *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AssetRequest'
+  /v1/sessions:
+    post:
+      operationId: startSession
+      responses:
+        '201':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Session'
+        '400': *id001
+        '401': *id001
+        '404': *id001
+        '409': *id001
+        '413': *id001
+        '500': *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SessionRequest'
+  /v1/sessions/{session_id}/play:
+    post:
+      operationId: playAsset
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Playback'
+        '400': *id001
+        '401': *id001
+        '404': *id001
+        '409': *id001
+        '413': *id001
+        '500': *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PlayRequest'
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+  /v1/sessions/{session_id}/wait-event:
+    post:
+      operationId: waitEvent
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400': *id001
+        '401': *id001
+        '404': *id001
+        '409': *id001
+        '413': *id001
+        '500': *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WaitRequest'
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+  /v1/sessions/{session_id}/observe:
+    post:
+      operationId: observeSilence
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Observation'
+        '400': *id001
+        '401': *id001
+        '404': *id001
+        '409': *id001
+        '413': *id001
+        '500': *id001
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ObserveRequest'
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+  /v1/sessions/{session_id}/stop:
+    post:
+      operationId: stopSession
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CaptureResult'
+        '400': *id001
+        '401': *id001
+        '404': *id001
+        '409': *id001
+        '413': *id001
+        '500': *id001
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+  /v1/sessions/{session_id}/analyze:
+    post:
+      operationId: analyzeEvidence
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analysis'
+        '400': *id001
+        '401': *id001
+        '404': *id001
+        '409': *id001
+        '413': *id001
+        '500': *id001
+      parameters:
+      - name: session_id
+        in: path
+        required: true
+        schema:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+components:
+  securitySchemes:
+    adapterToken:
+      type: http
+      scheme: bearer
+      description: Required when service configured with VQA_API_TOKEN; mandatory
+        on non-loopback binding.
+  schemas:
+    Error:
+      type: object
+      properties:
+        code: &id002
+          type: string
+        message: *id002
+      required:
+      - code
+      - message
+      additionalProperties: false
+    Capabilities:
+      type: object
+      required:
+      - api_version
+      - adapter
+      properties:
+        api_version:
+          const: '1.0'
+        adapter: *id002
+        tts:
+          type: boolean
+        audio_capture:
+          type: boolean
+        audio_play:
+          type: boolean
+        device_events: *id002
+        asr:
+          type: boolean
+        speaker_attribution:
+          type: boolean
+        verified_search_body_event:
+          type: boolean
+      additionalProperties: true
+    AssetRequest:
+      type: object
+      properties:
+        text:
+          type: string
+          minLength: 1
+          maxLength: 2000
+        voice: *id002
+        rate:
+          type: integer
+        wav_base64:
+          type: string
+          contentEncoding: base64
+      required: []
+      additionalProperties: false
+      oneOf:
+      - required:
+        - text
+        not:
+          required:
+          - wav_base64
+      - required:
+        - wav_base64
+        not:
+          required:
+          - text
+    Asset:
+      type: object
+      required:
+      - asset_id
+      - sha256
+      - duration_s
+      - sample_rate
+      - channels
+      - wav_base64
+      properties:
+        asset_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        sha256:
+          type: string
+          pattern: ^[0-9a-f]{64}$
+        duration_s: &id003
+          type: number
+        sample_rate:
+          type: integer
+        channels:
+          type: integer
+        wav_base64:
+          type: string
+          contentEncoding: base64
+      additionalProperties: true
+    SessionRequest:
+      type: object
+      properties:
+        config:
+          type: object
+          properties:
+            require_device:
+              type: boolean
+              default: true
+            input_device:
+              type:
+              - integer
+              - string
+            output_device:
+              type:
+              - integer
+              - string
+            sample_rate:
+              type: integer
+              default: 16000
+            cloud_sn_suffix: *id002
+            operator: *id002
+          required: []
+          additionalProperties: false
+      required: []
+      additionalProperties: false
+    Session:
+      type: object
+      properties:
+        session_id:
+          type: string
+          pattern: ^[0-9a-f]{32}$
+        metadata:
+          type: object
+          additionalProperties: true
+        lease_s:
+          type: integer
+      required:
+      - session_id
+      - metadata
+      - lease_s
+      additionalProperties: false
+    PlayRequest:
+      type: object
+      properties:
+        asset_id: *id002
+        request_id:
+          type: string
+          minLength: 1
+          maxLength: 100
+      required:
+      - asset_id
+      additionalProperties: false
+    Playback:
+      type: object
+      properties:
+        start_monotonic_s: *id003
+        end_monotonic_s: *id003
+        timing_kind: *id002
+        asset_sha256: *id002
+        backend: *id002
+        output_route: *id002
+      additionalProperties: true
+    WaitRequest:
+      type: object
+      properties:
+        event: *id002
+        timeout_s:
+          type: number
+          exclusiveMinimum: 0
+          maximum: 60
+          default: 30
+        same_trace:
+          type: boolean
+        bind_trace:
+          type: boolean
+        where:
+          type: object
+          additionalProperties: *id002
+        require_audible_device_speech:
+          type: boolean
+      required:
+      - event
+      additionalProperties: false
+    Event:
+      type: object
+      required:
+      - event
+      properties:
+        event: *id002
+        tag: *id002
+        trace:
+          type:
+          - string
+          - 'null'
+        fields:
+          type: object
+        received_monotonic_s: *id003
+        raw_line:
+          type: integer
+        evidence_layer:
+          const: device_log
+      additionalProperties: true
+    ObserveRequest:
+      type: object
+      properties:
+        seconds:
+          type: number
+          minimum: 0
+          maximum: 60
+      required:
+      - seconds
+      additionalProperties: false
+    Observation:
+      type: object
+      required:
+      - observed_s
+      properties:
+        observed_s: *id003
+      additionalProperties: true
+    EvidenceFile:
+      type: object
+      properties:
+        path:
+          type: string
+          description: Relative path confined to evidence root
+        sha256: *id002
+        base64:
+          type: string
+          contentEncoding: base64
+      required:
+      - path
+      - sha256
+      - base64
+      additionalProperties: false
+    CaptureResult:
+      type: object
+      required:
+      - files
+      properties:
+        audio:
+          type: object
+          description: Capture quality, frames, peak and errors; no acoustic semantics
+        files:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceFile'
+      additionalProperties: true
+    Analysis:
+      $ref: ../schema/analysis.schema.json

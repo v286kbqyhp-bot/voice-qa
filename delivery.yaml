@@ -1,0 +1,38 @@
+schema_version: 1
+stages:
+  - id: source_import
+    status: implemented
+    deliverables: [sources/manifest.json, sources/legacy/AI-BARGE-001.yaml, sources/legacy/AI-CMD-001-WAKE.yaml]
+    limitation: 仅导入与本任务相关的两个飞书附件，未同步整个表；旧占位符保持未绑定。
+  - id: yaml_orchestration
+    status: implemented
+    deliverables: [schema/case.schema.json, voiceqa/core.py, voiceqa/runner.py, cases/voice-smoke.yaml]
+    limitation: 只执行已定义原语；未配置语义或物理判定不会自动通过。
+  - id: tts_audio
+    status: partial
+    deliverables: [voiceqa/interfaces.py, voiceqa/adapters.py, cases/host-audio-probe.yaml]
+    limitation: Mac合成与采集实测；Windows SAPI实现尚待Windows真机音频验收；物理起音与说话者归属未校准。
+  - id: device_log_alignment
+    status: partial
+    deliverables: [voiceqa/adapters.py, docs/VALIDATION_20261027.md]
+    limitation: ADB字面事件与trace可采集；没有可靠搜索task/正文/整轮完成映射，不用worker_speaking冒充。
+  - id: http_interfaces
+    status: implemented
+    deliverables: [voiceqa/service.py, voiceqa/interfaces.py, docs/INTERFACES.md, docs/openapi.yaml, tests/test_http.py]
+    limitation: v1使用Base64返回有界证据；大文件分块与续租未实现。
+  - id: asr_speaker_semantics
+    status: blocked
+    deliverables: [schema/analysis.schema.json, docs/INTERFACES.md, voiceqa/analysis.py]
+    limitation: 已定义并可导入分析接口；未配置中文ASR、说话者归属和产品语义判定服务。
+  - id: step_receipt_evidence
+    status: implemented
+    deliverables: [voiceqa/runner.py, tests/test_workflow.py, docs/VALIDATION_20261027.md]
+    limitation: 九字段回执已实现；实际话语等待分析或复听，正式新模板不自动推断。
+  - id: git_delivery
+    status: implemented
+    deliverables: [voiceqa/gitflow.py, .githooks/pre-commit, .githooks/pre-push, .githooks/post-commit, .github/workflows/verify.yaml]
+    limitation: hooks需各机安装；未设远端分支保护；原始录音和日志不上传Git。
+  - id: product_acceptance
+    status: blocked
+    deliverables: [docs/VALIDATION_20261027.md, cases/legacy-barge-unbound.yaml]
+    limitation: 不能用框架自测替代正常搜索、正文打断、重连续讲的声学与语义验收。

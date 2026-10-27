@@ -1,0 +1,81 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Acoustic analysis result v1",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "audio_sha256",
+    "segments",
+    "observations",
+    "limitations"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "audio_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "segments": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "start_s",
+          "end_s",
+          "speaker",
+          "text",
+          "confidence",
+          "overlap"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "start_s": {
+            "type": "number",
+            "minimum": 0
+          },
+          "end_s": {
+            "type": "number",
+            "minimum": 0
+          },
+          "speaker": {
+            "enum": [
+              "tester",
+              "device",
+              "other",
+              "unknown"
+            ]
+          },
+          "text": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "overlap": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "observations": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

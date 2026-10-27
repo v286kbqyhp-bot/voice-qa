@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "run_id": "20261027T144958-a801b991",
+  "case_id": "HOST-AUDIO-PROBE-001",
+  "mode": "live",
+  "execution_status": "completed",
+  "product_status": "needs_review",
+  "evidence_status": "partial",
+  "steps": [
+    {
+      "step": "quiet_before",
+      "kind": "sleep",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T144958-a801b991/steps/001-quiet_before.json",
+      "artifact_sha256": "d78e4b469266454245a9cc33598d9c19150835b8e8cc7c458aad1930f710fc38"
+    },
+    {
+      "step": "probe",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T144958-a801b991/steps/002-probe.json",
+      "artifact_sha256": "ad66fead20c540cdce9e42721beb65dfd2425a4ad597aba90cbfd8bbc9bb9b81"
+    },
+    {
+      "step": "quiet_after",
+      "kind": "audio_record",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261027T144958-a801b991/steps/003-quiet_after.json",
+      "artifact_sha256": "6682d9802c756fdfa1468cfa8cc3217ee9eec709818b0fb733c2c2e84ad3b5b0"
+    }
+  ],
+  "local_bundle_integrity_sha256": "3f2a4ada93631262903b7fdfbdd67a476348229b58e56547e71a03739cdc9089",
+  "source_sha256": "6fa9bf231ca1f7c2fee1f16bfa0e038b1292978da80390be6efe6485f6c87605",
+  "local_evidence_index": "runs/20261027T144958-a801b991/evidence_index.md",
+  "raw_evidence": "kept_local_not_in_git"
+}

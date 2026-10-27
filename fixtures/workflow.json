@@ -1,0 +1,54 @@
+{
+  "description": "synthetic events, not device evidence",
+  "events": [
+    {
+      "id": "old",
+      "at_s": 0.15,
+      "occurred_s": -5,
+      "event": "input_ready",
+      "trace": "old"
+    },
+    {
+      "id": "ready",
+      "at_s": 0.3,
+      "event": "input_ready",
+      "trace": "fixture-session"
+    },
+    {
+      "id": "other",
+      "at_s": 0.6,
+      "event": "worker_speaking",
+      "trace": "old",
+      "fields": {
+        "speaking": "true"
+      }
+    },
+    {
+      "id": "answer-start",
+      "at_s": 0.7,
+      "event": "worker_speaking",
+      "trace": "fixture-session",
+      "fields": {
+        "speaking": "true"
+      }
+    },
+    {
+      "id": "answer-stop",
+      "at_s": 2,
+      "event": "worker_speaking",
+      "trace": "fixture-session",
+      "fields": {
+        "speaking": "false"
+      }
+    },
+    {
+      "id": "exit",
+      "at_s": 3.5,
+      "event": "session_end_requested",
+      "trace": "fixture-session",
+      "fields": {
+        "reason": "user_session_exit"
+      }
+    }
+  ]
+}

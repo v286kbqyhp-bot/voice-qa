@@ -1,0 +1,155 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Legacy-compatible voice QA case v1",
+  "type": "object",
+  "required": [
+    "case_id",
+    "title",
+    "domain",
+    "severity",
+    "steps"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "case_id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,100}$"
+    },
+    "title": {
+      "type": "string",
+      "minLength": 1
+    },
+    "domain": {
+      "type": "string"
+    },
+    "severity": {
+      "enum": [
+        "normal",
+        "important",
+        "critical",
+        "release_blocker"
+      ]
+    },
+    "requirement_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "acceptance_refs": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "source": {
+      "type": "object"
+    },
+    "requires": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "target": {
+          "enum": [
+            "real_device",
+            "host"
+          ]
+        },
+        "capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "blockers": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "preconditions": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "name"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "audio_play",
+              "audio_record",
+              "wait_event",
+              "sleep",
+              "expect",
+              "vision_expect"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,80}$"
+          },
+          "params": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "cleanup": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "name"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "kind": {
+            "enum": [
+              "audio_play",
+              "audio_record",
+              "wait_event",
+              "sleep",
+              "expect",
+              "vision_expect"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9_-]{1,80}$"
+          },
+          "params": {
+            "type": "object"
+          }
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  }
+}

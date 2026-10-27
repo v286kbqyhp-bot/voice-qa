@@ -1,0 +1,9 @@
+.venv/
+.local/
+__pycache__/
+*.py[cod]
+runs/
+config.local.yaml
+.env
+.env.*
+!.env.example

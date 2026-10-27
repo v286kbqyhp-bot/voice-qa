@@ -1,0 +1,35 @@
+case_id: AI-CMD-001-WAKE
+title: 正式语令 CMD-01
+domain: ai
+severity: normal
+requirement_refs:
+- REQ-AI-CMD-001
+tags: []
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+blockers: []
+preconditions:
+- kind: check
+  name: device_online
+steps:
+- kind: audio_play
+  name: command_audio
+  params:
+    file: '{{asset.voice.CMD-01}}'
+- kind: expect
+  name: tool_or_state
+  params:
+    contract: '{{contract.CMD-01.expected}}'
+- kind: vision_expect
+  name: physical_oracle
+  params:
+    contract: '{{contract.CMD-01.physical}}'
+cleanup: []
+artifacts:
+- logcat
+- audio
+- screenshot
+- timeline
+- vision

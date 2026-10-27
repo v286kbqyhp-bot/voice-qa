@@ -1,0 +1,9 @@
+# Copy to config.local.yaml; this local file is Git-ignored.
+operator: 易子钧
+# adb: /absolute/path/to/adb
+# adb_serial: select transport locally; never use as cloud SN
+# cloud_sn_suffix: verified MCU/cloud identity suffix, never derived from ADB
+input_device: 0
+output_device: 1
+sample_rate: 16000
+bindings: {}
