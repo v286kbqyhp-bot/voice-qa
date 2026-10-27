@@ -16,7 +16,7 @@ from voiceqa.service import AdapterServer
 class ApiTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
-        events = json.loads((ROOT / 'fixtures/workflow.json').read_text())['events']
+        events = json.loads((ROOT / 'fixtures/workflow.json').read_text(encoding='utf-8'))['events']
         self.server = AdapterServer(('127.0.0.1', 0), Path(self.temp.name)/'server', 'test-secret',
                                     adapter_factory=lambda: ReplayAdapter(events))
         self.thread = threading.Thread(target=self.server.serve_forever, daemon=True)

@@ -1,0 +1,8 @@
+{
+  "step": "capture",
+  "kind": "audio_record",
+  "index": 2,
+  "execution_status": "not_executed",
+  "product_status": "needs_review",
+  "reason": "unresolved binding: asset.AI-BARGE-001.wav"
+}

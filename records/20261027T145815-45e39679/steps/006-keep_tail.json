@@ -1,0 +1,14 @@
+{
+  "step": "keep_tail",
+  "kind": "sleep",
+  "index": 6,
+  "phase": "test",
+  "started_at": "2026-10-27T14:58:15+08:00",
+  "execution_status": "completed",
+  "product_status": "needs_review",
+  "actual": {
+    "observed_s": 1,
+    "simulated": true
+  },
+  "ended_at": "2026-10-27T14:58:15+08:00"
+}

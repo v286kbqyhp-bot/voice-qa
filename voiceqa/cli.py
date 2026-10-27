@@ -58,7 +58,7 @@ def main():
             if args.mode == 'replay':
                 if not args.fixture:
                     raise ValueError('replay requires --fixture; fixture events are never live evidence')
-                adapter = ReplayAdapter(json.loads(args.fixture.read_text())['events'])
+                adapter = ReplayAdapter(json.loads(args.fixture.read_text(encoding='utf-8'))['events'])
             elif args.mode == 'http':
                 if not args.adapter_url:
                     raise ValueError('--adapter-url required')

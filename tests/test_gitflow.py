@@ -32,7 +32,7 @@ class GitSnapshotTests(unittest.TestCase):
         from unittest.mock import patch
         with patch.dict(os.environ, self.env, clear=True):
             export_snapshot(self.root, output)
-        self.assertEqual((output/'case.yaml').read_text(), 'invalid staged version')
+        self.assertEqual((output/'case.yaml').read_text(encoding='utf-8'), 'invalid staged version')
 
     @unittest.skipIf(os.name == 'nt', 'Windows symlink privileges vary; index-mode guard is platform independent')
     def test_symlink_in_snapshot_is_rejected(self):

@@ -32,7 +32,9 @@
 - 参考服务支持Token鉴权、单会话资源锁、180秒采集租约、同request_id防重复播放、stop重复调用、证据SHA256和路径约束。
 - OpenAPI输入校验在实际服务中执行；测试核对响应结构，不只交付静态文档。
 - 离线回归覆盖YAML重复键/危险标签、未绑定旧用例、旧事件/错trace、超时停止、重试历史、证据篡改、分析音频指纹/时间范围、HTTP鉴权与幂等、暂存快照隔离、ADB远端引用和活动版本读取。
-- Git hook拦截与远端CI的最终结果将在验证后补充；以本仓库提交和Actions实际状态为准。
+- 本机28项回归通过。pre-commit实际拒绝了无效的暂存YAML，即使工作区已有正确版本；pre-push实际拒绝了包含无效用例的revision；正常提交通过hook，post-commit登记了提交SHA。原始hook输出保存在本机`.local/negative-precommit.txt`与`.local/negative-prepush.txt`。
+- 跨平台CI由推送触发，结果见仓库Actions；其范围是离线流程，不包含Windows真机音频验收。
+- 已固定UTF-8读写与Git LF检出，源附件保留原字节，避免Windows默认编码/CRLF破坏用例和证据指纹。
 
 ## 尚未完成
 
@@ -43,3 +45,9 @@
 5. Windows离线流程由CI验证；Windows实际麦克风、扬声器与中文音色仍需该机校准。
 
 没有刷机、安装APK、改灰度开关、改权限、操作马达或向他人发消息。飞书源表未修改。
+
+## 可直接复核的最新记录
+
+- 代码提交后的8步骤回放：`records/20261027T145815-45e39679/`，执行completed，产品not_applicable。
+- 原始旧YAML的缺绑定运行：`records/20261027T145815-16af4723/`，执行blocked，所有依赖步骤保持未执行。
+- 阶段交付路径与限制：`delivery.yaml`；接口：`docs/INTERFACES.md`、`docs/openapi.yaml`。

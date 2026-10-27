@@ -193,7 +193,7 @@ def seal(output):
 
 def verify_bundle(output):
     from .core import safe_path
-    integrity = json.loads((output / 'integrity.json').read_text())
+    integrity = json.loads((output / 'integrity.json').read_text(encoding='utf-8'))
     for name, sha in integrity['files'].items():
         p = safe_path(output, name)
         if not p.is_file() or digest(p) != sha:
@@ -201,8 +201,8 @@ def verify_bundle(output):
     required = ['run_manifest.json', 'cases.yaml', 'results.json', 'receipt.md', 'evidence_index.md', 'transcript.json']
     if any(name not in integrity['files'] for name in required):
         raise ValueError('incomplete evidence manifest')
-    results = json.loads((output / 'results.json').read_text())
-    manifest = json.loads((output / 'run_manifest.json').read_text())
+    results = json.loads((output / 'results.json').read_text(encoding='utf-8'))
+    manifest = json.loads((output / 'run_manifest.json').read_text(encoding='utf-8'))
     case = load_case(output / 'cases.yaml')
     if digest(output / 'cases.yaml') != manifest['source_sha256'] or manifest['run_id'] != results['run_id']:
         raise ValueError('source/run fingerprint mismatch')
@@ -214,9 +214,9 @@ def verify_bundle(output):
         raise ValueError('missing step records')
     for index, step in enumerate(results['steps'], 1):
         p = output / f"steps/{index:03d}-{step['step']}.json"
-        if not p.exists() or json.loads(p.read_text()) != step:
+        if not p.exists() or json.loads(p.read_text(encoding='utf-8')) != step:
             raise ValueError('missing or inconsistent per-step deliverable')
-    if any(field + '：' not in (output / 'receipt.md').read_text() for field in FIELDS):
+    if any(field + '：' not in (output / 'receipt.md').read_text(encoding='utf-8') for field in FIELDS):
         raise ValueError('receipt template fields missing')
     return results
 
@@ -232,7 +232,7 @@ def record_bundle(output, destination=Path('records')):
                 target = dest / p.relative_to(output)
                 target.parent.mkdir(parents=True, exist_ok=True)
                 if p.relative_to(output).as_posix() == 'tts/manifest.json':
-                    data = json.loads(p.read_text())
+                    data = json.loads(p.read_text(encoding='utf-8'))
                     dump(target, {key: {k: v for k, v in asset.items() if k != 'path'} for key, asset in data.items()})
                 else:
                     shutil.copyfile(p, target)

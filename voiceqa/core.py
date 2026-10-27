@@ -64,7 +64,7 @@ def load_yaml(path: Path):
 
 def load_case(path: Path) -> dict:
     data = load_yaml(path)
-    jsonschema.validate(data, json.loads((ROOT / 'schema/case.schema.json').read_text()))
+    jsonschema.validate(data, json.loads((ROOT / 'schema/case.schema.json').read_text(encoding='utf-8')))
     names = [s['name'] for s in data['steps'] + data.get('cleanup', [])]
     if len(set(names)) != len(names):
         raise ValueError('step names must be unique including cleanup')

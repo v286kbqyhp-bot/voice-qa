@@ -1,0 +1,17 @@
+{
+  "step": "ready",
+  "kind": "wait_event",
+  "index": 2,
+  "phase": "test",
+  "started_at": "2026-10-27T14:58:15+08:00",
+  "execution_status": "completed",
+  "product_status": "needs_review",
+  "actual": {
+    "id": "ready",
+    "at_s": 0.3,
+    "event": "input_ready",
+    "trace": "fixture-session",
+    "simulated": true
+  },
+  "ended_at": "2026-10-27T14:58:15+08:00"
+}

@@ -12,7 +12,7 @@ from .runner import seal, verify_bundle
 
 
 def validate_analysis(data, audio: Path):
-    schema = json.loads((ROOT / 'schema/analysis.schema.json').read_text())
+    schema = json.loads((ROOT / 'schema/analysis.schema.json').read_text(encoding='utf-8'))
     jsonschema.validate(data, schema)
     if digest(audio) != data['audio_sha256']:
         raise ValueError('analysis does not refer to this microphone recording')
@@ -30,7 +30,7 @@ def import_analysis(bundle: Path, analysis: Path):
     name = 'analysis/' + uuid.uuid4().hex + '.json'
     dump(bundle / name, data)
     index = bundle / 'analysis_index.json'
-    items = json.loads(index.read_text()) if index.exists() else []
+    items = json.loads(index.read_text(encoding='utf-8')) if index.exists() else []
     items.append({'path': name, 'sha256': digest(bundle / name), 'product_status': 'needs_review'})
     dump(index, items)
     seal(bundle)

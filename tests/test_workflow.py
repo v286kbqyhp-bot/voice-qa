@@ -11,7 +11,7 @@ from voiceqa.runner import record_bundle, run, verify_bundle
 
 class WorkflowTests(unittest.TestCase):
     def fixture(self):
-        return json.loads((ROOT / 'fixtures/workflow.json').read_text())['events']
+        return json.loads((ROOT / 'fixtures/workflow.json').read_text(encoding='utf-8'))['events']
 
     def test_legacy_attachment_preserved_and_unbound(self):
         data = load_case(ROOT / 'sources/legacy/AI-CMD-001-WAKE.yaml')
@@ -141,7 +141,7 @@ class WorkflowTests(unittest.TestCase):
             (p/'logs/secret.log').write_text('private text')
             recorded = record_bundle(p, Path(tmp)/'records')
             self.assertEqual([x.name for x in recorded.iterdir()], ['summary.json'])
-            self.assertNotIn('private text', (recorded/'summary.json').read_text())
+            self.assertNotIn('private text', (recorded/'summary.json').read_text(encoding='utf-8'))
 
 
 if __name__ == '__main__':

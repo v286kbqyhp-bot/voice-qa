@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "files": {
+    "cases.yaml": "02749654b3c4a08c969912ab6e0f378c77ddd052b69080ecae7f50c72d4cd09a",
+    "evidence_index.md": "fe9c413c026afdcfbd0f2606f20f80e9f2c8b13273535161f5bd8a88d799af98",
+    "receipt.md": "34c504aa52692f3a4a2ad48e7c2fb36b1450b12d7710a816e648b6d50283ef11",
+    "results.json": "6bc1c80ff840df08f7a8e738767750d96e74928684272b049100c0b5aa1bd68f",
+    "run_manifest.json": "81fe24c8d7170c64136c56dfa594c675b9b4f0fb7c62fe98f76533561be3e79e",
+    "steps/001-input.json": "aff9b93dcb9253340045477b7beb7f105201c3f8dbaacae4e56a5ea55703cecc",
+    "steps/002-capture.json": "a4753771dbac77cd8f728eff5aef61b2311cb41ef13356b4de2b756ba807fb93",
+    "steps/003-oracle.json": "914d5d678b4768043f5b30b0c7b97be564b5523d2f64e9d8db5e9187b2e6b0cd",
+    "transcript.json": "bd31b413726d16821b144c6274875605b4b6179a93f9f42b6371c6ddc66fe188"
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "date": "2026-10-27",
+  "timezone": "Asia/Shanghai",
+  "unit_tests": {
+    "total": 28,
+    "result": "passed_on_macos"
+  },
+  "git_hooks": {
+    "invalid_staged_yaml_rejected": true,
+    "invalid_push_revision_rejected": true,
+    "normal_commit_checked": true,
+    "post_commit_recorded": true
+  },
+  "audio": {
+    "direct_say_audible_confirmed_by_user": true,
+    "afplay_probe_frames": 95340,
+    "afplay_probe_sample_rate": 16000,
+    "afplay_probe_peak": 12718,
+    "capture_errors": [],
+    "speaker_attribution": "unverified"
+  },
+  "real_device": {
+    "installed_version": "319 / 1.2.2-canary.305",
+    "cloud_sn": "not_verified",
+    "execution": "blocked_waiting_for_input_ready",
+    "product_acceptance": "not_completed"
+  },
+  "ci": "See repository Actions for current cross-platform offline result"
+}

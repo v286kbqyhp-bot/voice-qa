@@ -1,0 +1,64 @@
+schema_version: 1
+case_id: P003-VOICE-SMOKE-001
+title: 语音自动化链路验证（普通问候与退出）
+domain: ai
+severity: normal
+requirement_refs: [AUTOMATION-POC]
+tags: [voice, smoke]
+source:
+  file: sources/technical-design-20261027.md
+  section: '12 / 日志与声音对齐；这是框架验证话术，不替代正式产品用例'
+requires:
+  target: real_device
+  capabilities: [audio_hil]
+blockers: []
+preconditions:
+  - kind: check
+    name: device_online
+steps:
+  - kind: audio_play
+    name: wake
+    params:
+      text: 小可小可
+  - kind: wait_event
+    name: ready
+    params:
+      event: input_ready
+      bind_trace: true
+      timeout_s: 20
+  - kind: audio_play
+    name: greeting
+    params:
+      text: 你好，请用一句话介绍自己。
+  - kind: wait_event
+    name: reply_start
+    params:
+      event: worker_speaking
+      same_trace: true
+      where: {speaking: 'true'}
+      timeout_s: 30
+  - kind: wait_event
+    name: reply_end
+    params:
+      event: worker_speaking
+      same_trace: true
+      where: {speaking: 'false'}
+      timeout_s: 30
+  - kind: sleep
+    name: keep_tail
+    params: {seconds: 1}
+  - kind: audio_play
+    name: exit
+    params:
+      text: 不聊了
+  - kind: expect
+    name: exit_observed
+    params:
+      contract:
+        type: log_event
+        event: session_end_requested
+        same_trace: true
+        where: {reason: user_session_exit}
+        timeout_s: 15
+cleanup: []
+artifacts: [audio, logcat, timeline]

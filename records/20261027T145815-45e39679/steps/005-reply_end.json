@@ -1,0 +1,20 @@
+{
+  "step": "reply_end",
+  "kind": "wait_event",
+  "index": 5,
+  "phase": "test",
+  "started_at": "2026-10-27T14:58:15+08:00",
+  "execution_status": "completed",
+  "product_status": "needs_review",
+  "actual": {
+    "id": "answer-stop",
+    "at_s": 2,
+    "event": "worker_speaking",
+    "trace": "fixture-session",
+    "fields": {
+      "speaking": "false"
+    },
+    "simulated": true
+  },
+  "ended_at": "2026-10-27T14:58:15+08:00"
+}

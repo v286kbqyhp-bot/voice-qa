@@ -1,0 +1,26 @@
+{
+  "wake": {
+    "duration_s": 0.1,
+    "sample_rate": 16000,
+    "channels": 1,
+    "sha256": "2976da01e205a110c9fa41d47659e238a5c6d3c3f3137582f2949853faa201dd",
+    "text": "小可小可",
+    "synthetic_fixture": true
+  },
+  "greeting": {
+    "duration_s": 0.1,
+    "sample_rate": 16000,
+    "channels": 1,
+    "sha256": "2976da01e205a110c9fa41d47659e238a5c6d3c3f3137582f2949853faa201dd",
+    "text": "你好，请用一句话介绍自己。",
+    "synthetic_fixture": true
+  },
+  "exit": {
+    "duration_s": 0.1,
+    "sample_rate": 16000,
+    "channels": 1,
+    "sha256": "2976da01e205a110c9fa41d47659e238a5c6d3c3f3137582f2949853faa201dd",
+    "text": "不聊了",
+    "synthetic_fixture": true
+  }
+}

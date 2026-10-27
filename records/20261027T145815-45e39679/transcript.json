@@ -1,0 +1,5 @@
+{
+  "status": "not_analyzed",
+  "segments": [],
+  "reason": "ASR/speaker attribution provider not configured; no inferred speech"
+}

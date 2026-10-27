@@ -19,7 +19,7 @@ def gate(root=ROOT):
         raise ValueError('no versioned YAML cases')
     for path in cases:
         load_case(path)
-    sources = json.loads((root / 'sources/manifest.json').read_text())
+    sources = json.loads((root / 'sources/manifest.json').read_text(encoding='utf-8'))
     if digest(root / 'sources' / sources['design']['file']) != sources['design']['sha256']:
         raise ValueError('reference design fingerprint changed')
     for name, sha in sources['legacy']['files'].items():
@@ -37,7 +37,7 @@ def gate(root=ROOT):
         if not directory.is_dir():
             continue
         if (directory / 'summary.json').exists():
-            data = json.loads((directory / 'summary.json').read_text())
+            data = json.loads((directory / 'summary.json').read_text(encoding='utf-8'))
             if data['product_status'] != 'needs_review' or data['raw_evidence'] != 'kept_local_not_in_git':
                 raise ValueError('unreviewed live run must not claim acceptance')
         else:
