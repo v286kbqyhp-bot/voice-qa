@@ -11,7 +11,7 @@ class AudioOwnershipTests(unittest.TestCase):
         class Backend:
             def start(self, output, config):
                 calls.append(('start', threading.get_ident()))
-                return {'recording_started': True}
+                return {'recording_started': True, 'device': '中文麦克风'}
             def play(self, asset):
                 calls.append(('play', threading.get_ident()))
                 return {'played': True}
@@ -29,6 +29,7 @@ class AudioOwnershipTests(unittest.TestCase):
         self.assertEqual([name for name,_ in calls],['start','play','stop'])
         self.assertTrue(all(owner==threading.get_ident() for _,owner in calls))
         self.assertEqual(len(output.getvalue().splitlines()),3)
+        self.assertTrue(output.getvalue().isascii())
 
     def test_worker_eof_closes_recording_on_owner_thread(self):
         calls=[]

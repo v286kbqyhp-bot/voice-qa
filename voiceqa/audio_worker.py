@@ -20,7 +20,8 @@ def dispatch(backend, source, target):
                 response = {'result': result}
             except Exception as exc:
                 response = {'error': type(exc).__name__}
-            target.write(json.dumps(response, ensure_ascii=False) + '\n')
+            # ASCII-escaped JSON is independent of Windows pipe code pages.
+            target.write(json.dumps(response, ensure_ascii=True) + '\n')
             target.flush()
             if request.get('method') == 'stop':
                 break
