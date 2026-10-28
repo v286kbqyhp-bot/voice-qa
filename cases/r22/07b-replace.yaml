@@ -1,0 +1,104 @@
+schema_version: 1
+case_id: R22-07B-REPLACE
+title: R22 7b 改查计分
+domain: ai
+severity: important
+source:
+  manifest: sources/r22/manifest.json
+  section: '7'
+  original_sha256: 2ba7a35b281a0f9a271d7570439701fae2d8f5df0428bc599ae48e4aa335ce77
+  scope: 用户选定R22回执；预生成WAV执行，日志/采集/产品结论分别保存
+  execution_choices:
+  - 回执未指定原查询，选用航天新闻；要求ASR明确保留改查，回答新主题不单独算搜索执行证据
+  - R22听到提示后改查，无附加gap门禁
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+  - interaction_wait
+steps:
+- kind: audio_play
+  name: wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: bind_current_wake
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 20
+- kind: wait_event
+  name: input_ready
+  params:
+    event: input_ready
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+    timeout_s: 20
+- kind: audio_play
+  name: query
+  params:
+    text: 帮我查一下最近我国航天的一条新消息。
+- kind: wait_event
+  name: query_asr
+  params:
+    event: voice.asr_text_changed
+    where:
+      is_final: true
+    text_contains_any:
+    - 航天
+    - 消息
+    same_trace: true
+    after_last_play: true
+    timeout_s: 10
+- kind: wait_speech
+  name: search_bridge
+  params:
+    role: ack
+    require_sound: false
+    timeout_s: 35
+- kind: audio_play
+  name: replace
+  params:
+    text: 改查羽毛球单打怎么计分
+- kind: wait_event
+  name: replace_asr
+  params:
+    event: voice.asr_text_changed
+    where:
+      is_final: true
+    text_contains_any:
+    - 改查
+    same_trace: true
+    after_last_play: true
+    timeout_s: 10
+- kind: wait_output
+  name: new_answer
+  params:
+    role: body
+    timeout_s: 40
+    quiet_s: 0.6
+- kind: audio_record
+  name: no_old_topic
+  params:
+    max_seconds: 10
+cleanup:
+- kind: audio_play
+  name: cleanup_exit
+  params:
+    text: 不聊了
+    if_session_active: true
+    idle_finish_before_s: 4.0
+    startup_budget_s: 1.0
+- kind: wait_event
+  name: cleanup_closed
+  params:
+    event: ready_next_wake
+    timeout_s: 15
+    if_session_active: true
+artifacts:
+- audio
+- logcat
+- timeline

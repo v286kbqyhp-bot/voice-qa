@@ -84,8 +84,10 @@ class PcmAudio:
         self.frames = 0
         self.peak = 0
         self.level_history=deque(maxlen=600)
+        self.capture_stopping=threading.Event()
         self.blocks = queue.Queue(maxsize=1024)
-        self.wave = wave.open(str(output), 'wb')
+        self.wave_file=Path(output).open('wb',buffering=0)
+        self.wave = wave.open(self.wave_file, 'wb')
         self.wave.setparams((1, 2, self.rate, 0, 'NONE', 'not compressed'))
         self.anchor = time.monotonic()
 
@@ -95,7 +97,9 @@ class PcmAudio:
                     block = self.blocks.get()
                     if block is None:
                         break
-                    self.wave.writeframesraw(block)
+                    # Keep a readable header even if the native driver hangs
+                    # during shutdown and the child process must be terminated.
+                    self.wave.writeframes(block)
                     self.frames += len(block) // 2
                     values = array.array('h', block)
                     self.peak = max(self.peak, max(map(abs, values), default=0))
@@ -105,6 +109,8 @@ class PcmAudio:
                 self.errors.append(type(exc).__name__)
 
         def capture(data, frames, timing, status):
+            if self.capture_stopping.is_set():
+                raise sd.CallbackStop
             if status:
                 self.errors.append(str(status))
             try:
@@ -123,8 +129,10 @@ class PcmAudio:
             self.blocks.put(None)
             self.writer.join(timeout=5)
             self.wave.close()
+            self.wave_file.close()
             raise
         return {'recording_started': True, 'host_monotonic_s': self.anchor,
+                'capture_implementation_sha256':digest(Path(__file__)),
                 'sample_rate': self.rate, 'channels': 1,
                 'input_device': str(sd.query_devices(config.get('input_device'), 'input')['name']),
                 'output_device': str(sd.query_devices(self.output_device, 'output')['name'])}
@@ -138,11 +146,25 @@ class PcmAudio:
                 'asset_sha256': asset['sha256'], **result}
 
     def stop(self):
-        self.stream.stop()
-        self.stream.close()
+        self.capture_stopping.set()
+        def shutdown():
+            try:
+                self.stream.abort()
+                self.stream.close()
+            except Exception as exc:
+                self.errors.append('capture_shutdown_'+type(exc).__name__)
+        closing=threading.Thread(target=shutdown,daemon=True)
+        closing.start()
+        closing.join(timeout=2)
+        if closing.is_alive():
+            self.errors.append('capture_driver_shutdown_timeout')
         self.blocks.put(None, timeout=5)
         self.writer.join(timeout=10)
-        self.wave.close()
+        if self.writer.is_alive():
+            self.errors.append('capture_writer_shutdown_timeout')
+        else:
+            self.wave.close()
+            if getattr(self,'wave_file',None):self.wave_file.close()
         return {'frames': self.frames, 'peak': self.peak, 'sample_rate': self.rate,
                 'errors': self.errors, 'valid_capture': bool(self.frames and self.peak and not self.errors),
                 'speaker_attribution': 'unverified', 'physical_onset_timing': 'unverified'}
@@ -294,9 +316,12 @@ class AdbEvents:
             serial = devices[0]
         if serial not in devices:
             raise Blocked('select exactly one online device in local config')
+        self.adb=adb
+        self.serial=serial
         package = config.get('package', 'com.futurus.p003.launcher')
         if not re.fullmatch(r'[A-Za-z0-9_.]+', package):
             raise ValueError('invalid package')
+        self.package=package
         package_info = read(['-s', serial, 'shell', 'dumpsys', 'package', package])
         active_path = read(['-s', serial, 'shell', 'pm', 'path', package]).strip()
         version = re.search(r'versionCode=(\d+).*?versionName=([^\s]+)', package_info, re.S)
@@ -341,6 +366,27 @@ class AdbEvents:
     def all_events(self):
         with self.lock:
             return list(self.events)
+
+    def exit_voice(self, trace):
+        """One Android Back navigation, scoped to an active Launcher room."""
+        from .lifecycle import session_status
+        if session_status(self.all_events(),trace)['state']!='active':
+            raise Blocked('UI exit requires the bound room to be active')
+        activity=subprocess.check_output([self.adb,'-s',self.serial,'shell','dumpsys','activity','activities'],text=True,timeout=10)
+        resumed=[s for s in activity.splitlines() if 'mResumedActivity' in s or 'topResumedActivity' in s]
+        if not any(self.package+'/' in s for s in resumed):
+            raise Blocked('UI exit requires Launcher in foreground')
+        screenshots=self.output/'screens';screenshots.mkdir(exist_ok=True)
+        stamp=str(time.monotonic_ns())
+        evidence={}
+        for position in ('before','after'):
+            if position=='after':
+                subprocess.run([self.adb,'-s',self.serial,'shell','input','keyevent','4'],check=True,timeout=10,capture_output=True)
+            target=screenshots/(stamp+'-exit-'+position+'.png')
+            target.write_bytes(subprocess.check_output([self.adb,'-s',self.serial,'exec-out','screencap','-p'],timeout=10))
+            evidence[position]={'file':target.relative_to(self.output).as_posix(),'sha256':__import__('hashlib').sha256(target.read_bytes()).hexdigest()}
+        return {'action':'exit_voice','navigation':'android_back','trace':trace,'command_completed':True,
+                'product_exit_verified':False,'screenshots':evidence,'observed_monotonic_s':time.monotonic()}
 
     def healthy(self):
         if self.error or self.process.poll() is not None:
@@ -400,6 +446,8 @@ class NativeAdapter(Observable):
         return {'api_version': '1.0', 'adapter': 'native', 'tts': self.tts is not None,
                 'audio_capture': True, 'audio_play': True, 'device_events': 'adb',
                 'asr': False, 'speaker_attribution': False, 'verified_search_body_event': False,
+                'search_execution_receipts': False,
+                'device_ui_exit': callable(getattr(type(self.logs),'exit_voice',None)),
                 'event_alternatives': True,
                 'interaction_wait': callable(getattr(type(self.audio),'levels',None)),
                 'playback_backend': getattr(self.audio, 'backend_name', 'injected')}
@@ -495,6 +543,11 @@ class NativeAdapter(Observable):
             raise Blocked('device lifecycle observation unavailable')
         self.logs.healthy()
         return session_status(self.logs.all_events(), self.trace)
+
+    def device_action(self, params):
+        if params.get('action')!='exit_voice' or not self.logging or self.trace is None:
+            raise Blocked('device UI action requires exit_voice and a bound room')
+        return self.logs.exit_voice(self.trace)
 
     def play_cleanup(self, asset, params):
         """Budget the complete file against the device's literal idle countdown."""
@@ -622,7 +675,7 @@ class HttpAdapter(Observable):
     def capabilities(self):
         response=self.request('GET', '/v1/capabilities')
         # These optional local methods have no HTTP v1.0 transport endpoint.
-        return {**response,'interaction_wait':False}
+        return {**response,'interaction_wait':False,'device_ui_exit':False}
 
     def prepare(self, params, output):
         params = dict(params)

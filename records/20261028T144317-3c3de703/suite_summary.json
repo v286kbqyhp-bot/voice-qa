@@ -1,0 +1,38 @@
+{
+  "schema_version": 1,
+  "batch_id": "20261028T144317-3c3de703",
+  "suite_id": "R22-DAILY-REENTRY",
+  "mode": "live",
+  "raw_evidence": "kept_local_not_in_git",
+  "batch_integrity_sha256": "5605566972a0ad3e50ea3adcf3fa861f54c982d25b8ca088de32d70325415fd5",
+  "cases": [
+    {
+      "id": "09a-daily-sports",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T144317-8a6d2fc5",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "2194092b32369558a4215dba82814e8895cf8dd0755acfab82d6075b46490ec9"
+        }
+      ],
+      "review_index": "batches/20261028T144317-3c3de703/review/09a-daily-sports/review_index.md"
+    },
+    {
+      "id": "09b-daily-anime",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T144403-4f8c8e7f",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "47b39417095f62547e32ba9626ae72783b1429d69ce524f693ace36fddaddd17"
+        }
+      ],
+      "review_index": "batches/20261028T144317-3c3de703/review/09b-daily-anime/review_index.md"
+    }
+  ]
+}

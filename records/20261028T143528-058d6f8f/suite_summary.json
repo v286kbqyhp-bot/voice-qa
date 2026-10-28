@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "batch_id": "20261028T143528-058d6f8f",
+  "suite_id": "R22-PROMPT-AND-REENTRY",
+  "mode": "live",
+  "raw_evidence": "kept_local_not_in_git",
+  "batch_integrity_sha256": "9887ba168e53179d98bc821265d4321c10820a4f32105f900da8deb55fbb66f6",
+  "cases": [
+    {
+      "id": "08-reenter-resume",
+      "status": "blocked",
+      "initial_verdict": "blocked",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T143528-b2f78962",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "e2934116592d42cddc7254e3220d1098b39d358659c67d11c38b30399ed191be"
+        }
+      ],
+      "review_index": "batches/20261028T143528-058d6f8f/review/08-reenter-resume/review_index.md"
+    },
+    {
+      "id": "09a-daily-sports",
+      "status": "blocked",
+      "initial_verdict": "blocked",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T143528-1fab6e80",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "3fa1daa04d128ac78ffaa1a59dc26c0d8997eb9131b60af525e30be35e91d6a8"
+        }
+      ],
+      "review_index": "batches/20261028T143528-058d6f8f/review/09a-daily-sports/review_index.md"
+    },
+    {
+      "id": "09b-daily-anime",
+      "status": "blocked",
+      "initial_verdict": "blocked",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T143528-88e33f22",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "39e78337b23501ecd2749a30f4602e6fe41e8b5e3f26d471c7a92a897512b014"
+        }
+      ],
+      "review_index": "batches/20261028T143528-058d6f8f/review/09b-daily-anime/review_index.md"
+    }
+  ]
+}

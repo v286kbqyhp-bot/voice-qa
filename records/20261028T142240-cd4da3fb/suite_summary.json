@@ -1,0 +1,200 @@
+{
+  "schema_version": 1,
+  "batch_id": "20261028T142240-cd4da3fb",
+  "suite_id": "R22-INITIAL-01-07",
+  "mode": "live",
+  "raw_evidence": "kept_local_not_in_git",
+  "batch_integrity_sha256": "a3a3038523b8e0246422559c6b671516010de04f064fe03ddf5f3236e77666a6",
+  "cases": [
+    {
+      "id": "01-chat",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T141931-57f7581d",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "a5daf9d14653accff9b222c996a43d98eb65855afa6e50d2f525c82ecb627e32"
+        }
+      ],
+      "review_index": "batches/20261028T142240-cd4da3fb/review/01-chat/review_index.md"
+    },
+    {
+      "id": "02-background-chat",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T142240-dc979d14",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "47de780e1c757136e81cc4bbfa98dfef99c0c8a7a94b3560b2a0985a5bd3af4b"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261028T142317-e160f5eb",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "0624f292f0fbc58d7ff6d47540a352139a880412847b569ae2404c451cd87c1c"
+        }
+      ],
+      "review_index": "batches/20261028T142240-cd4da3fb/review/02-background-chat/review_index.md"
+    },
+    {
+      "id": "03-word-meaning",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T142409-9a83392c",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "74a53a5b859319620c35e07e118e9489f7279c814b0504e0184dc96646b1dcc9"
+        }
+      ],
+      "review_index": "batches/20261028T142240-cd4da3fb/review/03-word-meaning/review_index.md"
+    },
+    {
+      "id": "04a-thunder",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T142501-71e480df",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "b65c300a1ea7443b39b50c339ed2849c031dd321ce1ac9c5c459d8bbbd0ef753"
+        }
+      ],
+      "review_index": "batches/20261028T142240-cd4da3fb/review/04a-thunder/review_index.md"
+    },
+    {
+      "id": "04b-pikachu",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T142544-5d4686fe",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "d1a71b7973f281d69886f2db38f7b2d797d48f15c0924af7809f0a45b6b0016c"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261028T142644-1f0493d8",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "5f6719d163f726a3bba7e826818499ca95cfb42796e2576023fc3cc8598ca5be"
+        }
+      ],
+      "review_index": "batches/20261028T142240-cd4da3fb/review/04b-pikachu/review_index.md"
+    },
+    {
+      "id": "04c-minecraft",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T142745-065cf7d4",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "6d94abbaf0a1d7d48aa5a5959de6f58356dec2c3d076969255b36d4984771b2c"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261028T142808-e799515a",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "70a5e87accef5fea777571ff5da342075d74474b98f43c85d4b7b066b48fcdca"
+        }
+      ],
+      "review_index": "batches/20261028T142240-cd4da3fb/review/04c-minecraft/review_index.md"
+    },
+    {
+      "id": "05a-weather",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T142912-45baf6b1",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "a9ffaf3066455ea6b39d361c14001d5d7cc9ee835069650d47aaf6467e272ea2"
+        }
+      ],
+      "review_index": "batches/20261028T142240-cd4da3fb/review/05a-weather/review_index.md"
+    },
+    {
+      "id": "05b-news",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T142956-1e917b31",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "dbc8144cec23fc9788084665fb2bb5641a80ed4fdfce0d7727d500d80140254c"
+        }
+      ],
+      "review_index": "batches/20261028T142240-cd4da3fb/review/05b-news/review_index.md"
+    },
+    {
+      "id": "06-pause-resume",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T143028-fccd48a0",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "229a3a3e93ce5bcbfe863711061ef0f87fb515eaf4b4cccd58cb592cff5c0f5b"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261028T143107-713dcb7f",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "09eb877bc58a2c27d20809c26226f37f9883e38209f01556a42da8ec8add3ddd"
+        }
+      ],
+      "review_index": "batches/20261028T142240-cd4da3fb/review/06-pause-resume/review_index.md"
+    },
+    {
+      "id": "07a-cancel",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T143159-bddb7f97",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "a512499fe9987ac0f4bf7ee2e5b00140d65e78b04dfacc894b54337f35f5ad12"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261028T143230-83d1824f",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "685274849fc9e3f4c184f8c358312c3c12f9294400c8583b6665c1581e86ce18"
+        }
+      ],
+      "review_index": "batches/20261028T142240-cd4da3fb/review/07a-cancel/review_index.md"
+    },
+    {
+      "id": "07b-replace",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261028T143307-bd985936",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "f778df122580f27fcca434b97d8f44fb94b0ab4f759a73734e1e6f8aa2a5ed43"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261028T143346-5cc2658c",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "c63be9aeb34357370e51d5865ea5cb8a14b0cc8be8309500a9ea4470439ae4d3"
+        }
+      ],
+      "review_index": "batches/20261028T142240-cd4da3fb/review/07b-replace/review_index.md"
+    }
+  ]
+}

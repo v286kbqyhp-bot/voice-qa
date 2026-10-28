@@ -133,3 +133,9 @@ records/<batch_id>/suite_summary.json
 首批全量本机入口为 `batches/20261027T164232-041b5832/`。其中 A/B 的旧 cleanup 完成并不代表主动退出，实际日志为 idle_timeout；该批次保留原始包，按复核说明解释，不能用后来的执行器修复倒改历史结果。
 
 4秒校准本机证据为 `runs/20261027T170134-d19fb4cd/`，Git 最小摘要为 `records/20261027T170134-d19fb4cd/summary.json`。主机播完约2.456秒且预算标志为true，设备仍idle_timeout，未观察到退出词ASR，不能登记主动退出成功。跨机原始证据可用性与完整结论见最新全流程报告。
+
+## R22 实机验证（2026-10-28）
+
+- 简短结论和录音入口：`docs/R22_DEVICE_VALIDATION_20261028.md`。
+- 用例/语音/接口索引与限制：`docs/R22_AUTOMATION.md`、`cases/r22/`、`plans/r22/`、`sources/r22/manifest.json`。
+- 原始音频日志留本机 `runs/`、`batches/`；Git交付为 `records/20261028*/` 的最小摘要。

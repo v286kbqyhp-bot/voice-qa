@@ -1,0 +1,48 @@
+schema_version: 1
+suite_id: R22-SEARCH-CANARY
+policy:
+  diagnostic_repeats: 1
+  continue_after_failure: true
+cases:
+- id: 01-chat
+  file: ../../cases/r22/01-chat.yaml
+  prepared_assets: '{{prepared.01-chat}}'
+- id: 02-prompt-chat
+  file: ../../cases/r22/02-prompt-chat.yaml
+  prepared_assets: '{{prepared.02-prompt-chat}}'
+- id: 03-word-meaning
+  file: ../../cases/r22/03-word-meaning.yaml
+  prepared_assets: '{{prepared.03-word-meaning}}'
+- id: 04a-thunder
+  file: ../../cases/r22/04a-thunder.yaml
+  prepared_assets: '{{prepared.04a-thunder}}'
+- id: 04b-pikachu
+  file: ../../cases/r22/04b-pikachu.yaml
+  prepared_assets: '{{prepared.04b-pikachu}}'
+- id: 04c-minecraft
+  file: ../../cases/r22/04c-minecraft.yaml
+  prepared_assets: '{{prepared.04c-minecraft}}'
+- id: 05a-location-correction
+  file: ../../cases/r22/05a-location-correction.yaml
+  prepared_assets: '{{prepared.05a-location-correction}}'
+- id: 05b-news-chat-recovery
+  file: ../../cases/r22/05b-news-chat-recovery.yaml
+  prepared_assets: '{{prepared.05b-news-chat-recovery}}'
+- id: 06-pause-resume-observed
+  file: ../../cases/r22/06-pause-resume-observed.yaml
+  prepared_assets: '{{prepared.06-pause-resume-observed}}'
+- id: 07a-cancel
+  file: ../../cases/r22/07a-cancel.yaml
+  prepared_assets: '{{prepared.07a-cancel}}'
+- id: 07b-replace
+  file: ../../cases/r22/07b-replace.yaml
+  prepared_assets: '{{prepared.07b-replace}}'
+- id: 08-reenter-resume
+  file: ../../cases/r22/08-reenter-resume.yaml
+  prepared_assets: '{{prepared.08-reenter-resume}}'
+- id: 09a-daily-sports
+  file: ../../cases/r22/09a-daily-sports.yaml
+  prepared_assets: '{{prepared.09a-daily-sports}}'
+- id: 09b-daily-anime
+  file: ../../cases/r22/09b-daily-anime.yaml
+  prepared_assets: '{{prepared.09b-daily-anime}}'

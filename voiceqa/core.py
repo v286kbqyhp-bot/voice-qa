@@ -10,7 +10,7 @@ import jsonschema
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-KINDS = {'audio_play', 'audio_record', 'wait_event', 'wait_speech', 'wait_output', 'sleep', 'expect', 'vision_expect'}
+KINDS = {'audio_play', 'audio_record', 'wait_event', 'wait_speech', 'wait_output', 'sleep', 'expect', 'vision_expect', 'device_action'}
 FIELDS = [
     '设备SN末8位 / 当前安装版本', '测试人 / 北京时间开始、结束',
     '用例编号或名称', '实际话术与先后顺序', '实际听到的内容',
@@ -80,11 +80,14 @@ def load_case(path: Path) -> dict:
         'audio_record': {'max_seconds'}, 'sleep': {'seconds'},
         'wait_event': {'event', 'alternative_events', 'where', 'text_contains_any', 'after_last_play', 'if_session_active', 'timeout_s', 'bind_trace', 'same_trace', 'require_audible_device_speech'},
         'wait_speech': {'role','phase_role','text_contains_any','timeout_s','require_final','require_sound','delay_s','max_elapsed_s'},
-        'wait_output': {'role','text_contains_any','timeout_s','quiet_s','fail_if_body_started'},
+        'wait_output': {'role','text_contains_any','timeout_s','quiet_s','fail_if_body_started','require_caption'},
         'expect': {'contract'}, 'vision_expect': {'contract'},
+        'device_action': {'action'},
     }
     for step in data['steps'] + data.get('cleanup', []):
         params = step.get('params', {})
+        if step['kind']=='device_action' and params.get('action')!='exit_voice':
+            raise ValueError('device_action only supports exit_voice')
         if set(params) - allowed_params[step['kind']]:
             raise ValueError('unsupported parameters in step: ' + step['name'])
         if 'if_session_active' in params and (step not in data.get('cleanup',[]) or params['if_session_active'] is not True):

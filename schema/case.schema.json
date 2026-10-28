@@ -104,7 +104,8 @@
               "expect",
               "vision_expect",
               "wait_speech",
-              "wait_output"
+              "wait_output",
+              "device_action"
             ]
           },
           "name": {
@@ -136,7 +137,8 @@
               "expect",
               "vision_expect",
               "wait_speech",
-              "wait_output"
+              "wait_output",
+              "device_action"
             ]
           },
           "name": {

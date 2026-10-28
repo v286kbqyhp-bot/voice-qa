@@ -64,6 +64,10 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
             raise Blocked('adapter evidence layer and requested mode do not match')
         if case.get('blockers'):
             raise Blocked('case declares blockers: ' + '; '.join(case['blockers']))
+        if any(s['kind']=='device_action' for s in all_steps) and (
+                not manifest['capabilities'].get('device_ui_exit') or
+                not callable(getattr(type(adapter),'device_action',None))):
+            raise Blocked('device_ui_exit capability unavailable')
         if any(s['kind'] in ('wait_speech','wait_output') for s in all_steps) and (
                 not manifest['capabilities'].get('interaction_wait') or
                 not callable(getattr(type(adapter),'wait_interaction',None))):
@@ -105,11 +109,12 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
         unsupported = set(case.get('artifacts', [])) - {'audio', 'logcat', 'timeline'}
         if unsupported:
             raise Blocked('required artifact capability unavailable: ' + ', '.join(sorted(unsupported)))
-        unsupported = set(case.get('requires', {}).get('capabilities', [])) - {'audio_hil','interaction_wait'}
+        unsupported = set(case.get('requires', {}).get('capabilities', [])) - {'audio_hil','interaction_wait','device_ui_exit'}
         if unsupported:
             raise Blocked('required adapter capability unavailable: ' + ', '.join(sorted(unsupported)))
-        if 'interaction_wait' in case.get('requires',{}).get('capabilities',[]) and not manifest['capabilities'].get('interaction_wait'):
-            raise Blocked('interaction_wait capability unavailable')
+        for optional in ('interaction_wait','device_ui_exit'):
+            if optional in case.get('requires',{}).get('capabilities',[]) and not manifest['capabilities'].get(optional):
+                raise Blocked(optional+' capability unavailable')
         cfg = {**config, 'require_device': case.get('requires', {}).get('target', 'real_device') == 'real_device'}
         log.emit('capture_starting',require_device=cfg['require_device'])
         manifest['device'] = adapter.begin(output, cfg)
@@ -156,6 +161,8 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
                     record['actual'] = adapter.wait_event(params)
                 elif step['kind'] in ('wait_speech','wait_output'):
                     record['actual']=adapter.wait_interaction(step['kind'],params)
+                elif step['kind']=='device_action':
+                    record['actual']=adapter.device_action(params)
                 elif step['kind'] == 'expect':
                     contract = params.get('contract')
                     if not isinstance(contract, dict) or contract.get('type') != 'log_event':

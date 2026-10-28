@@ -218,3 +218,17 @@ verdict 仅用 `consistent/nonconform/insufficient_evidence`。判断需引用�
 ## 2026-10-27 D 阶段分类试验
 
 新增 Native 可选参数 `wait_speech.phase_role`，可由本机用例内容规则或外部 Agent JSONL 提供阶段分类；必须保留非原生来源及当前 run/trace/segment/字幕指纹。分类后仍核对播放状态和声音活动，才能触发预生成输入。不按 worker 事件次数推断阶段，也不将字幕文本等同音频进度。协议、两条分类源及限制见 [PHASE_LABELS.md](PHASE_LABELS.md)，实测见 [D_TRIGGER_VALIDATION_20261027.md](D_TRIGGER_VALIDATION_20261027.md)。短暂播放窗口不得等待会话 Agent 同步返回。
+
+## R22：字幕段校验与退出导航（2026-10-28）
+
+`wait_speech` 对所有字幕触发校验说话段：目标字幕早于当前 `worker_speaking=true` 超过 300ms 时返回 `timing_missed`，禁止旧过渡字幕借用后续正文的说话状态。300ms 是两路日志的关联容差，不是物理声音延时。
+
+新增可选本地接口 `DeviceNavigation.device_action({action: "exit_voice"})`，由 YAML `kind: device_action` 调用。能力键为 `device_ui_exit`。Native/ADB 在已绑定会话仍活跃、Launcher 位于前台时仅发送一次 Android Back，保存动作前后截图及 SHA256，返回 `navigation`、`trace`、`command_completed`、`product_exit_verified:false` 与截图索引。无任意 shell、坐标或按键参数；不支持其他 action。后续步骤仍须核对真实 `session_end_requested reason=android_back` 与 `ready_next_wake`。命令完成不等于退出成功；重新进入使用预生成唤醒音频和新的 hardware trace。
+
+HTTP v1 尚无该导航传输；HttpAdapter 明确屏蔽 `device_ui_exit`，缺能力在采集和播放前阻塞。实现其他设备的 Agent 可按合同提供等效返回首页动作，须保留真实状态、截图和事件依据。
+
+Native 当前声明 `search_execution_receipts:false`。ASR 明确识别“改查”、回复新主题、工具是否执行是三个检查项；缺少搜索任务接单、工具调用或结果来源记录时，搜索执行仍为未验证。提示语、回答正确和回答速度不能替代这些记录。当前测试按用户确认不采用缓存命中解释。
+
+暂停后的“停稳”可显式使用 `wait_output` 的 `require_caption:false`，按当前 trace 的最新非说话状态、当前输入后的时间下限、稳定麦克风静音和 PCM 计数观察，不要求暂停产生一条新字幕。默认仍要求 final 字幕。该快照不依赖 `wait_event` 的消费游标；不能用它声明正式整轮结束。
+
+录音写入采用持续更新 RIFF 长度的无缓冲 WAV，采集停止先阻止新回调，再有界关闭驱动、排空写入队列。`capture_driver_shutdown_timeout` 和 `capture_writer_shutdown_timeout` 保留为采集失败，不能因为 WAV 可播放就记证据完整。`capture_implementation_sha256` 记录子进程采集代码指纹。历史 WAV 的长度修复仅允许创建独立恢复副本并核对 PCM 字节相同；不修改 sealed 原包或补造丢失内容。

@@ -9,7 +9,7 @@ import yaml
 
 from voiceqa.adapters import NativeAdapter, ReplayAdapter, match_event, parse_log
 from voiceqa.core import Blocked
-from voiceqa.interaction import wait_interaction
+from voiceqa.interaction import captions, wait_interaction
 from voiceqa.lifecycle import cleanup_budget, session_status
 from voiceqa.runner import run
 
@@ -20,6 +20,44 @@ def event(name, stamp, trace='current', **fields):
 
 
 class InteractionTests(unittest.TestCase):
+    def test_explicit_pause_quiet_wait_uses_latest_state_without_consumed_caption_event(self):
+        self.clock=[4.0]
+        events=[event('started',1),event('worker_speaking',3.1,speaking='false')]
+        result=self.wait(self.adapter(events,rms=10),'wait_output',{'require_caption':False,'quiet_s':.12,'timeout_s':1})
+        self.assertEqual(result['device_caption_text'],'')
+        self.assertFalse(result['formal_turn_or_queue_completion'])
+        events.append(event('worker_speaking',3.5,speaking='true'))
+        with self.assertRaisesRegex(Blocked,'execution_timeout'):
+            self.wait(self.adapter(events,rms=10),'wait_output',{'require_caption':False,'quiet_s':.12,'timeout_s':.2})
+
+    def test_old_bridge_cannot_borrow_a_later_body_speaking_span(self):
+        self.clock=[6.0]
+        events=[event('started',1),event('worker_speaking',2.1,speaking='true'),
+                event('voice.tts_text_changed',2.5,source='worker',segment_id='bridge',text='我查查。',is_final='true'),
+                event('worker_speaking',3,speaking='false'),event('worker_speaking',5,speaking='true')]
+        for sound in (True,False):
+            with self.subTest(require_sound=sound),self.assertRaisesRegex(Blocked,'earlier speaking span'):
+                self.wait(self.adapter(events),'wait_speech',{'role':'ack','require_sound':sound,'timeout_s':1})
+
+    def test_caption_only_phase_trigger_still_preserves_its_classification_evidence(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            self.clock=[4.0]
+            adapter=self.adapter([event('started',1),event('voice.tts_text_changed',3.0,source='worker',
+                segment_id='bridge',text='看看新闻。',is_final='true')],rms=10)
+            adapter.output=Path(tmp)
+            adapter.phase_rules=[{'id':'news-bridge','role':'search_bridge','any_of':['看看新闻'],'all_of':[],'none_of':[]}]
+            result=self.wait(adapter,'wait_speech',{'role':'any','phase_role':'search_bridge','require_sound':False,'timeout_s':1})
+            self.assertFalse(result['acoustic_verified'])
+            self.assertEqual(result['phase_label']['evidence_kind'],'rule_text_classification')
+            self.assertTrue((adapter.output/'phase_labels.jsonl').exists())
+
+    def test_partial_bridge_role_survives_truncation_only_in_the_same_segment(self):
+        events=[event('voice.tts_text_changed',2.1,source='worker',segment_id='bridge',text='我查查。',is_final='false'),
+                event('voice.tts_text_changed',2.5,source='worker',segment_id='bridge',text='我',is_final='true'),
+                event('voice.tts_text_changed',3,source='worker',segment_id='new',text='宝可梦的主角是莉可。',is_final='false')]
+        self.assertEqual([e['fields']['text'] for e in captions(events,'current',2,'ack')],['我查查。','我'])
+        self.assertEqual([e['fields']['text'] for e in captions(events,'current',2,'body')],['宝可梦的主角是莉可。'])
+
     def adapter(self, events, rms=200):
         class Audio:
             def levels(inner):

@@ -1,0 +1,82 @@
+schema_version: 1
+case_id: R22-05A-WEATHER
+title: R22 5a 天气与位置
+domain: ai
+severity: important
+source:
+  manifest: sources/r22/manifest.json
+  section: '5'
+  original_sha256: 2ba7a35b281a0f9a271d7570439701fae2d8f5df0428bc599ae48e4aa335ce77
+  scope: 用户选定R22回执；预生成WAV执行，日志/采集/产品结论分别保存
+  execution_choices: []
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+  - interaction_wait
+steps:
+- kind: audio_play
+  name: wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: bind_current_wake
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 20
+- kind: wait_event
+  name: input_ready
+  params:
+    event: input_ready
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+    timeout_s: 20
+- kind: audio_play
+  name: query
+  params:
+    text: 帮我查一下今天这里下不下雨，放学适合打球吗？
+- kind: wait_event
+  name: query_asr
+  params:
+    event: voice.asr_text_changed
+    where:
+      is_final: true
+    text_contains_any:
+    - 下雨
+    - 打球
+    - 天气
+    same_trace: true
+    after_last_play: true
+    timeout_s: 10
+- kind: wait_output
+  name: answer_finished
+  params:
+    role: body
+    timeout_s: 40
+    quiet_s: 0.6
+- kind: audio_record
+  name: answer_tail
+  params:
+    max_seconds: 10
+cleanup:
+- kind: audio_play
+  name: cleanup_exit
+  params:
+    text: 不聊了
+    if_session_active: true
+    idle_finish_before_s: 4.0
+    startup_budget_s: 1.0
+- kind: wait_event
+  name: cleanup_closed
+  params:
+    event: ready_next_wake
+    timeout_s: 15
+    if_session_active: true
+artifacts:
+- audio
+- logcat
+- timeline

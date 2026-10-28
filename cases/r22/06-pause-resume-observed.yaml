@@ -1,0 +1,132 @@
+schema_version: 1
+case_id: R22-06-PAUSE-RESUME-OBSERVED
+title: R22 6 插话识别与续讲动作分开核验
+domain: ai
+severity: important
+source:
+  manifest: sources/r22/manifest.json
+  section: '6'
+  original_sha256: 2ba7a35b281a0f9a271d7570439701fae2d8f5df0428bc599ae48e4aa335ce77
+  scope: 用户选定R22回执；预生成WAV执行，日志/采集/产品结论分别保存
+  execution_choices:
+  - 原文未指定查询，选择恐龙灭绝作为可续讲长结果；本地内容规则仅辅助定位正文，并非服务端role或精确进度
+  - 独立验证执行器修复：停稳以最新说话状态、PCM增量和麦克风静音联合快照判断，不重复等待已被ASR等待消耗的事件；原两次记录不变
+  - 本次仅一轮完整动作验证：原话等一下不变，ASR保留实际文字但不要求逐字相等；后续必须核对真实停稳快照，再播放继续。识别偏差和首轮失败不改判。
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+  - interaction_wait
+steps:
+- kind: audio_play
+  name: wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: bind_current_wake
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 20
+- kind: wait_event
+  name: input_ready
+  params:
+    event: input_ready
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+    timeout_s: 20
+- kind: audio_play
+  name: query
+  params:
+    text: 帮我查一下恐龙为什么会灭绝。
+- kind: wait_event
+  name: query_asr
+  params:
+    event: voice.asr_text_changed
+    where:
+      is_final: true
+    text_contains_any:
+    - 恐龙
+    - 灭绝
+    same_trace: true
+    after_last_play: true
+    timeout_s: 10
+- kind: wait_speech
+  name: body_active
+  params:
+    role: body
+    phase_role: search_body
+    require_sound: true
+    delay_s: 0.8
+    timeout_s: 45
+- kind: audio_play
+  name: pause
+  params:
+    text: 等一下
+- kind: wait_event
+  name: pause_asr
+  params:
+    event: voice.asr_text_changed
+    where:
+      is_final: true
+    same_trace: true
+    after_last_play: true
+    timeout_s: 10
+- kind: wait_output
+  name: speaking_stopped
+  params:
+    role: any
+    require_caption: false
+    timeout_s: 10
+    quiet_s: 0.3
+- kind: sleep
+  name: settle
+  params:
+    seconds: 0.4
+- kind: audio_play
+  name: resume
+  params:
+    text: 继续刚才的搜索结果
+- kind: wait_event
+  name: resume_asr
+  params:
+    event: voice.asr_text_changed
+    where:
+      is_final: true
+    text_contains_any:
+    - 继续
+    - 搜索结果
+    same_trace: true
+    after_last_play: true
+    timeout_s: 10
+- kind: wait_output
+  name: resumed_answer
+  params:
+    role: body
+    timeout_s: 40
+    quiet_s: 0.6
+- kind: audio_record
+  name: resume_tail
+  params:
+    max_seconds: 5
+cleanup:
+- kind: audio_play
+  name: cleanup_exit
+  params:
+    text: 不聊了
+    if_session_active: true
+    idle_finish_before_s: 4.0
+    startup_budget_s: 1.0
+- kind: wait_event
+  name: cleanup_closed
+  params:
+    event: ready_next_wake
+    timeout_s: 15
+    if_session_active: true
+artifacts:
+- audio
+- logcat
+- timeline

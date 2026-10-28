@@ -28,6 +28,11 @@ class InteractionScheduler(Protocol):
     def play_cleanup(self, asset: dict, params: dict) -> dict: ...
 
 
+class DeviceNavigation(Protocol):
+    """Optional local extension; action completion is not a verified room exit."""
+    def device_action(self, params: dict) -> dict: ...
+
+
 class SemanticReviewer(Protocol):
     def review(self, context: dict, events: list[dict]) -> dict:
         """Integration contract only; return verdict, reasons, evidence and limitations.

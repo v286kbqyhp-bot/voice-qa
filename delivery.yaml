@@ -123,3 +123,33 @@ stages:
   - docs/PHASE_LABELS.md
   - docs/D_TRIGGER_VALIDATION_20261027.md
   limitation: D本地内容规则已实际触发完整打断语音，但设备没有插话ASR，续讲未执行；独立复测未唤醒。外部会话Agent回写约27秒过窗；两者均非服务端原生role，未部署Worker或修改设备，不能保证50%播放进度。
+
+- id: r22_device_navigation_and_capture_boundaries
+  status: partial
+  deliverables:
+  - voiceqa/adapters.py
+  - voiceqa/interaction.py
+  - voiceqa/runner.py
+  - voiceqa/interfaces.py
+  - schema/case.schema.json
+  - tests/test_device_navigation.py
+  - tests/test_capture_shutdown.py
+  - tests/test_interaction.py
+  - docs/INTERFACES.md
+  limitation: 已实测Android Back关房与截图；旧字幕跨说话段被拒绝；暂停状态快照单测通过但本轮ASR前置未走通。WAV持续可读和驱动有界停止已实现，仍有capture_driver_shutdown_timeout；HTTP未支持导航。
+- id: r22_live_device_validation_20261028
+  status: partial
+  deliverables:
+  - sources/r22/manifest.json
+  - sources/r22/R22-source.redacted.md
+  - cases/r22/01-chat.yaml
+  - cases/r22/08-reenter-resume.yaml
+  - plans/r22/live-suite.yaml
+  - plans/r22/bindings.example.yaml
+  - docs/R22_DEVICE_VALIDATION_20261028.md
+  - docs/R22_AUTOMATION.md
+  - records/20261028T142240-cd4da3fb/suite_summary.json
+  - records/20261028T143950-3b367765/suite_summary.json
+  - records/20261028T144317-3c3de703/suite_summary.json
+  - speech-library/list.yaml
+  limitation: 逐项尝试9组；普通聊天、补播、词义解释有正向日志，成都地点、重进首句、短控制词未闭环；搜索工具/同任务身份与物理听感未验证。36条运行含25次有声动作尝试、2次环境干扰和9次未发声阻塞；6批次最小摘要留Git，原始音频日志仅本机。

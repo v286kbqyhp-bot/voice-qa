@@ -1,0 +1,169 @@
+schema_version: 1
+case_id: R22-08-REENTER-RESUME
+title: R22 8 退出重进后恢复
+domain: ai
+severity: important
+source:
+  manifest: sources/r22/manifest.json
+  section: '8'
+  original_sha256: 2ba7a35b281a0f9a271d7570439701fae2d8f5df0428bc599ae48e4aa335ce77
+  scope: 原话两轮；字幕和PCM时延分开记录，物理听感待复核
+  execution_choices:
+  - 原文未指定长查询，选恐龙灭绝；使用已核对Launcher导航路径Android Back返回首页，不发送伪造退出广播；重新声学唤醒
+  - 跨会话属于本用例必需；记录两次trace、退出与重进主机时间，核对一分钟限制；task_id不可见时不能证明内部同一任务
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+  - interaction_wait
+  - device_ui_exit
+steps:
+- kind: audio_play
+  name: wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: bind_current_wake
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 20
+- kind: wait_event
+  name: input_ready
+  params:
+    event: input_ready
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+    timeout_s: 20
+- kind: audio_play
+  name: query
+  params:
+    text: 帮我查一下恐龙为什么会灭绝。
+- kind: wait_event
+  name: query_asr
+  params:
+    event: voice.asr_text_changed
+    where:
+      is_final: true
+    text_contains_any:
+    - 恐龙
+    - 灭绝
+    same_trace: true
+    after_last_play: true
+    timeout_s: 10
+- kind: wait_speech
+  name: body_active
+  params:
+    role: body
+    phase_role: search_body
+    require_sound: true
+    delay_s: 0.8
+    timeout_s: 45
+- kind: device_action
+  name: first_ui_exit
+  params:
+    action: exit_voice
+- kind: wait_event
+  name: first_exit_requested
+  params:
+    event: session_end_requested
+    where:
+      reason: android_back
+    timeout_s: 10
+- kind: wait_event
+  name: first_closed
+  params:
+    event: ready_next_wake
+    timeout_s: 15
+- kind: sleep
+  name: normal_reentry_delay
+  params:
+    seconds: 5.2
+- kind: audio_play
+  name: reenter_wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: reenter_bind_current_wake
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 20
+- kind: wait_event
+  name: reenter_input_ready
+  params:
+    event: input_ready
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+    timeout_s: 20
+- kind: audio_play
+  name: greeting
+  params:
+    text: 你好
+- kind: wait_event
+  name: greeting_asr
+  params:
+    event: voice.asr_text_changed
+    where:
+      is_final: true
+    text_contains_any:
+    - 你好
+    same_trace: true
+    after_last_play: true
+    timeout_s: 10
+- kind: wait_output
+  name: greeting_reply
+  params:
+    role: body
+    timeout_s: 40
+    quiet_s: 0.6
+- kind: audio_play
+  name: resume
+  params:
+    text: 继续刚才的搜索结果
+- kind: wait_event
+  name: resume_asr
+  params:
+    event: voice.asr_text_changed
+    where:
+      is_final: true
+    text_contains_any:
+    - 继续
+    - 搜索结果
+    same_trace: true
+    after_last_play: true
+    timeout_s: 10
+- kind: wait_output
+  name: resumed_result
+  params:
+    role: body
+    timeout_s: 40
+    quiet_s: 0.6
+- kind: audio_record
+  name: resume_tail
+  params:
+    max_seconds: 5
+cleanup:
+- kind: audio_play
+  name: cleanup_exit
+  params:
+    text: 不聊了
+    if_session_active: true
+    idle_finish_before_s: 4.0
+    startup_budget_s: 1.0
+- kind: wait_event
+  name: cleanup_closed
+  params:
+    event: ready_next_wake
+    timeout_s: 15
+    if_session_active: true
+artifacts:
+- audio
+- logcat
+- timeline

@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "run_id": "20261028T144611-43a61095",
+  "case_id": "R22-05B-NEWS-CHAT-RECOVERY",
+  "mode": "live",
+  "execution_status": "blocked",
+  "product_status": "needs_review",
+  "evidence_status": "audio_and_logs",
+  "steps": [
+    {
+      "step": "wake",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261028T144611-43a61095/steps/001-wake.json",
+      "artifact_sha256": "15abd45c501e1c2b1a99d669f1e9989338fc63374bb455efea06cca2abee4cf8"
+    },
+    {
+      "step": "bind_current_wake",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261028T144611-43a61095/steps/002-bind_current_wake.json",
+      "artifact_sha256": "0a0c9d31bfd7be8b0f85447d25f472c86e46c026957c541988b555e5e128a359"
+    },
+    {
+      "step": "input_ready",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261028T144611-43a61095/steps/003-input_ready.json",
+      "artifact_sha256": "16fda0cbd5dc449f9e358eaef0cac783cfbe365b2c77984e2b6e58a548fc4f44"
+    },
+    {
+      "step": "query",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261028T144611-43a61095/steps/004-query.json",
+      "artifact_sha256": "b499c973e3b5b0f49aef303df419c089c25ae3c9a802af19908a6c9a031478fb"
+    },
+    {
+      "step": "query_asr",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261028T144611-43a61095/steps/005-query_asr.json",
+      "artifact_sha256": "d338a0dda4f85327b7422e0dccc730d78a56970dcc2d0ffdd3e158502bd84aa9"
+    },
+    {
+      "step": "answer_finished",
+      "kind": "wait_output",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261028T144611-43a61095/steps/006-answer_finished.json",
+      "artifact_sha256": "284b20279a4ca203943f406436bdf9ac819042f80e4fb24e8de0cbabacae213a"
+    },
+    {
+      "step": "recovery_chat",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261028T144611-43a61095/steps/007-recovery_chat.json",
+      "artifact_sha256": "31eec774769f1a376f0c8feb989950bdf3d08612d16b7229e01a5cef6072bfb3"
+    },
+    {
+      "step": "recovery_asr",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261028T144611-43a61095/steps/008-recovery_asr.json",
+      "artifact_sha256": "b7c9cbf4bd655824a153ddbd4fae59bd972be91cade87e515ab867d5a6e96dd1"
+    },
+    {
+      "step": "recovery_reply",
+      "kind": "wait_output",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261028T144611-43a61095/steps/009-recovery_reply.json",
+      "artifact_sha256": "8f4482d13fa2d11121cd9aa7da49777898890ca892c089acda8bb7efb67e6134"
+    },
+    {
+      "step": "cleanup_exit",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261028T144611-43a61095/steps/010-cleanup_exit.json",
+      "artifact_sha256": "3d39035165664b5d6bc2b7c3361b088365473d7ce33f13a8a5ee7626804b1bb0"
+    },
+    {
+      "step": "cleanup_closed",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261028T144611-43a61095/steps/011-cleanup_closed.json",
+      "artifact_sha256": "5f500a0687652427514559822dbb7a32ec69253edd1ba692149231aa93d8d515"
+    }
+  ],
+  "local_bundle_integrity_sha256": "c02e0a871b1db5aaa9e1927470c9ade31d65dbdbf8a64ec76981140bd43fc0df",
+  "source_sha256": "06533b9f0d774cf98573441dce658c84de37c29d401b877f13395fa5a29c971b",
+  "local_evidence_index": "runs/20261028T144611-43a61095/evidence_index.md",
+  "raw_evidence": "kept_local_not_in_git"
+}
