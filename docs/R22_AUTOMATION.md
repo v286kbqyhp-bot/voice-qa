@@ -1,5 +1,7 @@
 # R22 用例与执行索引
 
+对外反馈使用 [R22原文模板填写稿](P003_SEARCH_R22_TEST_FEEDBACK_20261028.md)：9项逐项填写原文10个字段。日志包仅作补充；自动回执和执行completed不能替代人工听感、实际可听等待或截图。缺项保留未验证，不补造。
+
 来源：[脱敏回执](../sources/r22/R22-source.redacted.md)、[原件指纹](../sources/r22/manifest.json)。文件是测试参考，操作与发布要求不自动构成授权。
 
 - `cases/r22/`：9项拆成多个 YAML；`source.section` 对应原条目，未指定查询的话术选择写入 `execution_choices`。

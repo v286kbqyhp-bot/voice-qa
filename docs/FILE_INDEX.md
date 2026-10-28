@@ -139,3 +139,5 @@ records/<batch_id>/suite_summary.json
 - 简短结论和录音入口：`docs/R22_DEVICE_VALIDATION_20261028.md`。
 - 用例/语音/接口索引与限制：`docs/R22_AUTOMATION.md`、`cases/r22/`、`plans/r22/`、`sources/r22/manifest.json`。
 - 原始音频日志留本机 `runs/`、`batches/`；Git交付为 `records/20261028*/` 的最小摘要。
+
+- R22按原文反馈字段的正式填写稿：`docs/P003_SEARCH_R22_TEST_FEEDBACK_20261028.md`（9项×10字段；实听/等待/截图缺项明确标注）。

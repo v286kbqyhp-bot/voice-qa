@@ -153,3 +153,11 @@ stages:
   - records/20261028T144317-3c3de703/suite_summary.json
   - speech-library/list.yaml
   limitation: 逐项尝试9组；普通聊天、补播、词义解释有正向日志，成都地点、重进首句、短控制词未闭环；搜索工具/同任务身份与物理听感未验证。36条运行含25次有声动作尝试、2次环境干扰和9次未发声阻塞；6批次最小摘要留Git，原始音频日志仅本机。
+
+- id: r22_feedback_matches_source_template
+  status: partial
+  deliverables:
+  - docs/P003_SEARCH_R22_TEST_FEEDBACK_20261028.md
+  - docs/R22_AUTOMATION.md
+  - AGENTS.md
+  limitation: 按原文10字段填写9项，共90字段位置已核对；本机转发稿及现有8张退出前后截图已整理。逐段实听、可听等待和部分异常截图未取得，6/8续讲未执行，不能视作完整真人验收；日志包仅为补充。
