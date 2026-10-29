@@ -1,0 +1,80 @@
+schema_version: 1
+case_id: R23-09-CANCEL
+title: R23 查询后取消
+domain: ai
+severity: important
+source:
+  manifest: sources/r23/manifest.json
+  original_sha256: ba3a7d878f8c818facd34c9a750b53ef940ada89f938d2a81f7edb52383f9701
+  section: 取消、插话／取消
+  scope: R23原话术与预期；字幕、播放、PCM和实际听到分列，不以日志代替实听
+  execution_choices:
+  - 取消专项才播放原文的取消话术；原文未指定查询，选北京天气
+  - R23实测等待词为查查天气，用本轮原始字幕匹配，不沿用R22只认我查查的ack分类
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+  - interaction_wait
+  - device_ui_exit
+steps:
+- kind: audio_play
+  name: wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: bind_current_wake
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 20
+- kind: wait_event
+  name: input_ready
+  params:
+    event: input_ready
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+    timeout_s: 20
+- kind: audio_play
+  name: query
+  params:
+    text: 帮我查北京今天的天气
+- kind: wait_event
+  name: search_prompt
+  params:
+    event: voice.tts_text_changed
+    where:
+      source: worker
+    text_contains_any:
+    - 查查天气
+    - 我查查
+    same_trace: true
+    after_last_play: true
+    timeout_s: 25
+- kind: audio_play
+  name: cancel
+  params:
+    text: 不用查了，我们聊别的
+- kind: audio_record
+  name: no_old_task_result
+  params:
+    max_seconds: 25
+cleanup:
+- kind: device_action
+  name: cleanup_home
+  params:
+    action: exit_voice
+    if_session_active: true
+- kind: wait_event
+  name: cleanup_closed
+  params:
+    event: ready_next_wake
+    timeout_s: 15
+    if_session_active: true
+artifacts:
+- audio
+- logcat
+- timeline

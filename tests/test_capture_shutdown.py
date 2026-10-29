@@ -38,5 +38,13 @@ class CaptureShutdownTests(unittest.TestCase):
         self.assertFalse(result['valid_capture'])
         self.assertIn('capture_driver_shutdown_timeout',result['errors'])
 
+    def test_finished_callback_avoids_racing_abort_with_callback_stop(self):
+        audio=PcmAudio(player=Mock());audio.capture_stopping=threading.Event();audio.capture_finished=threading.Event()
+        audio.capture_finished.set();audio.stream=Mock();audio.blocks=Mock();audio.writer=Mock();audio.writer.is_alive.return_value=False
+        audio.wave=Mock();audio.frames=200;audio.peak=100;audio.rate=16000;audio.errors=[]
+        result=audio.stop()
+        audio.stream.abort.assert_not_called();audio.stream.close.assert_called_once()
+        self.assertTrue(result['valid_capture'])
+
 
 if __name__=='__main__':unittest.main()

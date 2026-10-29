@@ -1,0 +1,73 @@
+schema_version: 1
+case_id: R23-05-CHANGE-CITY
+title: R23 北京改查成都
+domain: ai
+severity: important
+source:
+  manifest: sources/r23/manifest.json
+  original_sha256: ba3a7d878f8c818facd34c9a750b53ef940ada89f938d2a81f7edb52383f9701
+  section: 改查
+  scope: R23原话术与预期；字幕、播放、PCM和实际听到分列，不以日志代替实听
+  execution_choices:
+  - 在查询提示字幕出现后播放成都，保存实际ASR；不以仅出现成都字幕证明内部改查任务成功
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+  - interaction_wait
+  - device_ui_exit
+steps:
+- kind: audio_play
+  name: wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: bind_current_wake
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 20
+- kind: wait_event
+  name: input_ready
+  params:
+    event: input_ready
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+    timeout_s: 20
+- kind: audio_play
+  name: beijing
+  params:
+    text: 帮我查北京今天的天气
+- kind: wait_speech
+  name: search_prompt
+  params:
+    role: ack
+    require_sound: false
+    timeout_s: 25
+- kind: audio_play
+  name: chengdu
+  params:
+    text: 改查成都今天的天气
+- kind: audio_record
+  name: new_city_result
+  params:
+    max_seconds: 30
+cleanup:
+- kind: device_action
+  name: cleanup_home
+  params:
+    action: exit_voice
+    if_session_active: true
+- kind: wait_event
+  name: cleanup_closed
+  params:
+    event: ready_next_wake
+    timeout_s: 15
+    if_session_active: true
+artifacts:
+- audio
+- logcat
+- timeline

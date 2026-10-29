@@ -1,0 +1,168 @@
+{
+  "schema_version": 1,
+  "batch_id": "20261029T095940-c78039dc",
+  "suite_id": "R23-LIVE-20261029",
+  "mode": "live",
+  "raw_evidence": "kept_local_not_in_git",
+  "batch_integrity_sha256": "4f16ba882cfe2794e4e805562b7dea5a2f57ea155b301497a6c8b9437f565690",
+  "cases": [
+    {
+      "id": "02-local-weather",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261029T095940-80233e3b",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "e20ba5df22e08a9ba07668c3faefcf0f0a11518016d7869f845bea52bca052c3"
+        }
+      ],
+      "review_index": "batches/20261029T095940-c78039dc/review/02-local-weather/review_index.md"
+    },
+    {
+      "id": "04-weather-chat",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261029T100023-d226212a",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "f78f00f45cb475203bcdee0baaacf79f6b8aff85db8cb65630f4f9d54e8516f8"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261029T100048-eeed5837",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "2776eb8b03f6a24ef8638fb2d47b1f2a445ac472421b66261a3bd4e26e11d2a9"
+        }
+      ],
+      "review_index": "batches/20261029T095940-c78039dc/review/04-weather-chat/review_index.md"
+    },
+    {
+      "id": "05-change-city",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261029T100142-b14dacbd",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "bdf380fc59178461a7d33157b9ea9e414246ba8ded41cd0b08b482311d058a68"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261029T100220-e0d22d51",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "f3b9a236daea64d28d4a93121742ed7dc6eb5aaafeee5d3c503ad59bcdbae181"
+        }
+      ],
+      "review_index": "batches/20261029T095940-c78039dc/review/05-change-city/review_index.md"
+    },
+    {
+      "id": "03-compound-weather",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261029T100258-4b608ba0",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "a4c16e935f831a9c7e070b72a0326d9d885cce2826852ad1df33a752501ff143"
+        }
+      ],
+      "review_index": "batches/20261029T095940-c78039dc/review/03-compound-weather/review_index.md"
+    },
+    {
+      "id": "06-sport",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261029T100346-548c43ba",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "1a41af548cbb2b6c5817c99713a53f9b2eb39e09e674feea7cb07af600bc9f75"
+        }
+      ],
+      "review_index": "batches/20261029T095940-c78039dc/review/06-sport/review_index.md"
+    },
+    {
+      "id": "07-game",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261029T100436-e0c1f708",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "80ca7df833fc85aa00ae861621d3a550ca893878ebdc9daf560ea25a7ed035bf"
+        }
+      ],
+      "review_index": "batches/20261029T095940-c78039dc/review/07-game/review_index.md"
+    },
+    {
+      "id": "08-science",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261029T100526-80781cbe",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "9190b361c38fb5f7b3a4b4292f7f7c4126019f424ef015cf677e4b19a545b41e"
+        }
+      ],
+      "review_index": "batches/20261029T095940-c78039dc/review/08-science/review_index.md"
+    },
+    {
+      "id": "09-cancel",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261029T100635-d6784a58",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "0894b5e9cb50e8d20d1be9d87fae4b62f9386393791d90627a49ba46bc850ced"
+        }
+      ],
+      "review_index": "batches/20261029T095940-c78039dc/review/09-cancel/review_index.md"
+    },
+    {
+      "id": "10-interrupt",
+      "status": "pending_review",
+      "initial_verdict": "pending_review",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261029T100722-e6588b6e",
+          "execution_status": "completed",
+          "bundle_integrity_sha256": "4f035e94d4707033c0cfdcc10dc34c08535eb91443d92a29b834492669d0cc7a"
+        }
+      ],
+      "review_index": "batches/20261029T095940-c78039dc/review/10-interrupt/review_index.md"
+    },
+    {
+      "id": "11-reenter",
+      "status": "not_passed",
+      "initial_verdict": "not_passed",
+      "attempts": [
+        {
+          "role": "initial",
+          "run_id": "20261029T100805-84982db1",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "ba4c2e804bc218dbbd430a4d41f0e9bbede9270bc566254c8f24948f2b8c50a9"
+        },
+        {
+          "role": "diagnostic",
+          "run_id": "20261029T100903-01145d28",
+          "execution_status": "blocked",
+          "bundle_integrity_sha256": "575d0eccbb2f804a1db93f8f7365b354581f6718bad29aabebdabf5b5f8e8464"
+        }
+      ],
+      "review_index": "batches/20261029T095940-c78039dc/review/11-reenter/review_index.md"
+    }
+  ]
+}

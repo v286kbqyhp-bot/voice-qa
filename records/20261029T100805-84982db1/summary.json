@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "run_id": "20261029T100805-84982db1",
+  "case_id": "R23-11-REENTER",
+  "mode": "live",
+  "execution_status": "blocked",
+  "product_status": "needs_review",
+  "evidence_status": "audio_and_logs",
+  "steps": [
+    {
+      "step": "wake",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/001-wake.json",
+      "artifact_sha256": "ca53a8f8f2c2a34e48a2b230c6a2a13c29777e5a6e0118303b67f43d81ac09e9"
+    },
+    {
+      "step": "bind_current_wake",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/002-bind_current_wake.json",
+      "artifact_sha256": "e7a56dae98ec13dae02e5b436abaf4585054b66c26e3fbb38f7115462baa7e32"
+    },
+    {
+      "step": "input_ready",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/003-input_ready.json",
+      "artifact_sha256": "896ba3e3fdb1da96c8ac27ff79fda61ae572d1814d69e4525e48845c9ef5675b"
+    },
+    {
+      "step": "query",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/004-query.json",
+      "artifact_sha256": "e8d2f067aa64338362b0fe26bd774deba207405dabc75ccde17bd982d0b24210"
+    },
+    {
+      "step": "body_active",
+      "kind": "wait_speech",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/005-body_active.json",
+      "artifact_sha256": "58e60de026dacd1abfe376b6653df542f6f183d9fd56eeaef4b6348b3b031df5"
+    },
+    {
+      "step": "exit_home",
+      "kind": "device_action",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/006-exit_home.json",
+      "artifact_sha256": "b4c3781bef03e0dbba096039b7227832976be4b97514cde6c0bae02843c1111d"
+    },
+    {
+      "step": "exit_requested",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/007-exit_requested.json",
+      "artifact_sha256": "b037c9f82de205ad1ceabff435c3183201f4f95a2eeef32c32d163b99f2c0e81"
+    },
+    {
+      "step": "first_closed",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/008-first_closed.json",
+      "artifact_sha256": "c1d50cbd804433dc7d094d88bb0ff80e777bad23dac1232d5fc6c1896846b12d"
+    },
+    {
+      "step": "normal_reentry_gap",
+      "kind": "sleep",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/009-normal_reentry_gap.json",
+      "artifact_sha256": "090a9131296c0a5d5ae12f761a96ee5a4b2741e894ac831c4e318122b8f81145"
+    },
+    {
+      "step": "reenter_wake",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/010-reenter_wake.json",
+      "artifact_sha256": "cbe1bb7f86641c769a826366974340296e15091092236575423358f8ef70662e"
+    },
+    {
+      "step": "reenter_bind_current_wake",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/011-reenter_bind_current_wake.json",
+      "artifact_sha256": "9ee29c1745dcbd025d07679397fe2198be990d96b575add8b9155e73d71c6220"
+    },
+    {
+      "step": "reenter_input_ready",
+      "kind": "wait_event",
+      "execution_status": "blocked",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/012-reenter_input_ready.json",
+      "artifact_sha256": "cb0ceaa02cb4795808525202aec34605e5fc4d8b52e36bff9432e2a771ed5e96"
+    },
+    {
+      "step": "resume",
+      "kind": "audio_play",
+      "execution_status": "not_executed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/013-resume.json",
+      "artifact_sha256": "061f205c9fc77c93c9f500e5bc15e3102f0a1e35bcb5e40269c904aabd4568cc"
+    },
+    {
+      "step": "resumed_or_honest_absence",
+      "kind": "audio_record",
+      "execution_status": "not_executed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/014-resumed_or_honest_absence.json",
+      "artifact_sha256": "ea11931aa3ab229372e29e2f979bec01a748cb081b86072883a06125c5b1aa7b"
+    },
+    {
+      "step": "cleanup_home",
+      "kind": "device_action",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/015-cleanup_home.json",
+      "artifact_sha256": "2cffe69f8b5d273540fc373b9afe23c878568d74126100b8c66861883ddfd21c"
+    },
+    {
+      "step": "cleanup_closed",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T100805-84982db1/steps/016-cleanup_closed.json",
+      "artifact_sha256": "28d1bd087a32dfcee55725b310c49da7c37253c07844d69966269e5bc35737af"
+    }
+  ],
+  "local_bundle_integrity_sha256": "ba4c2e804bc218dbbd430a4d41f0e9bbede9270bc566254c8f24948f2b8c50a9",
+  "source_sha256": "efd318e56459a11cac926a3765cb4ce65596b8d810a24a262ada04bc8a5e3359",
+  "local_evidence_index": "runs/20261029T100805-84982db1/evidence_index.md",
+  "raw_evidence": "kept_local_not_in_git"
+}

@@ -1,0 +1,42 @@
+schema_version: 1
+suite_id: R23-SEARCH-EXPERIENCE
+policy:
+  diagnostic_repeats: 1
+  continue_after_failure: true
+cases:
+- id: 01-chat
+  file: ../../cases/r23/01-chat.yaml
+  prepared_assets: '{{prepared.01-chat}}'
+- id: 02-local-weather
+  file: ../../cases/r23/02-local-weather.yaml
+  prepared_assets: '{{prepared.02-local-weather}}'
+- id: 03-compound-weather
+  file: ../../cases/r23/03-compound-weather.yaml
+  prepared_assets: '{{prepared.03-compound-weather}}'
+- id: 04-weather-chat
+  file: ../../cases/r23/04-weather-chat.yaml
+  prepared_assets: '{{prepared.04-weather-chat}}'
+- id: 05-change-city-prompt
+  file: ../../cases/r23/05-change-city-prompt.yaml
+  prepared_assets: '{{prepared.05-change-city-prompt}}'
+- id: 05-city-after-answer
+  file: ../../cases/r23/05-city-after-answer.yaml
+  prepared_assets: '{{prepared.05-city-after-answer}}'
+- id: 06-sport
+  file: ../../cases/r23/06-sport.yaml
+  prepared_assets: '{{prepared.06-sport}}'
+- id: 07-game
+  file: ../../cases/r23/07-game.yaml
+  prepared_assets: '{{prepared.07-game}}'
+- id: 08-science
+  file: ../../cases/r23/08-science.yaml
+  prepared_assets: '{{prepared.08-science}}'
+- id: 09-cancel
+  file: ../../cases/r23/09-cancel.yaml
+  prepared_assets: '{{prepared.09-cancel}}'
+- id: 10-interrupt
+  file: ../../cases/r23/10-interrupt.yaml
+  prepared_assets: '{{prepared.10-interrupt}}'
+- id: 11-weather-reenter
+  file: ../../cases/r23/11-weather-reenter.yaml
+  prepared_assets: '{{prepared.11-weather-reenter}}'

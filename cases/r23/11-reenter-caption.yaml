@@ -1,0 +1,115 @@
+schema_version: 1
+case_id: R23-11-REENTER-CAPTION
+title: R23 退出重进：按正文记录执行真实返回
+domain: ai
+severity: important
+source:
+  manifest: sources/r23/manifest.json
+  original_sha256: ba3a7d878f8c818facd34c9a750b53ef940ada89f938d2a81f7edb52383f9701
+  section: 退出再进入
+  scope: R23原话术与预期；字幕、播放、PCM和实际听到分列，不以日志代替实听
+  execution_choices:
+  - 原文没有重进后先问候的要求，直接按R23说继续；以恐龙结果建立上下文，记录新旧trace和任务身份限制
+  - 单次调度修正验证：R23允许查询完成或播报中退出；按当前正文字幕和真实活跃会话执行返回，不由未归属的麦克风阈值拦截整条恢复流程；字幕不等于扬声器实听
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+  - interaction_wait
+  - device_ui_exit
+steps:
+- kind: audio_play
+  name: wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: bind_current_wake
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 20
+- kind: wait_event
+  name: input_ready
+  params:
+    event: input_ready
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+    timeout_s: 20
+- kind: audio_play
+  name: query
+  params:
+    text: 帮我查恐龙为什么会灭绝
+- kind: wait_speech
+  name: body_active
+  params:
+    role: body
+    phase_role: search_body
+    require_sound: false
+    timeout_s: 40
+- kind: device_action
+  name: exit_home
+  params:
+    action: exit_voice
+- kind: wait_event
+  name: exit_requested
+  params:
+    event: session_end_requested
+    where:
+      reason: android_back
+    timeout_s: 10
+- kind: wait_event
+  name: first_closed
+  params:
+    event: ready_next_wake
+    timeout_s: 15
+- kind: sleep
+  name: normal_reentry_gap
+  params:
+    seconds: 5.2
+- kind: audio_play
+  name: reenter_wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: reenter_bind_current_wake
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 20
+- kind: wait_event
+  name: reenter_input_ready
+  params:
+    event: input_ready
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+    timeout_s: 20
+- kind: audio_play
+  name: resume
+  params:
+    text: 继续刚才的搜索结果
+- kind: audio_record
+  name: resumed_or_honest_absence
+  params:
+    max_seconds: 25
+cleanup:
+- kind: device_action
+  name: cleanup_home
+  params:
+    action: exit_voice
+    if_session_active: true
+- kind: wait_event
+  name: cleanup_closed
+  params:
+    event: ready_next_wake
+    timeout_s: 15
+    if_session_active: true
+artifacts:
+- audio
+- logcat
+- timeline

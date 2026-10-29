@@ -141,3 +141,10 @@ records/<batch_id>/suite_summary.json
 - 原始音频日志留本机 `runs/`、`batches/`；Git交付为 `records/20261028*/` 的最小摘要。
 
 - R22按原文反馈字段的正式填写稿：`docs/P003_SEARCH_R22_TEST_FEEDBACK_20261028.md`（9项×10字段；实听/等待/截图缺项明确标注）。
+
+## R23（2026-10-29上午）
+
+- 面向测试方的原文8字段反馈：`docs/P003_SEARCH_R23_TEST_FEEDBACK_20261029.md`。
+- 用例/套件/来源：`cases/r23/`、`plans/r23/`、`sources/r23/manifest.json`。
+- 独立麦克风录音ASR：`docs/RECORDED_AUDIO_ASR.md`、`voiceqa/recording_asr.py`、`requirements-asr.txt`。
+- 本轮20次运行、批次与ASR最小指纹：`records/20261029*/`；原音频、转写全文和模型均只存本机。

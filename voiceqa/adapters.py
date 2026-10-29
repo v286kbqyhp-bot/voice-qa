@@ -85,6 +85,7 @@ class PcmAudio:
         self.peak = 0
         self.level_history=deque(maxlen=600)
         self.capture_stopping=threading.Event()
+        self.capture_finished=threading.Event()
         self.blocks = queue.Queue(maxsize=1024)
         self.wave_file=Path(output).open('wb',buffering=0)
         self.wave = wave.open(self.wave_file, 'wb')
@@ -120,7 +121,8 @@ class PcmAudio:
 
         self.writer = threading.Thread(target=write, daemon=True)
         self.stream = sd.RawInputStream(samplerate=self.rate, channels=1, dtype='int16',
-                                       device=config.get('input_device'), callback=capture)
+                                       device=config.get('input_device'), callback=capture,
+                                       finished_callback=self.capture_finished.set)
         self.writer.start()
         try:
             self.stream.start()
@@ -147,9 +149,11 @@ class PcmAudio:
 
     def stop(self):
         self.capture_stopping.set()
+        finished=getattr(self,'capture_finished',None)
+        already_stopped=bool(finished and finished.wait(timeout=.5))
         def shutdown():
             try:
-                self.stream.abort()
+                if not already_stopped:self.stream.abort()
                 self.stream.close()
             except Exception as exc:
                 self.errors.append('capture_shutdown_'+type(exc).__name__)

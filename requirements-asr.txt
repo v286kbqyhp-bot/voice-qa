@@ -1,0 +1,4 @@
+# Optional Python 3.12+ runtime; tested on Mac ARM64/Python 3.13.
+# Separate from playback dependencies and not automatically installed by the core CLI.
+sherpa-onnx==2.0.1
+numpy==2.5.4

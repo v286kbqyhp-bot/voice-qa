@@ -1,0 +1,62 @@
+schema_version: 1
+case_id: R23-03-COMPOUND-WEATHER
+title: R23 复合天气问题
+domain: ai
+severity: important
+source:
+  manifest: sources/r23/manifest.json
+  original_sha256: ba3a7d878f8c818facd34c9a750b53ef940ada89f938d2a81f7edb52383f9701
+  section: 复合问题
+  scope: R23原话术与预期；字幕、播放、PCM和实际听到分列，不以日志代替实听
+  execution_choices: []
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+  - interaction_wait
+  - device_ui_exit
+steps:
+- kind: audio_play
+  name: wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: bind_current_wake
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 20
+- kind: wait_event
+  name: input_ready
+  params:
+    event: input_ready
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+    timeout_s: 20
+- kind: audio_play
+  name: query
+  params:
+    text: 帮我查今天这里下不下雨，放学适合打球吗？
+- kind: audio_record
+  name: weather_and_sport_result
+  params:
+    max_seconds: 30
+cleanup:
+- kind: device_action
+  name: cleanup_home
+  params:
+    action: exit_voice
+    if_session_active: true
+- kind: wait_event
+  name: cleanup_closed
+  params:
+    event: ready_next_wake
+    timeout_s: 15
+    if_session_active: true
+artifacts:
+- audio
+- logcat
+- timeline

@@ -141,7 +141,7 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
                 if lifecycle and lifecycle['state']=='unknown':
                     raise Blocked('cannot condition cleanup on an unbound session')
                 skip_cleanup = lifecycle and (lifecycle['state'] in ('closed','superseded') or
-                    step['kind']=='audio_play' and lifecycle['state']=='ending')
+                    step['kind'] in ('audio_play','device_action') and lifecycle['state']=='ending')
                 if skip_cleanup:
                     record['actual']={'action':'no_op','playback_started':False,'lifecycle':lifecycle,
                                       'reason':'session already ending or closed; redundant cleanup skipped'}

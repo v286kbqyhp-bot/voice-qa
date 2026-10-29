@@ -232,3 +232,11 @@ Native 当前声明 `search_execution_receipts:false`。ASR 明确识别“改�
 暂停后的“停稳”可显式使用 `wait_output` 的 `require_caption:false`，按当前 trace 的最新非说话状态、当前输入后的时间下限、稳定麦克风静音和 PCM 计数观察，不要求暂停产生一条新字幕。默认仍要求 final 字幕。该快照不依赖 `wait_event` 的消费游标；不能用它声明正式整轮结束。
 
 录音写入采用持续更新 RIFF 长度的无缓冲 WAV，采集停止先阻止新回调，再有界关闭驱动、排空写入队列。`capture_driver_shutdown_timeout` 和 `capture_writer_shutdown_timeout` 保留为采集失败，不能因为 WAV 可播放就记证据完整。`capture_implementation_sha256` 记录子进程采集代码指纹。历史 WAV 的长度修复仅允许创建独立恢复副本并核对 PCM 字节相同；不修改 sealed 原包或补造丢失内容。
+
+## R23：条件返回与独立录音识别（2026-10-29）
+
+`device_action` 的 `if_session_active:true` 可用于cleanup：已关闭/正在关闭的会话不再发送返回动作。普通聊天收尾使用条件返回，不能默认播放取消搜索。取消话术只属于明确取消场景或实际需要的异常处理。
+
+`PcmAudio` 在停止标志后先有界等待输入流的finished callback，回调已经自行停止时不再竞争调用abort，随后有界关闭驱动并封装WAV。首次已发生的驱动关闭错误仍保留。Mac实测不能外推其他音频后端。
+
+新增独立后处理合同 `RecordedSpeechRecognizer` / `recording-asr-v1`。实现、安装与返回字段见 [RECORDED_AUDIO_ASR.md](RECORDED_AUDIO_ASR.md)，CLI为 `python -m voiceqa.recording_asr`。不使用设备字幕或预期答案作模型提示，保留混合录音、模型错字与时间估计限制，不返回自动产品PASS，也不让离线ASR阻塞实时调度。

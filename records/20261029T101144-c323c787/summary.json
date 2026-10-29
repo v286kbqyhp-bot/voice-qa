@@ -1,0 +1,87 @@
+{
+  "schema_version": 1,
+  "run_id": "20261029T101144-c323c787",
+  "case_id": "R23-05-CHANGE-CITY-PROMPT",
+  "mode": "live",
+  "execution_status": "completed",
+  "product_status": "needs_review",
+  "evidence_status": "audio_and_logs",
+  "steps": [
+    {
+      "step": "wake",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T101144-c323c787/steps/001-wake.json",
+      "artifact_sha256": "a87d875a319a7dbf0ba080ce3391b86c6d2104047b461a39e74ae4caafdc5073"
+    },
+    {
+      "step": "bind_current_wake",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T101144-c323c787/steps/002-bind_current_wake.json",
+      "artifact_sha256": "83e4663628d760b798de1612660fc70b738eced4c074f9ae11570509617557c5"
+    },
+    {
+      "step": "input_ready",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T101144-c323c787/steps/003-input_ready.json",
+      "artifact_sha256": "ed6524dc4a7b75f64dc8613d69df0be1041f5ace3258cfa0ebb47e9c26a01024"
+    },
+    {
+      "step": "beijing",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T101144-c323c787/steps/004-beijing.json",
+      "artifact_sha256": "749ba1f1bfe5feae82e1d7a8a717fd158843415251a07ff119a6360f5a1493a6"
+    },
+    {
+      "step": "search_prompt",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T101144-c323c787/steps/005-search_prompt.json",
+      "artifact_sha256": "ad4fd92fd0b00412b942f6382f753696572eb87f9e48146d435e44e7f1a9247e"
+    },
+    {
+      "step": "chengdu",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T101144-c323c787/steps/006-chengdu.json",
+      "artifact_sha256": "04cb670183d17480291cf68906e5a91ee689f0bbba3f237c36c53d96a240ead2"
+    },
+    {
+      "step": "new_city_result",
+      "kind": "audio_record",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T101144-c323c787/steps/007-new_city_result.json",
+      "artifact_sha256": "04cea08053509e4dfcfae942412f91b355abe8ae3283c461acd85782d997c946"
+    },
+    {
+      "step": "cleanup_home",
+      "kind": "device_action",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T101144-c323c787/steps/008-cleanup_home.json",
+      "artifact_sha256": "672bcd9693d74af14c8a538e885c1457620ecced2a95ccec0e49b0a5de69074c"
+    },
+    {
+      "step": "cleanup_closed",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261029T101144-c323c787/steps/009-cleanup_closed.json",
+      "artifact_sha256": "5c367185a62de948df182eeae2cd0352f7be4451dc2467a49a3fd9cf703c7b37"
+    }
+  ],
+  "local_bundle_integrity_sha256": "27b5e61a4756826848f5c7298173a90a27dbd3225f384a79d56671b4b4108ef9",
+  "source_sha256": "2d31c58527103073555e6f6e2737c7221b4ac23df0b098676fdda347a883e2f2",
+  "local_evidence_index": "runs/20261029T101144-c323c787/evidence_index.md",
+  "raw_evidence": "kept_local_not_in_git"
+}

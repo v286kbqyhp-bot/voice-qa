@@ -82,7 +82,7 @@ def load_case(path: Path) -> dict:
         'wait_speech': {'role','phase_role','text_contains_any','timeout_s','require_final','require_sound','delay_s','max_elapsed_s'},
         'wait_output': {'role','text_contains_any','timeout_s','quiet_s','fail_if_body_started','require_caption'},
         'expect': {'contract'}, 'vision_expect': {'contract'},
-        'device_action': {'action'},
+        'device_action': {'action','if_session_active'},
     }
     for step in data['steps'] + data.get('cleanup', []):
         params = step.get('params', {})

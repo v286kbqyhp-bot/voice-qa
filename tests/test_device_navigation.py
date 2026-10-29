@@ -12,6 +12,21 @@ from voiceqa.runner import run
 
 
 class NavigationTests(unittest.TestCase):
+    def test_conditional_home_cleanup_skips_a_closed_room_without_cancelling_search(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root=Path(tmp);case=root/'case.yaml'
+            case.write_text(yaml.safe_dump({'case_id':'NAV-CLEANUP','title':'quiet cleanup','domain':'test','severity':'normal',
+                'steps':[{'kind':'sleep','name':'observe','params':{'seconds':0}}],
+                'cleanup':[{'kind':'device_action','name':'home','params':{'action':'exit_voice','if_session_active':True}}]}))
+            class TestAdapter(ReplayAdapter):
+                def capabilities(self):return {**super().capabilities(),'device_ui_exit':True}
+                def session_status(self):return {'state':'closed','reason':'idle_timeout'}
+                def device_action(self,params):raise AssertionError('closed room must not receive navigation')
+            adapter=TestAdapter();_,result=run(case,adapter,'replay',output_root=root/'runs')
+            self.assertEqual(result['execution_status'],'completed')
+            self.assertEqual(result['steps'][-1]['actual']['action'],'no_op')
+            self.assertEqual(adapter.played,[])
+
     def test_exit_requires_active_room_and_launcher_foreground_before_sending_back(self):
         source=AdbEvents()
         source.adb='adb';source.serial='transport';source.package='com.example.launcher'

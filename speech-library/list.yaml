@@ -1,5 +1,73 @@
 schema_version: 1
 assets:
+- text: 不用查了
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-0fc109f75f58e65677270ed6
+  file: clips/tts-0fc109f75f58e65677270ed6.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 0.7778125
+  sha256: f14b5c6d612cded89c87699a8676b36ed707df5c6078a9431f7727f585b69d02
+  bytes: 28986
+  created_at: '2026-10-29T01:53:30+00:00'
+  provenance:
+    kind: generated_now
+- text: 那火山有什么影响
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-1129115be1a57ca679398667
+  file: clips/tts-1129115be1a57ca679398667.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.7001875
+  sha256: 5744e4f54cef7ee6a73b093bb176dd6f6cf56755c40a16a9b10e5c234da44360
+  bytes: 58502
+  created_at: '2026-10-29T01:58:01+00:00'
+  provenance:
+    kind: generated_now
+- text: 我今天画了一只小猫
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-1554f05f2cd9bbc37eb975d0
+  file: clips/tts-1554f05f2cd9bbc37eb975d0.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 2.058875
+  sha256: 0f38373f1847b5d3b732a5219e8f5be607cd1b67244ac680f9f3058364106719
+  bytes: 69980
+  created_at: '2026-10-29T01:53:29+00:00'
+  provenance:
+    kind: generated_now
+- text: 我今天打篮球投进了一个球。
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-156ba7a431a14ae0c57a0890
+  file: clips/tts-156ba7a431a14ae0c57a0890.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 2.743875
+  sha256: 6bcfe71840f7fb112557020e371c6b0590ee99748f40cb0bdf198477274f479e
+  bytes: 91900
+  created_at: '2026-10-29T01:53:30+00:00'
+  provenance:
+    kind: generated_now
 - text: 我喜欢皮卡丘。
   voice: Tingting
   rate: 175
@@ -59,6 +127,40 @@ assets:
     asset_manifest_sha256: 2daad8b3a45e2caeb06f6a2b81654bbd03bf074dc1fb0d97c342dc75abde0206
     profile_source: same-text local macOS preparation with explicit/default voice
       and rate
+- text: 停一下
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-20961e518affbcbaaa032acd
+  file: clips/tts-20961e518affbcbaaa032acd.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 0.7114375
+  sha256: ddca10f55a339a20672b024635755dddea8e16b684cf7e260c20415a8584a095
+  bytes: 26862
+  created_at: '2026-10-29T01:58:03+00:00'
+  provenance:
+    kind: generated_now
+- text: 帮我查我的世界最近的正式更新
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-211589d4775c010c6098e121
+  file: clips/tts-211589d4775c010c6098e121.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 2.9373125
+  sha256: 89ced67f8f360df80cc6a2661355b820c5135e9491728a9ecf8c20d957deb0df
+  bytes: 98090
+  created_at: '2026-10-29T01:57:59+00:00'
+  provenance:
+    kind: generated_now
 - text: 那我发到那条线外面一点，是不是就出界了？
   voice: Tingting
   rate: 175
@@ -220,6 +322,23 @@ assets:
   created_at: '2026-10-28T06:21:09+00:00'
   provenance:
     kind: generated_now
+- text: 帮我查今天这里下不下雨，放学适合打球吗？
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-5828affd269d981920b50778
+  file: clips/tts-5828affd269d981920b50778.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 4.3885625
+  sha256: f911cd40e586b6c0bb49982f66b9769e0f0510c539f8756748ece325f52cb89f
+  bytes: 144530
+  created_at: '2026-10-29T01:57:57+00:00'
+  provenance:
+    kind: generated_now
 - text: 小可小可
   voice: Tingting
   rate: 175
@@ -258,6 +377,23 @@ assets:
   created_at: '2026-10-27T08:35:23+00:00'
   provenance:
     kind: generated_now
+- text: 今天这里下不下雨？
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-690349a311a24f082f4a6219
+  file: clips/tts-690349a311a24f082f4a6219.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.793125
+  sha256: 0cfd854c719e4021e24dc9601780bc4c58b8b235459573ac6b11fd8992d0abaf
+  bytes: 61476
+  created_at: '2026-10-29T01:57:55+00:00'
+  provenance:
+    kind: generated_now
 - text: 等一下
   voice: Tingting
   rate: 175
@@ -273,6 +409,23 @@ assets:
   sha256: 1f879613ccbbd5f746c32dc42787e4af29ba753a295d585f1201aa5d98b8ec7c
   bytes: 24696
   created_at: '2026-10-28T06:21:09+00:00'
+  provenance:
+    kind: generated_now
+- text: 不用查了，我们聊别的
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-70741b33271ffed0f1b39f9a
+  file: clips/tts-70741b33271ffed0f1b39f9a.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 2.0085
+  sha256: dfc153acb538e8bd1212ea42c68ae10643b64b24c41ca4ab78775708c8b68954
+  bytes: 68368
+  created_at: '2026-10-29T01:58:02+00:00'
   provenance:
     kind: generated_now
 - text: 帮我查一下中国最近的航天新闻。
@@ -326,6 +479,23 @@ assets:
   created_at: '2026-10-28T06:21:04+00:00'
   provenance:
     kind: generated_now
+- text: 帮我查北京今天的天气
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-8c6ae906911865505ac6b499
+  file: clips/tts-8c6ae906911865505ac6b499.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 2.29875
+  sha256: 2c7f7f6fd041d6d985dfd4a7edcfd6077ddc16e8dc672dfbe17bd63814a624b7
+  bytes: 77656
+  created_at: '2026-10-29T01:57:56+00:00'
+  provenance:
+    kind: generated_now
 - text: 帮我查一下羽毛球单打怎么计分。
   voice: Tingting
   rate: 175
@@ -375,6 +545,23 @@ assets:
   sha256: 672d9300cd76084b9b0fa91e7d7c74b610fd9e47e5f96bf62058a813762c7e97
   bytes: 101062
   created_at: '2026-10-28T06:21:06+00:00'
+  provenance:
+    kind: generated_now
+- text: 帮我查恐龙为什么会灭绝
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-9f1abe854dbc162d3fb0bda7
+  file: clips/tts-9f1abe854dbc162d3fb0bda7.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 2.2639375
+  sha256: 0ed31086531cdbbaa80ad7c96de0d360221106610a9f6036a44fa373b122f438
+  bytes: 76542
+  created_at: '2026-10-29T01:58:00+00:00'
   provenance:
     kind: generated_now
 - text: 你觉得打羽毛球最有趣的是什么？
@@ -460,6 +647,23 @@ assets:
   sha256: ea4bd6337f7227a6cc2a91e2d35350f56b04442ba9ff9c71d689df342968b243
   bytes: 83188
   created_at: '2026-10-28T06:21:11+00:00'
+  provenance:
+    kind: generated_now
+- text: 帮我查羽毛球双打发球的后发球线是哪条？
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-cb7eef8c3dab6d621340be85
+  file: clips/tts-cb7eef8c3dab6d621340be85.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 4.2840625
+  sha256: cca5f44d4d618f6aabaada519a65f152da320f07d6cf34bdb94324f36b21c935
+  bytes: 141186
+  created_at: '2026-10-29T01:57:58+00:00'
   provenance:
     kind: generated_now
 - text: 查查是啥？

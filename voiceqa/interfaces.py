@@ -69,3 +69,13 @@ class EvidenceAnalyzer(Protocol):
     def analyze(self, manifest: dict, audio: Path, events: Path) -> dict:
         """Return analysis.schema.json; unknown speech stays unknown, no invented text."""
         ...
+
+
+class RecordedSpeechRecognizer(Protocol):
+    def transcribe(self, audio: Path) -> dict:
+        """recording-asr-v1 with audio/model hashes, text and estimated time spans.
+
+        Offline post-processing only. Does not provide speaker attribution,
+        calibrated confidence, real-time timing triggers, or a product PASS.
+        """
+        ...

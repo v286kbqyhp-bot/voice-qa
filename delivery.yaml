@@ -161,3 +161,39 @@ stages:
   - docs/R22_AUTOMATION.md
   - AGENTS.md
   limitation: 按原文10字段填写9项，共90字段位置已核对；本机转发稿及现有8张退出前后截图已整理。逐段实听、可听等待和部分异常截图未取得，6/8续讲未执行，不能视作完整真人验收；日志包仅为补充。
+
+- id: r23_device_test_and_source_feedback
+  status: partial
+  deliverables:
+  - sources/r23/manifest.json
+  - cases/r23/02-local-weather.yaml
+  - cases/r23/05-city-after-answer.yaml
+  - cases/r23/11-weather-reenter.yaml
+  - plans/r23/live-suite.yaml
+  - plans/r23/bindings.example.yaml
+  - docs/P003_SEARCH_R23_TEST_FEEDBACK_20261029.md
+  - records/20261029T095940-c78039dc/suite_summary.json
+  - records/20261029T104416-eeea393a/summary.json
+  - records/20261029T104518-03e3ed87/summary.json
+  limitation: 10组20次动作尝试，各有麦克风录音及独立ASR；原失败保留。天气/空闲补播/结果后改城市/重进继续有录音证据，进行中改查仍漏识别；高德来源与回执不符需服务端对账，重进同任务身份与精确进度未验证。R23反馈按原文8字段逐项填写。
+- id: independent_recorded_audio_asr
+  status: implemented
+  deliverables:
+  - voiceqa/recording_asr.py
+  - requirements-asr.txt
+  - tests/test_recording_asr.py
+  - docs/RECORDED_AUDIO_ASR.md
+  - voiceqa/interfaces.py
+  - records/20261029T104416-eeea393a/asr_summary.json
+  - records/20261029T104518-03e3ed87/asr_summary.json
+  limitation: 本机sherpa-onnx2.0.1与约25MiB中文CTC模型实转20段录音，音频/模型/分析指纹分列；3秒数字静音对照无识别文字。无预期答案/字幕提示；短词/同音字有误，speaker未知、置信度未校准，不是实时打断门禁或自动产品PASS，Windows待实机验证。原音频、全文和模型留本机。
+- id: conditional_home_cleanup_and_capture_finish
+  status: partial
+  deliverables:
+  - voiceqa/core.py
+  - voiceqa/runner.py
+  - voiceqa/adapters.py
+  - tests/test_device_navigation.py
+  - tests/test_capture_shutdown.py
+  - docs/INTERFACES.md
+  limitation: cleanup支持条件device_action并跳过已关闭/正在关闭会话，普通聊天不再误说取消搜索。输入流先等finished callback，已经自行结束时不再竞争abort；R23后续录音有成功封装，早先两次关闭超时标记仍保留，不宣称所有后端驱动问题根治。
