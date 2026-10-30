@@ -69,8 +69,11 @@ def review_package(root, key, attempts):
     return folder.relative_to(root).as_posix()+'/review_index.md'
 
 
-def run_suite(suite_path, adapter_factory, mode, config=None, output_root=Path('batches'),
-              runs_root=Path('runs'), prepared=None, decision=None, verbose=False):
+def run_suite(suite_path, adapter_factory, mode, config=None, output_root=None,
+              runs_root=None, prepared=None, decision=None, verbose=False):
+    from .storage import output_path
+    output_root=output_path(output_root,'batches',config)
+    runs_root=output_path(runs_root,'runs',config)
     suite=load_suite(suite_path)
     config=config or {}
     batch_id=datetime.now(CST).strftime('%Y%m%dT%H%M%S')+'-'+uuid.uuid4().hex[:8]
@@ -157,7 +160,9 @@ def run_suite(suite_path, adapter_factory, mode, config=None, output_root=Path('
     return output,result
 
 
-def record_suite(output,destination=Path('records')):
+def record_suite(output,destination=None):
+    from .storage import output_path
+    destination=output_path(destination,'records')
     integrity=json.loads((output/'integrity.json').read_text(encoding='utf-8'))
     for name,sha in integrity['files'].items():
         p=safe_path(output,name)

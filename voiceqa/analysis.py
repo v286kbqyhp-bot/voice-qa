@@ -27,11 +27,9 @@ def validate_analysis(data, audio: Path):
 def import_analysis(bundle: Path, analysis: Path):
     verify_bundle(bundle)
     data = validate_analysis(json.loads(analysis.read_text(encoding='utf-8')), bundle / 'audio/mic_raw.wav')
-    name = 'analysis/' + uuid.uuid4().hex + '.json'
-    dump(bundle / name, data)
-    index = bundle / 'analysis_index.json'
-    items = json.loads(index.read_text(encoding='utf-8')) if index.exists() else []
-    items.append({'path': name, 'sha256': digest(bundle / name), 'product_status': 'needs_review'})
-    dump(index, items)
-    seal(bundle)
-    return bundle / name
+    from .storage import data_root
+    target=data_root()/'analyses'/bundle.name/uuid.uuid4().hex
+    target.mkdir(parents=True,exist_ok=False)
+    dump(target/'analysis.json',data)
+    dump(target/'source.json',{'bundle':str(bundle.resolve()),'bundle_integrity_sha256':digest(bundle/'integrity.json'),'analysis_sha256':digest(target/'analysis.json')})
+    return target/'analysis.json'

@@ -1,7 +1,0 @@
-# Merge into this machine's private config. Contains no device route or credentials.
-phase_rules:
-  - id: D-dinosaur-explanation-v1
-    role: search_body
-    all_of: []
-    any_of: [小行星, 火山喷发, 恐龙灭绝, 恐龙慢慢灭绝]
-    none_of: [我查, 我帮, 帮你查, 你想查, 查一下, 不能确认, 没有找到, 没有资料, 查不到]

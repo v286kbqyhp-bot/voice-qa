@@ -1,0 +1,24 @@
+schema_version: 1
+case_id: EXAMPLE-UNBOUND
+title: 未绑定素材与预期的通用示例
+domain: example
+severity: normal
+source:
+  kind: synthetic_example
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+steps:
+- kind: audio_play
+  name: input
+  params:
+    file: '{{asset.example}}'
+- kind: expect
+  name: check
+  params:
+    contract: '{{contract.example}}'
+cleanup: []
+artifacts:
+- audio
+- timeline

@@ -21,41 +21,13 @@ def gate(root=ROOT):
         raise ValueError('no versioned YAML cases')
     for path in cases:
         load_case(path)
-    sources = json.loads((root / 'sources/manifest.json').read_text(encoding='utf-8'))
-    if digest(root / 'sources' / sources['design']['file']) != sources['design']['sha256']:
-        raise ValueError('reference design fingerprint changed')
-    for name, sha in sources['legacy']['files'].items():
-        if digest(safe_path(root / 'sources/legacy', name)) != sha:
-            raise ValueError('legacy source fingerprint changed')
-    r19_manifest=root/'sources/r19/manifest.json'
-    if r19_manifest.exists():
-        r19=json.loads(r19_manifest.read_text(encoding='utf-8'))
-        if digest(safe_path(r19_manifest.parent,r19['redacted_file'])) != r19['redacted_sha256']:
-            raise ValueError('R19 source fingerprint changed')
-    delivery = load_yaml(root / 'delivery.yaml')
-    allowed = {'implemented', 'partial', 'blocked', 'not_started'}
-    for stage in delivery['stages']:
-        if stage['status'] not in allowed or not stage.get('deliverables') or not stage.get('limitation'):
-            raise ValueError('delivery stage requires status, deliverables and limitation')
-        for name in stage['deliverables']:
-            if not safe_path(root, name).is_file():
-                raise ValueError(f'missing deliverable: {name}')
-    for directory in (root / 'records').glob('*'):
-        if not directory.is_dir():
-            continue
-        if (directory / 'suite_summary.json').exists():
-            data=json.loads((directory/'suite_summary.json').read_text(encoding='utf-8'))
-            if data.get('raw_evidence')!='kept_local_not_in_git':raise ValueError('raw batch evidence must stay local')
-            for row in data['cases']:
-                if len(row['attempts'])>2:raise ValueError('more than one diagnostic repeat')
-                if row['initial_verdict']=='not_passed' and row['status']!='not_passed':raise ValueError('diagnostic result erased initial failure')
-        elif (directory / 'summary.json').exists():
-            data = json.loads((directory / 'summary.json').read_text(encoding='utf-8'))
-            if data['product_status'] != 'needs_review' or data['raw_evidence'] != 'kept_local_not_in_git':
-                raise ValueError('unreviewed live run must not claim acceptance')
-        else:
-            verify_bundle(directory)
-    for path in root.rglob('*'):
+    forbidden={'records','reports','sources','reviews','archive','data'}
+    for name in forbidden:
+        directory=root/name
+        if directory.exists() and any(directory.iterdir()):
+            raise ValueError('test inputs, evidence and receipts belong in local data_root, not Git: '+name)
+    candidates=[root/n for n in subprocess.check_output(['git','-C',str(root),'ls-files','--cached','--others','--exclude-standard','-z']).decode().split('\0') if n] if (root/'.git').exists() else root.rglob('*')
+    for path in candidates:
         relative = path.relative_to(root).parts
         if any(p in {'.git', '.venv', '.local', 'runs', 'batches', '__pycache__'} for p in relative) or not path.is_file():
             continue
@@ -67,10 +39,12 @@ def gate(root=ROOT):
             raise ValueError('raw/large evidence must remain outside tracked snapshot: ' + path.name)
         if path.name in {'.env', 'config.local.yaml'}:
             raise ValueError('local configuration must not be tracked')
+        if re.search(r'(RECEIPT|FEEDBACK|P003.*20[0-9]{6})',path.name,re.I):raise ValueError('receipt/report files belong in local data_root: '+path.name)
         text = path.read_text(encoding='utf-8')
+        if re.search(r'\bBJP003[0-9]{14}\b',text):raise ValueError('full device SN must remain local: '+path.name)
         if re.search(r'\b(?:gh[pousr]_[A-Za-z0-9]{20,}|eyJ[A-Za-z0-9_-]{10,}\.[A-Za-z0-9_-]{10,}\.)', text):
             raise ValueError('potential credential in snapshot: ' + path.name)
-    print(f'GATE PASS: {len(cases)} cases, delivery files and versioned records verified')
+    print(f'GATE PASS: {len(cases)} reusable example cases; skill-only tree, asset hashes and credential scan verified')
 
 
 def export_snapshot(root: Path, output: Path, ref=None):
@@ -86,6 +60,7 @@ def export_snapshot(root: Path, output: Path, ref=None):
             target = safe_path(output, name.decode())
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(subprocess.check_output(['git', '-C', str(root), 'cat-file', 'blob', sha.decode()]))
+            if mode==b'100755':target.chmod(0o755)
     else:
         raw = subprocess.check_output(['git', '-C', str(root), 'ls-tree', '-r', '-z', ref])
         for entry in raw.split(b'\0'):
@@ -98,6 +73,7 @@ def export_snapshot(root: Path, output: Path, ref=None):
             target = safe_path(output, name.decode())
             target.parent.mkdir(parents=True, exist_ok=True)
             target.write_bytes(subprocess.check_output(['git', '-C', str(root), 'cat-file', 'blob', sha.decode()]))
+            if mode==b'100755':target.chmod(0o755)
 
 
 def check_snapshot(root, ref=None):
@@ -123,7 +99,8 @@ def hook(name):
         from .core import append
         from .runner import now
         sha = subprocess.check_output(['git', 'rev-parse', 'HEAD'], cwd=ROOT, text=True).strip()
-        append(ROOT / '.local/hook-events.jsonl', {'event': 'commit_recorded', 'commit': sha, 'time': now()})
+        from .storage import data_root
+        append(data_root() / 'work/hook-events.jsonl', {'event': 'commit_recorded', 'commit': sha, 'time': now()})
     else:
         raise ValueError('unsupported hook')
 

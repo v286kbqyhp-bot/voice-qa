@@ -1,8 +1,0 @@
-{
-  "step": "input",
-  "kind": "audio_play",
-  "index": 1,
-  "execution_status": "not_executed",
-  "product_status": "needs_review",
-  "reason": "unresolved binding: asset.AI-BARGE-001.wav"
-}

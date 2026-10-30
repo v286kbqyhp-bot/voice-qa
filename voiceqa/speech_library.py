@@ -95,10 +95,13 @@ def validate_library(root=ROOT/'speech-library'):
 
 
 class SpeechLibrary:
-    def __init__(self, root=ROOT/'speech-library', synthesizer=None, runs_root=ROOT/'runs',
+    def __init__(self, root=ROOT/'speech-library', synthesizer=None, runs_root=...,
                  locale='zh-CN', provider=DEFAULT_PROVIDER):
         self.root=Path(root).resolve()
         self.synthesizer=synthesizer
+        if runs_root is ...:
+            from .storage import data_root
+            runs_root=data_root()/'runs'
         self.runs_root=Path(runs_root).resolve() if runs_root is not None else None
         self.locale=locale
         self.provider=provider
@@ -207,7 +210,8 @@ class SpeechLibrary:
     def prepare_case(self, case_path, output, config=None):
         case_path=Path(case_path)
         case=load_case(case_path)
-        output=Path(output).resolve()
+        from .storage import outside_checkout
+        output=outside_checkout(output)
         output.mkdir(parents=True,exist_ok=False)
         assets={}
         for step in case['steps']+case.get('cleanup',[]):

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Voice QA"
+  short_description: "语音执行、独立ASR、GPT语义还原和本地原模板回执"
+  default_prompt: "使用 $voice-qa 执行用例，保留ASR原文，结合上下文还原对话并按原模板生成本地语义回执。"

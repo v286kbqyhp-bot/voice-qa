@@ -13,9 +13,9 @@ class WorkflowTests(unittest.TestCase):
     def fixture(self):
         return json.loads((ROOT / 'fixtures/workflow.json').read_text(encoding='utf-8'))['events']
 
-    def test_legacy_attachment_preserved_and_unbound(self):
-        data = load_case(ROOT / 'sources/legacy/AI-CMD-001-WAKE.yaml')
-        self.assertEqual(data['case_id'], 'AI-CMD-001-WAKE')
+    def test_generic_unbound_case_preserves_missing_bindings(self):
+        data = load_case(ROOT / 'cases/unbound-example.yaml')
+        self.assertEqual(data['case_id'], 'EXAMPLE-UNBOUND')
         with self.assertRaisesRegex(Blocked, 'unresolved'):
             resolve(data['steps'], {})
 
@@ -112,10 +112,10 @@ class WorkflowTests(unittest.TestCase):
             self.assertEqual(len(result['steps']), 8)
             self.assertNotEqual(result['product_status'], 'fail')
 
-    def test_unbound_legacy_case_never_plays(self):
+    def test_unbound_example_never_plays(self):
         with tempfile.TemporaryDirectory() as tmp:
             adapter = ReplayAdapter()
-            p, result = run(ROOT / 'cases/legacy-barge-unbound.yaml', adapter, 'replay', output_root=Path(tmp))
+            p, result = run(ROOT / 'cases/unbound-example.yaml', adapter, 'replay', output_root=Path(tmp))
             self.assertEqual(len(adapter.played), 0)
             self.assertIn('unresolved', result['reason'])
 

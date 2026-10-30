@@ -1,6 +1,6 @@
 # 可复用合成语音库
 
-`speech-library/list.yaml` 是准确文本到预生成WAV的目录；`speech-library/clips/` 保存可直接下载、跨环境播放的PCM16 WAV。首次落地包含R19 A–H全部已定义话术及唤醒、退出常用句。该目录随私人仓库版本化。
+`speech-library/list.yaml` 是准确文本到预生成WAV的目录；`speech-library/clips/` 保存可直接下载、跨环境播放的PCM16 WAV。其中仅包含许可合成的输入语音。该目录随私人仓库版本化。
 
 ## 直接调用
 
@@ -19,15 +19,15 @@ print(asset['sha256'])     # 播放/传输前可核对
 ## 缺失才补库
 
 ```bash
-# 接受用例文件、目录或suite/catalog；不传inputs时默认cases/r19
-python qa.py library-sync cases/r19
-python qa.py library-sync plans/r19/catalog.yaml cases/r19-A-first-turn-debug.yaml
+# 接受本机用例文件、目录或suite/catalog；不传inputs时仅使用通用examples
+python qa.py library-sync /local/cases
+python qa.py library-sync /local/plans/catalog.yaml /local/cases/first-turn.yaml
 
 # 只准备，不播放、不录音；输出目录必须是新目录
-python qa.py library-prepare cases/r19-A-second-turn-debug.yaml --output .local/prepared/r19-A2
+python qa.py library-prepare /local/cases/second-turn.yaml --output /local/work/prepared/new
 
 # 测试时仅播放准备清单中的文件
-python qa.py run cases/r19-A-second-turn-debug.yaml --mode live --config config.local.yaml --prepared-assets .local/prepared/r19-A2/manifest.json --verbose
+python qa.py run /local/cases/second-turn.yaml --mode live --config config.local.yaml --prepared-assets /local/work/prepared/new/manifest.json --verbose
 ```
 
 当前默认合成profile为`macos_say / Tingting / 175 / zh-CN`。Windows/Linux可直接使用库中的WAV，无需相同系统音色。新增语句若需同一profile，可在Mac补库后提交推送，或通过已配置的Mac HTTP适配器补库：

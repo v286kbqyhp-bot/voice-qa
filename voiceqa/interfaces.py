@@ -79,3 +79,14 @@ class RecordedSpeechRecognizer(Protocol):
         calibrated confidence, real-time timing triggers, or a product PASS.
         """
         ...
+
+
+class SemanticDialogueReviewer(Protocol):
+    def review(self, request: dict) -> dict:
+        """Current GPT agent or an explicitly configured provider.
+
+        Return semantic-review.schema.json: raw-ASR segment references,
+        reconstructed dialogue marked inferred/unclear, original criteria
+        verdicts and original receipt fields. Never rewrite raw ASR.
+        """
+        ...

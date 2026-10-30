@@ -26,7 +26,8 @@ def inspect_recording(path):
 
 
 def validate_destination(audio,output):
-    audio=Path(audio).resolve();output=Path(output).resolve()
+    from .storage import outside_checkout
+    audio=Path(audio).resolve();output=outside_checkout(output)
     if output.exists():raise FileExistsError('ASR output must be new; preserve earlier analysis')
     if output==audio:raise ValueError('ASR output cannot overwrite the recording')
     for parent in audio.parents:

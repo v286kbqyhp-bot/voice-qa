@@ -1,9 +1,18 @@
-# Copy to config.local.yaml; this local file is Git-ignored.
-operator: 易子钧
+# Copy to ignored config.local.yaml; all paths and device identities are machine-local.
+operator: 填写测试人
+# data_root: /absolute/path/outside/skill/voice-qa-data
+# VOICEQA_DATA_DIR overrides data_root. Otherwise use local storage marker or ~/voice-qa-data.
 # adb: /absolute/path/to/adb
-# adb_serial: select transport locally; never use as cloud SN
-# cloud_sn_suffix: verified MCU/cloud identity suffix, never derived from ADB
+# adb_serial: current transport; never infer cloud SN from it
+# cloud_sn_suffix: verify on site
 input_device: 0
 output_device: 1
 sample_rate: 16000
 bindings: {}
+# Enable after installing optional requirements-asr.txt and the model locally:
+# asr:
+#   live: true
+#   python: /absolute/path/to/asr-env/bin/python
+#   model_dir: /absolute/local/model-directory
+#   startup_timeout_s: 8
+#   finish_timeout_s: 20

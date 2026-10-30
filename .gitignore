@@ -8,3 +8,15 @@ config.local.yaml
 .env
 .env.*
 !.env.example
+
+# Machine-local test content and generated reviews never enter the skill repository.
+records/
+reports/
+reviews/
+sources/
+archive/
+data/
+
+# Compatibility symlinks are machine-local too (a symlink is not a Git directory).
+/runs
+/batches

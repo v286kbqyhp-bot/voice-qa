@@ -26,11 +26,11 @@ def main():
     p.add_argument('--fixture', type=Path)
     p.add_argument('--config', type=Path)
     p.add_argument('--adapter-url')
-    p.add_argument('--output', type=Path, default=ROOT/'runs')
+    p.add_argument('--output', type=Path, default=None)
     p.add_argument('--verbose', action='store_true', help='Stream progress to stderr while preserving JSON stdout')
     p.add_argument('--prepared-assets',type=Path,help='Reuse this prebuilt TTS manifest; missing/mismatched assets block without synthesis')
     p = sub.add_parser('watch')
-    p.add_argument('--root',type=Path,default=ROOT/'runs')
+    p.add_argument('--root',type=Path,default=None)
     p.add_argument('--run',default='latest')
     p.add_argument('--device-log',action='store_true')
     p=sub.add_parser('prepare')
@@ -56,7 +56,7 @@ def main():
     p.add_argument('--fixture',type=Path)
     p.add_argument('--config',type=Path)
     p.add_argument('--adapter-url')
-    p.add_argument('--output',type=Path,default=ROOT/'batches')
+    p.add_argument('--output',type=Path,default=None)
     p.add_argument('--verbose',action='store_true')
     for command in ('verify', 'record', 'record-suite'):
         p = sub.add_parser(command)
@@ -72,7 +72,12 @@ def main():
     p.add_argument('--host', default='127.0.0.1')
     p.add_argument('--port', type=int, default=8765)
     p.add_argument('--config', type=Path)
-    p.add_argument('--root', type=Path, default=Path('.local/adapter-service'))
+    p.add_argument('--root', type=Path, default=None)
+    p=sub.add_parser('review-prepare',help='Prepare local raw ASR and original template for the current GPT agent')
+    p.add_argument('bundle',type=Path);p.add_argument('--asr',type=Path);p.add_argument('--template',type=Path,required=True);p.add_argument('--output',type=Path)
+    p=sub.add_parser('review-import',help='Validate GPT reconstruction and render a local source-template receipt')
+    p.add_argument('review_dir',type=Path);p.add_argument('assessment',type=Path)
+    sub.add_parser('paths')
     sub.add_parser('doctor')
     p = sub.add_parser('synthesize')
     p.add_argument('text')
@@ -99,7 +104,7 @@ def main():
                 adapter = HttpAdapter(args.adapter_url, os.environ.get('VQA_API_TOKEN'))
             else:
                 adapter = NativeAdapter()
-            config = load_yaml(args.config) if args.config else {}
+            config = load_yaml(args.config) if args.config else (load_yaml(ROOT/'config.local.yaml') if (ROOT/'config.local.yaml').is_file() else {})
             output, result = run(args.case, adapter, args.mode, config, args.output,verbose=args.verbose,prepared_assets=args.prepared_assets)
             print(json.dumps({'bundle': str(output.resolve()), 'execution': result['execution_status'],
                               'product': result['product_status'], 'reason': result['reason']}, ensure_ascii=False))
@@ -116,7 +121,7 @@ def main():
                 if args.mode=='replay':return ReplayAdapter(fixture.get('cases',{}).get(key,{}).get(role,fixture.get('events',[])))
                 if args.mode=='http':return HttpAdapter(args.adapter_url,os.environ.get('VQA_API_TOKEN'))
                 return NativeAdapter()
-            output,result=run_suite(args.suite,factory,args.mode,config,args.output,ROOT/'runs',verbose=args.verbose)
+            output,result=run_suite(args.suite,factory,args.mode,config,args.output,None,verbose=args.verbose)
             print(json.dumps({'batch':str(output.resolve()),'cases':[{k:r[k] for k in ['id','status']} for r in result['cases']]},ensure_ascii=False))
             return 2 if any(r['status'] in ('not_passed','blocked','interrupted') for r in result['cases']) else 0
         elif args.command == 'prepare':
@@ -129,7 +134,7 @@ def main():
             synthesizer=HttpAdapter(args.adapter_url,os.environ.get('VQA_API_TOKEN')) if args.adapter_url else None
             library=SpeechLibrary(args.library_root,synthesizer=synthesizer,provider=args.provider)
             if args.command=='library-sync':
-                inputs=args.inputs or [ROOT/'cases/r19']
+                inputs=args.inputs or [ROOT/'cases']
                 print(json.dumps(sync_cases(inputs,library,config),ensure_ascii=False))
             else:
                 output=library.prepare_case(args.case,args.output,config)
@@ -137,7 +142,8 @@ def main():
         elif args.command == 'watch':
             from .live import watch
             try:
-                watch(args.root,args.run,args.device_log)
+                from .storage import output_path
+                watch(output_path(args.root,'runs'),args.run,args.device_log)
             except KeyboardInterrupt:
                 pass
         elif args.command == 'record':
@@ -159,8 +165,9 @@ def main():
             hook(args.name)
         elif args.command == 'serve':
             from .service import AdapterServer
-            config = load_yaml(args.config) if args.config else {}
-            server = AdapterServer((args.host, args.port), args.root, os.environ.get('VQA_API_TOKEN'), config=config)
+            config = load_yaml(args.config) if args.config else (load_yaml(ROOT/'config.local.yaml') if (ROOT/'config.local.yaml').is_file() else {})
+            from .storage import output_path
+            server = AdapterServer((args.host, args.port), output_path(args.root,'adapter-service',config), os.environ.get('VQA_API_TOKEN'), config=config)
             print(f'Adapter API listening on {args.host}:{server.server_port}; lease 180s', flush=True)
             try:
                 server.serve_forever()
@@ -170,6 +177,15 @@ def main():
                 server.server_close()
         elif args.command == 'synthesize':
             print(json.dumps(NativeAdapter().prepare({'text': args.text}, args.output), ensure_ascii=False))
+        elif args.command=='review-prepare':
+            from .semantic_review import prepare_review
+            print(prepare_review(args.bundle,args.asr,args.template,args.output))
+        elif args.command=='review-import':
+            from .semantic_review import import_review
+            print(import_review(args.review_dir,args.assessment))
+        elif args.command=='paths':
+            from .storage import data_root
+            print(json.dumps({'runtime_root':str(ROOT),'data_root':str(data_root())},ensure_ascii=False))
         elif args.command == 'doctor':
             import sounddevice as sd
             print(json.dumps({'python': sys.version.split()[0], 'audio_devices': list(sd.query_devices()),

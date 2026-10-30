@@ -24,7 +24,8 @@ class AdapterServer(ThreadingHTTPServer):
         if address[0] not in ('127.0.0.1', 'localhost', '::1') and not token:
             raise ValueError('non-loopback binding requires VQA_API_TOKEN')
         super().__init__(address, Handler)
-        self.root = root.resolve()
+        from .storage import outside_checkout
+        self.root = outside_checkout(root)
         self.root.mkdir(parents=True, exist_ok=True)
         self.token = token
         self.factory = adapter_factory

@@ -6,8 +6,8 @@ severity: normal
 requirement_refs: [AUTOMATION-POC]
 tags: [voice, smoke]
 source:
-  file: sources/technical-design-20261027.md
-  section: '12 / 日志与声音对齐；这是框架验证话术，不替代正式产品用例'
+  kind: synthetic_example
+  scope: 通用离线编排示例，不是实际产品验收用例
 requires:
   target: real_device
   capabilities: [audio_hil]

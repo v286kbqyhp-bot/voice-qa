@@ -1,0 +1,14 @@
+#!/bin/sh
+set -eu
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd -P)
+if [ -n "${VOICEQA_PYTHON:-}" ]; then
+  exec "$VOICEQA_PYTHON" "$script_dir/launch.py" "$@"
+fi
+if command -v python3 >/dev/null 2>&1; then
+  exec python3 "$script_dir/launch.py" "$@"
+fi
+if command -v python >/dev/null 2>&1; then
+  exec python "$script_dir/launch.py" "$@"
+fi
+echo 'voice-qa: Python is required; set VOICEQA_PYTHON to its absolute path.' >&2
+exit 2

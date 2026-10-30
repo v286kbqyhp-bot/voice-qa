@@ -27,10 +27,12 @@ def source_revision():
         return {'commit': None, 'dirty': True}
 
 
-def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs'), verbose=False, prepared_assets=None, context=None) -> tuple[Path, dict]:
+def run(case_path: Path, adapter, mode: str, config=None, output_root=None, verbose=False, prepared_assets=None, context=None) -> tuple[Path, dict]:
     case = load_case(case_path)
     config = config or {}
     run_id = datetime.now(CST).strftime('%Y%m%dT%H%M%S') + '-' + uuid.uuid4().hex[:8]
+    from .storage import output_path
+    output_root=output_path(output_root,'runs',config)
     output = output_root / run_id
     output.mkdir(parents=True, exist_ok=False)
     for part in ['source', 'steps', 'tts', 'audio', 'logs']:
@@ -52,6 +54,7 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
     steps = []
     assets = {}
     started = False
+    live_asr = None
     failure = None
     all_steps = case['steps'] + case.get('cleanup', [])
     params_by_name = {}
@@ -120,6 +123,10 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
         manifest['device'] = adapter.begin(output, cfg)
         started = True
         log.emit('capture_started')
+        if mode=='live' and config.get('asr',{}).get('live'):
+            from .streaming_asr import LiveAsrProcess
+            live_asr=LiveAsrProcess(output/'audio/mic_raw.wav',output/'asr',config['asr'])
+            log.emit('asr_started',subtitles='asr/live.jsonl',note='independent ASR; GPT review follows after capture')
         dump(output / 'run_manifest.json', manifest)
         for index, step in enumerate(all_steps, 1):
             log.step=step['name']
@@ -206,6 +213,13 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
                     failure = failure or 'capture_invalid: silence, overflow, or stream error; needs investigation'
             except Exception as exc:
                 failure = failure or 'capture_finalize_error: ' + type(exc).__name__
+        if live_asr is not None:
+            try:
+                manifest['asr_result']=live_asr.finish()
+                log.emit('asr_finished',result=manifest['asr_result'])
+            except Exception as exc:
+                manifest['asr_result']={'status':'error','reason':type(exc).__name__}
+                log.emit('asr_failed',result=manifest['asr_result'])
         for index in range(len(steps), len(all_steps)):
             step = all_steps[index]
             record = {'step': step['name'], 'kind': step['kind'], 'index': index + 1,
@@ -222,8 +236,9 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
                    else 'partial',
                'reason': failure, 'attempt': (context or {}).get('attempt_index',1), 'steps': steps}
     dump(output / 'results.json', results)
-    dump(output / 'transcript.json', {'status': 'not_analyzed', 'segments': [],
-                                     'reason': 'ASR/speaker attribution provider not configured; no inferred speech'})
+    asr_file=output/'asr/transcript.json'
+    dump(output/'transcript.json',json.loads(asr_file.read_text(encoding='utf-8')) if asr_file.is_file() else {
+        'status':'not_analyzed','segments':[], 'reason':'ASR unavailable/not configured; GPT semantic review is pending'})
     render_receipt(output, manifest, results)
     log.step=None
     log.emit('run_finished',execution_status=results['execution_status'],product_status=results['product_status'],reason=failure)
@@ -234,7 +249,8 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=Path('runs
 def prepare_assets(case_path, output, adapter, config=None):
     """Create every speech asset without starting capture or playing anything."""
     case=load_case(case_path)
-    output=output.resolve()
+    from .storage import outside_checkout
+    output=outside_checkout(output)
     output.mkdir(parents=True,exist_ok=False)
     assets={}
     for step in case['steps']+case.get('cleanup',[]):
@@ -329,8 +345,10 @@ def verify_bundle(output):
     return results
 
 
-def record_bundle(output, destination=Path('records')):
+def record_bundle(output, destination=None):
     """Only fixture bundles are publishable initially; live evidence stays local."""
+    from .storage import output_path
+    destination=output_path(destination,'records')
     results = verify_bundle(output)
     dest = destination / output.name
     dest.mkdir(parents=True, exist_ok=False)

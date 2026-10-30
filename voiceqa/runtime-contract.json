@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "cli_contract": "voiceqa-cli-v2",
+  "entrypoint": "qa.py",
+  "minimum_python": [
+    3,
+    11
+  ],
+  "artifact_storage": "external-local-only",
+  "semantic_review": "dialogue-review-request-v1"
+}

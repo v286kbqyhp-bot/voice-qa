@@ -34,6 +34,14 @@ class GitSnapshotTests(unittest.TestCase):
             export_snapshot(self.root, output)
         self.assertEqual((output/'case.yaml').read_text(encoding='utf-8'), 'invalid staged version')
 
+    @unittest.skipIf(os.name == 'nt', 'POSIX executable bit is checked on Unix')
+    def test_snapshot_preserves_executable_launcher_mode(self):
+        p=self.root/'launcher';p.write_text('#!/bin/sh\nexit 0\n');p.chmod(0o755);self.git('add','launcher')
+        output=Path(self.temp.name)/'snapshot';output.mkdir()
+        from unittest.mock import patch
+        with patch.dict(os.environ,self.env,clear=True):export_snapshot(self.root,output)
+        self.assertTrue(os.access(output/'launcher',os.X_OK))
+
     @unittest.skipIf(os.name == 'nt', 'Windows symlink privileges vary; index-mode guard is platform independent')
     def test_symlink_in_snapshot_is_rejected(self):
         (self.root/'link').symlink_to('/etc/passwd')

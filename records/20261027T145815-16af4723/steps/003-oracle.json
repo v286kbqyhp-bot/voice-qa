@@ -1,8 +1,0 @@
-{
-  "step": "oracle",
-  "kind": "expect",
-  "index": 3,
-  "execution_status": "not_executed",
-  "product_status": "needs_review",
-  "reason": "unresolved binding: asset.AI-BARGE-001.wav"
-}

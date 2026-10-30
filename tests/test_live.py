@@ -7,7 +7,7 @@ import time
 import unittest
 
 from voiceqa.adapters import ReplayAdapter, parse_log
-from voiceqa.core import ROOT, R19_FIELDS, dump
+from voiceqa.core import ROOT, dump
 from voiceqa.live import FileTail, format_event, scrub, select_run, watch
 from voiceqa.runner import run, verify_bundle
 
@@ -63,10 +63,12 @@ class LiveTests(unittest.TestCase):
             self.assertIn('mode=replay',stream.getvalue())
             self.assertIn('input_ready',stream.getvalue())
 
-    def test_r19_receipt_preserves_its_own_template(self):
+    def test_receipt_preserves_source_selected_template(self):
         with tempfile.TemporaryDirectory() as tmp:
-            p,r=run(ROOT/'cases/r19-A-first-turn-debug.yaml',ReplayAdapter(),'replay',output_root=Path(tmp))
+            import yaml
+            case=yaml.safe_load((ROOT/'cases/voice-smoke.yaml').read_text());fields=['原始字段甲','原始字段乙'];case['source']['receipt_fields']=fields
+            source=Path(tmp)/'case.yaml';source.write_text(yaml.safe_dump(case,allow_unicode=True),encoding='utf-8')
+            p,r=run(source,ReplayAdapter(),'replay',output_root=Path(tmp)/'runs')
             receipt=(p/'receipt.md').read_text(encoding='utf-8')
-            self.assertTrue(all(field+'：' in receipt for field in R19_FIELDS))
-            self.assertIn('待测试人',receipt)
+            self.assertTrue(all(field+'：' in receipt for field in fields))
             verify_bundle(p)

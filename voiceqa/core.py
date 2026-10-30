@@ -23,6 +23,11 @@ R19_FIELDS = ['设备SN末8位','现场版本／截图','测试日期与开始�
 
 
 def receipt_fields(case):
+    fields=case.get('source',{}).get('receipt_fields')
+    if fields:
+        if not isinstance(fields,list) or not all(isinstance(f,str) and f.strip() for f in fields) or len(fields)!=len(set(fields)):
+            raise ValueError('receipt_fields must contain unique nonempty field names')
+        return fields
     return R19_FIELDS if case.get('source',{}).get('receipt_template')=='r19_v1' else FIELDS
 
 
