@@ -8,7 +8,7 @@ from unittest.mock import patch
 
 from voiceqa.core import ROOT, digest
 from voiceqa.adapters import ReplayAdapter
-from voiceqa.runner import run, seal
+from voiceqa.runner import run, seal, verify_bundle
 from voiceqa.semantic_review import prepare_review, import_review, validate_review
 from voiceqa.storage import data_root, outside_checkout
 from voiceqa.gitflow import gate
@@ -75,3 +75,15 @@ class ReviewTests(unittest.TestCase):
     def test_review_request_rejects_transcript_from_different_recording(self):
         data=json.loads(self.asr.read_text(encoding='utf-8'));data['audio_sha256']='0'*64;self.asr.write_text(json.dumps(data),encoding='utf-8')
         with self.assertRaisesRegex(ValueError,'this recording'):prepare_review(self.bundle,self.asr,self.template,self.root/'bad-review')
+
+    def test_review_accepts_legacy_placeholder_without_rewriting_its_sealed_evidence(self):
+        (self.bundle/'receipt.md').write_text('# 自动化回执\n旧版占位回执未包含全部原字段\n',encoding='utf-8')
+        seal(self.bundle);prior=digest(self.bundle/'integrity.json')
+        with self.assertRaisesRegex(ValueError,'template fields missing'):verify_bundle(self.bundle)
+        review=prepare_review(self.bundle,self.asr,self.template,self.root/'legacy-review')
+        assessment=copy.deepcopy(self.assessment);assessment['request_sha256']=digest(review/'request.json')
+        file=self.root/'legacy-assessment.json';file.write_text(json.dumps(assessment,ensure_ascii=False),encoding='utf-8')
+        text=import_review(review,file).read_text(encoding='utf-8')
+        self.assertIn('现场SN：',text);self.assertIn('原始字段：',text)
+        self.assertEqual(digest(self.bundle/'integrity.json'),prior)
+        with self.assertRaisesRegex(ValueError,'template fields missing'):verify_bundle(self.bundle)

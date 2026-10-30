@@ -10,7 +10,10 @@ from .storage import data_root, outside_checkout
 
 
 def prepare_review(bundle,asr_file,template_file,destination=None):
-    bundle=Path(bundle).resolve();results=verify_bundle(bundle);manifest=json.loads((bundle/'run_manifest.json').read_text(encoding='utf-8'));case=load_case(bundle/'cases.yaml')
+    # Older sealed execution placeholders may truncate a long source template.
+    # Verify their immutable evidence; validate the final receipt's own complete
+    # source-template fields independently, without rewriting the sealed run.
+    bundle=Path(bundle).resolve();results=verify_bundle(bundle,check_receipt_fields=False);manifest=json.loads((bundle/'run_manifest.json').read_text(encoding='utf-8'));case=load_case(bundle/'cases.yaml')
     template=load_yaml(template_file);fields=template.get('fields',[]);criteria=template.get('criteria',[])
     if not fields or len(fields)!=len(set(fields)) or not all(isinstance(x,str) and x.strip() for x in fields):raise ValueError('template requires original unique feedback fields')
     if not criteria or len({c['id'] for c in criteria})!=len(criteria) or not all(c.get('description') for c in criteria):raise ValueError('template requires explicit acceptance criteria with unique ids')
@@ -37,7 +40,7 @@ def validate_review(folder,assessment):
     folder=Path(folder).resolve();request_file=folder/'request.json';req=json.loads(request_file.read_text(encoding='utf-8'))
     jsonschema.validate(assessment,json.loads((ROOT/'schema/semantic-review.schema.json').read_text(encoding='utf-8')))
     if assessment['request_sha256']!=digest(request_file):raise ValueError('review refers to a different request')
-    bundle=Path(req['bundle']);verify_bundle(bundle)
+    bundle=Path(req['bundle']);verify_bundle(bundle,check_receipt_fields=False)
     if digest(bundle/'integrity.json')!=req['bundle_integrity_sha256']:raise ValueError('run changed since review preparation')
     if req['audio_sha256'] and digest(Path(req['audio_file']))!=req['audio_sha256']:raise ValueError('recording changed')
     if req['asr_sha256'] and digest(Path(req['asr_file']))!=req['asr_sha256']:raise ValueError('raw ASR changed')

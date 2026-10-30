@@ -66,9 +66,10 @@ class LiveTests(unittest.TestCase):
     def test_receipt_preserves_source_selected_template(self):
         with tempfile.TemporaryDirectory() as tmp:
             import yaml
-            case=yaml.safe_load((ROOT/'cases/voice-smoke.yaml').read_text(encoding='utf-8'));fields=['原始字段甲','原始字段乙'];case['source']['receipt_fields']=fields
+            case=yaml.safe_load((ROOT/'cases/voice-smoke.yaml').read_text(encoding='utf-8'));fields=['原始字段'+str(n) for n in range(24)];case['source']['receipt_fields']=fields
             source=Path(tmp)/'case.yaml';source.write_text(yaml.safe_dump(case,allow_unicode=True),encoding='utf-8')
             p,r=run(source,ReplayAdapter(),'replay',output_root=Path(tmp)/'runs')
             receipt=(p/'receipt.md').read_text(encoding='utf-8')
             self.assertTrue(all(field+'：' in receipt for field in fields))
+            self.assertEqual(receipt.count('待GPT语义评审按原模板填写'),len(fields))
             verify_bundle(p)

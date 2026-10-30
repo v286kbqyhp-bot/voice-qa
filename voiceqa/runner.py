@@ -9,7 +9,7 @@ import subprocess
 import time
 import uuid
 
-from .core import Blocked, FIELDS, ROOT, append, digest, dump, load_case, receipt_fields, resolve
+from .core import Blocked, FIELDS, R19_FIELDS, ROOT, append, digest, dump, load_case, receipt_fields, resolve
 
 CST = timezone(timedelta(hours=8))
 
@@ -285,7 +285,7 @@ def render_receipt(output, manifest, results):
     ]
     case=load_case(output/'cases.yaml')
     fields=receipt_fields(case)
-    if fields != FIELDS:
+    if fields == R19_FIELDS:
         values=[device.get('cloud_sn_suffix','未核对'),
                 device.get('version_name','未读取')+'；本轮未截图',
                 manifest['started_at']+'—'+manifest['ended_at'],
@@ -296,6 +296,10 @@ def render_receipt(output, manifest, results):
                 '待按本项用例核对；本轮执行状态：'+results['execution_status'],
                 '本轮无截图/视频；[证据索引](evidence_index.md)',
                 '待测试人从“通过 / 部分通过 / 未通过 / 未测试”选择；框架不自动代填产品结论']
+    elif fields != FIELDS:
+        # Arbitrary source templates have no positional relationship with R19.
+        # Keep every field for the later GPT sidecar rather than invent values.
+        values=['待GPT语义评审按原模板填写；本文件为执行占位回执' for _ in fields]
     (output / 'receipt.md').write_text('# 自动化回执\n\n' +
         ('**回放验证，未操作真机；不得用于产品验收。**\n\n' if results['mode'] == 'replay' else '') +
         '\n'.join(f'- {key}：{value}' for key, value in zip(fields, values)) + '\n', encoding='utf-8')
@@ -315,7 +319,7 @@ def seal(output):
           if p.is_file() and p.name != 'integrity.json'}})
 
 
-def verify_bundle(output):
+def verify_bundle(output, *, check_receipt_fields=True):
     from .core import safe_path
     integrity = json.loads((output / 'integrity.json').read_text(encoding='utf-8'))
     for name, sha in integrity['files'].items():
@@ -340,7 +344,7 @@ def verify_bundle(output):
         p = output / f"steps/{index:03d}-{step['step']}.json"
         if not p.exists() or json.loads(p.read_text(encoding='utf-8')) != step:
             raise ValueError('missing or inconsistent per-step deliverable')
-    if any(field + '：' not in (output / 'receipt.md').read_text(encoding='utf-8') for field in receipt_fields(case)):
+    if check_receipt_fields and any(field + '：' not in (output / 'receipt.md').read_text(encoding='utf-8') for field in receipt_fields(case)):
         raise ValueError('receipt template fields missing')
     return results
 

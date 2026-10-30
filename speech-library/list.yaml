@@ -106,6 +106,23 @@ assets:
   created_at: '2026-10-27T08:35:21+00:00'
   provenance:
     kind: generated_now
+- text: 成都
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-1f083cbd7de75b4d081cb4cf
+  file: clips/tts-1f083cbd7de75b4d081cb4cf.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 0.4956875
+  sha256: a2d29317dc93b63cd0ecdffbf34f07836dfcb6e990daefb43b84cb6538d91773
+  bytes: 19958
+  created_at: '2026-10-30T09:50:25+00:00'
+  provenance:
+    kind: generated_now
 - text: 我今天打球赢了一次。
   voice: Tingting
   rate: 175
@@ -371,6 +388,23 @@ assets:
   sha256: db2443c52e84504384b666d55ef4a16e31c010dd89189f25ce394b879f4de905
   bytes: 105520
   created_at: '2026-10-30T01:32:55+00:00'
+  provenance:
+    kind: generated_now
+- text: 帮我读一下央视网国内新闻页面，挑一条能核实日期的新闻，讲两句重点，告诉我来源
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-52c0eb1e6c2826b4f15c0c25
+  file: clips/tts-52c0eb1e6c2826b4f15c0c25.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 8.962875
+  sha256: 04f31cdac284fefaf27588fc987324361c7ea14b84748ff21c4f73ff0e5e78ea
+  bytes: 290908
+  created_at: '2026-10-30T09:50:28+00:00'
   provenance:
     kind: generated_now
 - text: 算了，退出聊天
@@ -800,6 +834,23 @@ assets:
   sha256: 99da9803b67e7a02df169f20f5b4bd73574a62c920482d5f7b417e714dd4b448
   bytes: 89916
   created_at: '2026-10-27T08:35:20+00:00'
+  provenance:
+    kind: generated_now
+- text: 帮我查一条最新的中国航天消息，说一下来源和日期
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-ba00e876385fb7d3369e220e
+  file: clips/tts-ba00e876385fb7d3369e220e.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 5.375375
+  sha256: 227dbeb693f4c1f50d24b029bcc35424954b951e498b340dde7fc0096288ddc2
+  bytes: 176108
+  created_at: '2026-10-30T09:50:27+00:00'
   provenance:
     kind: generated_now
 - text: 把灯打开
