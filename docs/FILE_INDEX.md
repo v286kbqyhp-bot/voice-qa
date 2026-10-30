@@ -154,3 +154,9 @@ records/<batch_id>/suite_summary.json
 - 反馈与缺项：`docs/P003_SEARCH_R26_TEST_FEEDBACK_20261030.md`（原文10×6字段，第5—10组未测）。
 - 调度和停止边界：`docs/R26_AUTOMATION.md`；来源：`sources/r26/`；用例：`cases/r26/`；目录：`plans/r26/catalog.yaml`。
 - 6次原始运行与独立ASR留本机，Git摘要：`records/20261030T*`。短取消词漏识别后旧结果播出：`20261030T093800-deb0adc6`。
+
+## R26 续测（2026-10-30，当前结果）
+
+- 最新合并反馈：`docs/P003_SEARCH_R26_CONTINUED_TEST_FEEDBACK_20261030.md`；首次停止报告保留供追溯。
+- 共23次独立录音与ASR；运球插话/续讲：`20261030T095127-eedc50d9`；音量用户确认70→65：`20261030T100904-5b33594b`。
+- 硬件执行修正、用户观察和升高排除见`docs/R26_AUTOMATION.md`，真实录音/全文ASR/截图仍留本机。

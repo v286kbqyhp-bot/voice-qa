@@ -86,3 +86,5 @@ artifacts:
 - audio
 - logcat
 - timeline
+blockers:
+- 完整第9项含实体升降；本轮用户明确暂不测试升高，改用09a/09b/09c无升降子项。

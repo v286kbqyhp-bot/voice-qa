@@ -1,0 +1,15 @@
+{
+  "contract": "recording-asr-v1",
+  "run_id": "20261030T095127-eedc50d9",
+  "audio_sha256": "9ea64925c341756ec93364654fb317a8b56f0f5e3440b3b5dffe3ec25af86d4c",
+  "analysis_sha256": "98af43350d946d78aa689ffa2a655eed86bc5443172e8a18b9edf6dc908be5c3",
+  "engine": "sherpa-onnx",
+  "engine_version": "2.0.1",
+  "model": "sherpa-onnx-streaming-zipformer-small-ctc-zh-int8-2025-04-01",
+  "model_sha256": "68c9c943840f7d9cf3e8a4970ba50f404feb5277f611fa82b7e72267786fa84a",
+  "segment_count": 9,
+  "review_status": "machine_transcription_not_human_acceptance",
+  "gain_applied": false,
+  "raw_transcript": "kept_local_not_in_git",
+  "local_analysis": ".local/r26/asr/20261030T095127-eedc50d9.json"
+}

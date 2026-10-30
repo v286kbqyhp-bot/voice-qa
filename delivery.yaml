@@ -209,4 +209,17 @@ stages:
   - docs/P003_SEARCH_R26_TEST_FEEDBACK_20261030.md
   - records/20261030T093800-deb0adc6/summary.json
   - records/20261030T093800-deb0adc6/asr_summary.json
-  limitation: 按原文10组6字段反馈；第1—4组共6次尝试，6份录音及独立ASR指纹核验。普通两句有回应，搜索中输入截断、取消词漏识别后旧结果播出；两次入房连接超时后异常停止，第4组改查未执行、第5—10组未测，第9组未发实体命令。11个YAML仅准备，不等于全量验收；目录非自动suite，原失败保留。
+  limitation: 首次异常停止阶段（续测见r26_user_authorized_continuation）：按原文10组6字段反馈；第1—4组共6次尝试，6份录音及独立ASR指纹核验。普通两句有回应，搜索中输入截断、取消词漏识别后旧结果播出；两次入房连接超时后异常停止，第4组改查未执行、第5—10组未测，第9组未发实体命令。11个YAML仅准备，不等于全量验收；目录非自动suite，原失败保留。
+
+- id: r26_user_authorized_continuation
+  status: partial
+  deliverables:
+  - docs/P003_SEARCH_R26_CONTINUED_TEST_FEEDBACK_20261030.md
+  - docs/R26_AUTOMATION.md
+  - plans/r26/catalog.yaml
+  - cases/r26/09-device-actions.yaml
+  - cases/r26/09c-volume-retest.yaml
+  - records/20261030T095127-eedc50d9/summary.json
+  - records/20261030T100904-5b33594b/summary.json
+  - records/20261030T100904-5b33594b/asr_summary.json
+  limitation: 用户要求继续并自行观察硬件，升高明确跳过；累计23次录音及独立ASR、原文10×6字段核对。第6项有声插话后续讲有效，天气/短取消/改查/退出识别异常，第5/7/10未完成核心步骤。第9初稿误等云端导致未播，已增加直接语音分支；音量额外复测获用户小了及70→65证据，灯反馈不扩成实体变暗通过。6次RTC TimeoutException和6次wake_connect NetworkTimeout分列，所有初次失败保留，不是全量验收通过。

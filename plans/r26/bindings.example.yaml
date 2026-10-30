@@ -3,10 +3,19 @@ bindings:
   prepared.02-search-chat: /absolute/local/prepared/02-search-chat/manifest.json
   prepared.03-cancel-chat: /absolute/local/prepared/03-cancel-chat/manifest.json
   prepared.04-city-waiting: /absolute/local/prepared/04-city-waiting/manifest.json
+  prepared.05-city-after-failure: /absolute/local/prepared/05-city-after-failure/manifest.json
   prepared.05-city-finished: /absolute/local/prepared/05-city-finished/manifest.json
   prepared.06-interrupt-resume: /absolute/local/prepared/06-interrupt-resume/manifest.json
   prepared.07-reenter-resume: /absolute/local/prepared/07-reenter-resume/manifest.json
+  prepared.08-exit-after-ack: /absolute/local/prepared/08-exit-after-ack/manifest.json
   prepared.08-explicit-exit: /absolute/local/prepared/08-explicit-exit/manifest.json
   prepared.09-device-actions: /absolute/local/prepared/09-device-actions/manifest.json
+  prepared.09a-light-direct: /absolute/local/prepared/09a-light-direct/manifest.json
+  prepared.09a-light: /absolute/local/prepared/09a-light/manifest.json
+  prepared.09b-brightness-direct: /absolute/local/prepared/09b-brightness-direct/manifest.json
+  prepared.09b-brightness: /absolute/local/prepared/09b-brightness/manifest.json
+  prepared.09c-volume-direct: /absolute/local/prepared/09c-volume-direct/manifest.json
+  prepared.09c-volume-retest: /absolute/local/prepared/09c-volume-retest/manifest.json
+  prepared.09c-volume: /absolute/local/prepared/09c-volume/manifest.json
   prepared.10a-exhibition: /absolute/local/prepared/10a-exhibition/manifest.json
   prepared.10b-space: /absolute/local/prepared/10b-space/manifest.json

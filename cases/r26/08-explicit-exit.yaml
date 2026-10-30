@@ -11,6 +11,7 @@ source:
   execution_choices:
   - 字幕/说话状态/麦克风活动只用于有界调度，不能替代实际声音、任务身份或实体动作验收。
   - 首次失败保留；异常先停止批次与收尾，普通聊天也异常时不继续后续用例。
+  - session_end_requested在该客户端日志不带trace；仅接本轮绑定房内退出播放之后的user_session_exit，并核对关闭和新唤醒，不能要求该事件存在未提供的trace字段。
 requires:
   target: real_device
   capabilities:
@@ -65,7 +66,6 @@ steps:
     event: session_end_requested
     where:
       reason: user_session_exit
-    same_trace: true
     after_last_play: true
     timeout_s: 12
 - kind: wait_event
