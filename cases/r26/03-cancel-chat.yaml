@@ -1,0 +1,89 @@
+schema_version: 1
+case_id: R26-03-CANCEL-CHAT
+title: R26 3 取消后继续聊
+domain: ai
+severity: important
+source:
+  manifest: sources/r26/manifest.json
+  original_sha256: fb374885e98b2fa0e57be0294d8d8eb2f5861b40218bb622af924163f0f4e8a9
+  section: 3 取消后继续聊
+  scope: R26原话术；播放、设备字幕、独立录音ASR和实体观察分别记录。
+  execution_choices:
+  - 字幕/说话状态/麦克风活动只用于有界调度，不能替代实际声音、任务身份或实体动作验收。
+  - 首次失败保留；异常先停止批次与收尾，普通聊天也异常时不继续后续用例。
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+  - interaction_wait
+  - device_ui_exit
+steps:
+- kind: audio_play
+  name: wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: bind
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 18
+- kind: wait_event
+  name: input_ready
+  params:
+    event: input_ready
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+    timeout_s: 18
+- kind: audio_play
+  name: query
+  params:
+    text: 帮我查恐龙为什么会灭绝
+- kind: wait_event
+  name: search_waiting_prompt
+  params:
+    event: voice.tts_text_changed
+    where:
+      source: worker
+    text_contains_any:
+    - 查
+    - 稍等
+    - 等我
+    same_trace: true
+    after_last_play: true
+    timeout_s: 20
+- kind: audio_play
+  name: cancel
+  params:
+    text: 不用了
+- kind: sleep
+  name: cancel_dispatch_gap
+  params:
+    seconds: 0.3
+- kind: audio_play
+  name: cat_chat
+  params:
+    text: 我们聊聊小猫吧
+- kind: audio_record
+  name: cancel_and_cat
+  params:
+    max_seconds: 30
+cleanup:
+- kind: device_action
+  name: cleanup_home
+  params:
+    action: exit_voice
+    if_session_active: true
+- kind: wait_event
+  name: cleanup_closed
+  params:
+    event: ready_next_wake
+    timeout_s: 12
+    if_session_active: true
+artifacts:
+- audio
+- logcat
+- timeline

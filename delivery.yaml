@@ -197,3 +197,16 @@ stages:
   - tests/test_capture_shutdown.py
   - docs/INTERFACES.md
   limitation: cleanup支持条件device_action并跳过已关闭/正在关闭会话，普通聊天不再误说取消搜索。输入流先等finished callback，已经自行结束时不再竞争abort；R23后续录音有成功封装，早先两次关闭超时标记仍保留，不宣称所有后端驱动问题根治。
+
+- id: r26_device_test_source_feedback
+  status: partial
+  deliverables:
+  - sources/r26/manifest.json
+  - cases/r26/01-chat.yaml
+  - cases/r26/03-cancel-chat.yaml
+  - plans/r26/catalog.yaml
+  - docs/R26_AUTOMATION.md
+  - docs/P003_SEARCH_R26_TEST_FEEDBACK_20261030.md
+  - records/20261030T093800-deb0adc6/summary.json
+  - records/20261030T093800-deb0adc6/asr_summary.json
+  limitation: 按原文10组6字段反馈；第1—4组共6次尝试，6份录音及独立ASR指纹核验。普通两句有回应，搜索中输入截断、取消词漏识别后旧结果播出；两次入房连接超时后异常停止，第4组改查未执行、第5—10组未测，第9组未发实体命令。11个YAML仅准备，不等于全量验收；目录非自动suite，原失败保留。

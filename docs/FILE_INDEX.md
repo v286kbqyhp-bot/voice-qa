@@ -148,3 +148,9 @@ records/<batch_id>/suite_summary.json
 - 用例/套件/来源：`cases/r23/`、`plans/r23/`、`sources/r23/manifest.json`。
 - 独立麦克风录音ASR：`docs/RECORDED_AUDIO_ASR.md`、`voiceqa/recording_asr.py`、`requirements-asr.txt`。
 - 本轮20次运行、批次与ASR最小指纹：`records/20261029*/`；原音频、转写全文和模型均只存本机。
+
+## R26（2026-10-30，异常停止）
+
+- 反馈与缺项：`docs/P003_SEARCH_R26_TEST_FEEDBACK_20261030.md`（原文10×6字段，第5—10组未测）。
+- 调度和停止边界：`docs/R26_AUTOMATION.md`；来源：`sources/r26/`；用例：`cases/r26/`；目录：`plans/r26/catalog.yaml`。
+- 6次原始运行与独立ASR留本机，Git摘要：`records/20261030T*`。短取消词漏识别后旧结果播出：`20261030T093800-deb0adc6`。

@@ -1,0 +1,88 @@
+schema_version: 1
+case_id: R26-06-INTERRUPT-RESUME
+title: R26 6 插话与续讲
+domain: ai
+severity: important
+source:
+  manifest: sources/r26/manifest.json
+  original_sha256: fb374885e98b2fa0e57be0294d8d8eb2f5861b40218bb622af924163f0f4e8a9
+  section: 6 插话与续讲
+  scope: R26原话术；播放、设备字幕、独立录音ASR和实体观察分别记录。
+  execution_choices:
+  - 字幕/说话状态/麦克风活动只用于有界调度，不能替代实际声音、任务身份或实体动作验收。
+  - 首次失败保留；异常先停止批次与收尾，普通聊天也异常时不继续后续用例。
+  - 搜索正文以含运球的字幕并结合声音活动定位，再延迟1秒插入；该代理不是精确半程。未取得正文则不伪造插话/续讲已执行。
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+  - interaction_wait
+  - device_ui_exit
+steps:
+- kind: audio_play
+  name: wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: bind
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 18
+- kind: wait_event
+  name: input_ready
+  params:
+    event: input_ready
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+    timeout_s: 18
+- kind: audio_play
+  name: query
+  params:
+    text: 帮我查篮球为什么要运球
+- kind: wait_speech
+  name: basketball_body_active
+  params:
+    role: body
+    text_contains_any:
+    - 运球
+    require_sound: true
+    delay_s: 1.0
+    timeout_s: 30
+- kind: audio_play
+  name: interrupt
+  params:
+    text: 等一下，聊聊今天的学校
+- kind: wait_output
+  name: school_reply
+  params:
+    role: body
+    timeout_s: 30
+    quiet_s: 0.35
+- kind: audio_play
+  name: resume
+  params:
+    text: 继续刚才的搜索结果
+- kind: audio_record
+  name: resumed_search
+  params:
+    max_seconds: 22
+cleanup:
+- kind: device_action
+  name: cleanup_home
+  params:
+    action: exit_voice
+    if_session_active: true
+- kind: wait_event
+  name: cleanup_closed
+  params:
+    event: ready_next_wake
+    timeout_s: 12
+    if_session_active: true
+artifacts:
+- audio
+- logcat
+- timeline
