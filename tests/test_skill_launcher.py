@@ -1,3 +1,4 @@
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -6,9 +7,13 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import Mock, call, patch
 
 ROOT = Path(__file__).resolve().parents[1]
 LAUNCH = ROOT / 'skills/voice-qa/scripts/launch.py'
+SPEC = importlib.util.spec_from_file_location('voice_qa_launcher', LAUNCH)
+launcher = importlib.util.module_from_spec(SPEC)
+SPEC.loader.exec_module(launcher)
 
 
 class SkillLauncherTests(unittest.TestCase):
@@ -73,6 +78,19 @@ class SkillLauncherTests(unittest.TestCase):
             result=self.invoke(['--runtime-info'],tmp,self.environment(VOICEQA_PYTHON=str(Path(tmp)/'missing-python')))
             self.assertEqual(result.returncode,2)
             self.assertIn('VOICEQA_PYTHON',result.stderr)
+
+    def test_windows_interrupt_allows_cli_to_finalize_before_exit(self):
+        child=Mock();child.wait.side_effect=[KeyboardInterrupt,130]
+        with patch.object(launcher.subprocess,'Popen',return_value=child):
+            self.assertEqual(launcher.windows_cli(ROOT,[sys.executable,'qa.py']),130)
+        self.assertEqual(child.wait.call_args_list,[call(),call(timeout=15)])
+        child.terminate.assert_not_called();child.kill.assert_not_called()
+
+    def test_windows_interrupt_stops_unresponsive_cli_after_cleanup_budget(self):
+        child=Mock();child.wait.side_effect=[KeyboardInterrupt,subprocess.TimeoutExpired('qa.py',15),subprocess.TimeoutExpired('qa.py',3),1]
+        with patch.object(launcher.subprocess,'Popen',return_value=child):
+            self.assertEqual(launcher.windows_cli(ROOT,[sys.executable,'qa.py']),130)
+        self.assertEqual(child.method_calls,[call.wait(),call.wait(timeout=15),call.terminate(),call.wait(timeout=3),call.kill(),call.wait()])
 
     def test_platform_entrypoint_can_probe_without_starting_device_work(self):
         wrapper=LAUNCH.parent/('voice-qa.cmd' if os.name=='nt' else 'voice-qa')

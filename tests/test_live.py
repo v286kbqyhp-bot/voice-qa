@@ -53,7 +53,7 @@ class LiveTests(unittest.TestCase):
             root=Path(tmp);p=root/'demo';p.mkdir()
             dump(p/'run_manifest.json',{'case_id':'DEMO','mode':'replay'})
             dump(root/'active_run.json',{'run_id':'demo'})
-            (p/'progress.jsonl').write_text(json.dumps({'event':'wait_started','step':'ready','details':{'expected':'input_ready'}})+'\n')
+            (p/'progress.jsonl').write_text(json.dumps({'event':'wait_started','step':'ready','details':{'expected':'input_ready'}})+'\n',encoding='utf-8')
             stream=io.StringIO();stop=threading.Event()
             t=threading.Thread(target=watch,args=(root,),kwargs={'stream':stream,'stop':stop,'interval':0.01})
             t.start()
@@ -66,7 +66,7 @@ class LiveTests(unittest.TestCase):
     def test_receipt_preserves_source_selected_template(self):
         with tempfile.TemporaryDirectory() as tmp:
             import yaml
-            case=yaml.safe_load((ROOT/'cases/voice-smoke.yaml').read_text());fields=['原始字段甲','原始字段乙'];case['source']['receipt_fields']=fields
+            case=yaml.safe_load((ROOT/'cases/voice-smoke.yaml').read_text(encoding='utf-8'));fields=['原始字段甲','原始字段乙'];case['source']['receipt_fields']=fields
             source=Path(tmp)/'case.yaml';source.write_text(yaml.safe_dump(case,allow_unicode=True),encoding='utf-8')
             p,r=run(source,ReplayAdapter(),'replay',output_root=Path(tmp)/'runs')
             receipt=(p/'receipt.md').read_text(encoding='utf-8')

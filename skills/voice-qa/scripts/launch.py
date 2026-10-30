@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Locate a compatible checkout, then replace this process with its existing CLI."""
+"""Locate a compatible checkout and dispatch its existing CLI without a shell."""
 import json
 import os
 from pathlib import Path
@@ -53,6 +53,26 @@ def describe(root, executable):
             'relative_paths_base': str(root), **info}
 
 
+def windows_cli(root, command):
+    # Popen quotes each argument for Windows; execv loses paths containing spaces.
+    child = subprocess.Popen(command, cwd=root)
+    try:
+        return child.wait()
+    except KeyboardInterrupt:
+        # The child shares our console and receives Ctrl+C too. Let it finalize
+        # recordings before forcing an unresponsive process to stop.
+        try:
+            return child.wait(timeout=15)
+        except (KeyboardInterrupt, subprocess.TimeoutExpired):
+            child.terminate()
+            try:
+                child.wait(timeout=3)
+            except (KeyboardInterrupt, subprocess.TimeoutExpired):
+                child.kill()
+                child.wait()
+            return 130
+
+
 def main(argv=None):
     args = list(sys.argv[1:] if argv is None else argv)
     try:
@@ -64,9 +84,11 @@ def main(argv=None):
             return 0
         if not info['dependencies_ready']:
             raise ValueError('Runtime dependencies missing; follow README.md and requirements-lock.txt in runtime_root')
+        command = [executable, str(root / 'qa.py'), *(args or ['--help'])]
+        if os.name == 'nt':
+            return windows_cli(root, command)
         os.chdir(root)
-        # Keep Ctrl+C and the CLI's capture-finalization semantics; no extra shell.
-        os.execv(executable, [executable, str(root / 'qa.py'), *(args or ['--help'])])
+        os.execv(executable, command)
     except (OSError, ValueError, subprocess.SubprocessError) as exc:
         print('voice-qa launcher: ' + str(exc), file=sys.stderr)
         return 2
