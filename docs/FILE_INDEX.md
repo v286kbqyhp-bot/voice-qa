@@ -160,3 +160,9 @@ records/<batch_id>/suite_summary.json
 - 最新合并反馈：`docs/P003_SEARCH_R26_CONTINUED_TEST_FEEDBACK_20261030.md`；首次停止报告保留供追溯。
 - 共23次独立录音与ASR；运球插话/续讲：`20261030T095127-eedc50d9`；音量用户确认70→65：`20261030T100904-5b33594b`。
 - 硬件执行修正、用户观察和升高排除见`docs/R26_AUTOMATION.md`，真实录音/全文ASR/截图仍留本机。
+
+## 近距离ASR对照（2026-10-30下午）
+
+- 回执：`docs/P003_ASR_NEAR_DEVICE_TEST_FEEDBACK_20261030T150952.md`；3房7句次，5完整/2错误，不是ASR基准评测。
+- YAML：`cases/asr-near-20261030T150952/`；记录摘要：`records/20261030T151209-4e0e6a97`、`records/20261030T151415-f0ff30ff`、`records/20261030T151629-13516438`。
+- 录音/转写留本机；连续和等待期错误仍复现，等待语时间重叠另行记录，不仅凭摆近宣称修复。

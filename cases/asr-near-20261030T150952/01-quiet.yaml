@@ -1,0 +1,86 @@
+schema_version: 1
+case_id: ASR-NEAR-20261030T150952-01-QUIET
+title: 近距离ASR对照／安静识别和等待词结束后的短取消
+domain: ai
+severity: important
+source:
+  kind: user_requested_asr_diagnostic
+  request: 用户连接同一设备并放近，要求模拟几轮ASR；不改音量、不发硬件控制。
+  placement: user moved closer; physical distance unmeasured
+  scope: 只核本轮播放与最终ASR完整性；字幕、独立录音ASR、产品语义分别记录，不以设备ASR缺词直接判具体故障层。
+  execution_choices:
+  - 固定三房，每房最多90秒；每房确认关房才继续。未取得input_ready记阻塞，不给未播放的话术填识别结论。
+  - 第一房短句与前一回复结束后输入分开；第二房复用原查询后紧接聊天时序；第三房复用等待提示期间改城市时序。
+  - 同句复用原语音库字节；除用户移动位置外不主动改条件，服务端当下版本未知，不据少量样本证明距离因果。
+requires:
+  target: real_device
+  capabilities:
+  - audio_hil
+  - interaction_wait
+  - device_ui_exit
+steps:
+- kind: audio_play
+  name: wake
+  params:
+    text: 小可小可
+- kind: wait_event
+  name: bind
+  params:
+    event: started
+    where:
+      source: hardware
+    bind_trace: true
+    timeout_s: 18
+- kind: wait_event
+  name: input_ready
+  params:
+    event: input_ready
+    alternative_events:
+    - input_ready_fallback
+    same_trace: true
+    timeout_s: 18
+- kind: audio_play
+  name: quiet_sport
+  params:
+    text: 我今天打球赢了一次
+- kind: wait_output
+  name: sport_reply_finished
+  params:
+    role: body
+    timeout_s: 22
+    quiet_s: 0.35
+- kind: audio_play
+  name: long_query
+  params:
+    text: 帮我查我的世界基岩版最新正式更新
+- kind: wait_output
+  name: ack_finished
+  params:
+    role: ack
+    timeout_s: 12
+    quiet_s: 0.25
+    fail_if_body_started: true
+- kind: audio_play
+  name: quiet_cancel
+  params:
+    text: 不用了
+- kind: audio_record
+  name: cancel_observation
+  params:
+    max_seconds: 10
+cleanup:
+- kind: device_action
+  name: cleanup_home
+  params:
+    action: exit_voice
+    if_session_active: true
+- kind: wait_event
+  name: cleanup_closed
+  params:
+    event: ready_next_wake
+    timeout_s: 12
+    if_session_active: true
+artifacts:
+- audio
+- logcat
+- timeline

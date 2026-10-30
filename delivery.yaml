@@ -223,3 +223,15 @@ stages:
   - records/20261030T100904-5b33594b/summary.json
   - records/20261030T100904-5b33594b/asr_summary.json
   limitation: 用户要求继续并自行观察硬件，升高明确跳过；累计23次录音及独立ASR、原文10×6字段核对。第6项有声插话后续讲有效，天气/短取消/改查/退出识别异常，第5/7/10未完成核心步骤。第9初稿误等云端导致未播，已增加直接语音分支；音量额外复测获用户小了及70→65证据，灯反馈不扩成实体变暗通过。6次RTC TimeoutException和6次wake_connect NetworkTimeout分列，所有初次失败保留，不是全量验收通过。
+
+- id: asr_near_device_20261030t150952
+  status: partial
+  deliverables:
+  - cases/asr-near-20261030T150952/01-quiet.yaml
+  - cases/asr-near-20261030T150952/02-immediate.yaml
+  - cases/asr-near-20261030T150952/03-waiting-city.yaml
+  - docs/P003_ASR_NEAR_DEVICE_TEST_FEEDBACK_20261030T150952.md
+  - records/20261030T151209-4e0e6a97/asr_summary.json
+  - records/20261030T151415-f0ff30ff/asr_summary.json
+  - records/20261030T151629-13516438/asr_summary.json
+  limitation: 用户将设备放近后做3房7次输入，3份有效录音及独立ASR哈希核验；5次最终文本完整、2次有误。安静3句完整，连续聊天变停了一次，等待中改查仅剩今天的天气；两错与等待语播报时间代理重叠。实际距离未测、后端当下版本未核，不作距离因果或稳定识别率结论，不复写R26原始失败，也未重做全量功能验收。Mac和设备音量均未改变。

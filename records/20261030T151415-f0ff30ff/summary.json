@@ -1,0 +1,79 @@
+{
+  "schema_version": 1,
+  "run_id": "20261030T151415-f0ff30ff",
+  "case_id": "ASR-NEAR-20261030T150952-02-IMMEDIATE",
+  "mode": "live",
+  "execution_status": "completed",
+  "product_status": "needs_review",
+  "evidence_status": "audio_and_logs",
+  "steps": [
+    {
+      "step": "wake",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261030T151415-f0ff30ff/steps/001-wake.json",
+      "artifact_sha256": "a272e8e56b41691a4dd4fc5089b2a274526a049aa9390535377d0958060e897e"
+    },
+    {
+      "step": "bind",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261030T151415-f0ff30ff/steps/002-bind.json",
+      "artifact_sha256": "d4d64eb861fa3e1dd9f47a93b0c22e88349f38744589287ef8d42aef914bb289"
+    },
+    {
+      "step": "input_ready",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261030T151415-f0ff30ff/steps/003-input_ready.json",
+      "artifact_sha256": "8800214f626ddabdc8658ddc22704c216443ff16e1c428b9f9950e0d2d3c1593"
+    },
+    {
+      "step": "query",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261030T151415-f0ff30ff/steps/004-query.json",
+      "artifact_sha256": "45325f0080301c5bde1a21833dd2ba4b2d33032d2acec9042aa98f42b2506536"
+    },
+    {
+      "step": "immediate_sport",
+      "kind": "audio_play",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261030T151415-f0ff30ff/steps/005-immediate_sport.json",
+      "artifact_sha256": "40887d397220c478dd56e7bb8d6771dc1f5317f2e9d2af435811191fc0409d65"
+    },
+    {
+      "step": "recognition_observation",
+      "kind": "audio_record",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261030T151415-f0ff30ff/steps/006-recognition_observation.json",
+      "artifact_sha256": "c3e84bf1010d6c85ee6bcd2a9391c03e3111a52e4a74cca3915adfdd2fd1b5a5"
+    },
+    {
+      "step": "cleanup_home",
+      "kind": "device_action",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261030T151415-f0ff30ff/steps/007-cleanup_home.json",
+      "artifact_sha256": "eab2be82e051f205655127c3ae64228d187b2f83174b677c72f4ddd3f270bcaf"
+    },
+    {
+      "step": "cleanup_closed",
+      "kind": "wait_event",
+      "execution_status": "completed",
+      "product_status": "needs_review",
+      "local_artifact": "runs/20261030T151415-f0ff30ff/steps/008-cleanup_closed.json",
+      "artifact_sha256": "d22c63549076dd35192cd78fab5cdc26decbdbe370b2f90e1b69221559b7ab29"
+    }
+  ],
+  "local_bundle_integrity_sha256": "ba9572283c3a4c1c06276dd1cd393f1fe4db5125bbb583b44876fbcd81b11445",
+  "source_sha256": "9fddb5fc9fee08c973575a55716690994f30d88b3cb9ff046ce1e8c398e388fc",
+  "local_evidence_index": "runs/20261030T151415-f0ff30ff/evidence_index.md",
+  "raw_evidence": "kept_local_not_in_git"
+}
