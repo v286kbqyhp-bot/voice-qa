@@ -8,10 +8,11 @@ CLI合同`voiceqa-cli-v2`；适配器HTTP仍`/v1`，详细请求/返回以[opena
 | TTS | 准确text/voice/rate/locale/provider | 预生成PCM16 WAV及SHA；播放阶段不临时合成 |
 | AudioIO | 录音、已生成文件播放 | 主机时序、音频、电平；不证明设备收到或说话人身份 |
 | DeviceEventSource | ADB/连接设备 | 当前trace结构化事件与脱敏原日志；遗漏结构化事件时仍查原log |
+| ServerText | 已封存events及实际bind_trace | server-text-v1：worker回复/设备输入ASR、native segment、final和完整原事件；不证明实际声音 |
 | RecordedSpeechRecognizer | 独立麦克风WAV | recording-asr-v1原转写、片段、audio/model SHA；未知speaker/未校准confidence |
 | LiveAsrProcess | 增长中的本机WAV、ASR环境/模型配置 | asr/live.jsonl实时partial/final，停止后transcript.json；独立进程不占播音调度 |
-| SemanticDialogueReviewer | review-request-v1（原ASR、上下文、模板和标准） | semantic-review Schema；GPT还原/推测、逐项判定和原模板字段 |
-| Receipt | 通过校验的GPT评审 | 本地原模板字段＋ASR原文＋GPT还原＋语义判断，不进入Git |
+| SemanticDialogueReviewer | review-request-v1（明确标源的服务端文本或原ASR、上下文、模板和标准） | semantic-review Schema；GPT还原/推测、逐项判定和原模板字段 |
+| Receipt | 通过校验的GPT评审 | 本地原模板字段＋标源原文＋GPT还原＋语义判断，不进入Git |
 
 ## 运行与能力
 
@@ -27,8 +28,10 @@ device_action只支持exit_voice（真实Android Back），动作完成不等于
 
 数据根优先VOICEQA_DATA_DIR、config.data_root、本机.local/storage.json，默认~/voice-qa-data；生成物路径必须resolve到仓库外。真实来源/用例、runs、batches、records、reviews、reports都本机保存。许可合成语音库可分发，设备回答/麦克风录音不可入库。Git gate仅验证skill代码和通用fixture，不登记实测结果。
 
-启用live ASR见config.example.yaml和[ASR](RECORDED_AUDIO_ASR.md)。文件后处理仍可用独立ASR接口；不能将离线分析冒充实时输出。没有ASR模型或依赖时保留阻塞/未分析，不生成占位字幕。
+ASR回退配置见config.example.yaml和[ASR](RECORDED_AUDIO_ASR.md)。文件后处理可用独立ASR接口；不能将离线分析冒充实时输出。需要ASR而模型/依赖不可用时保留阻塞/未分析，不生成占位字幕；已验证服务端文本的语义路径不依赖ASR环境。
 
-`review-prepare bundle --template local.yaml [--asr raw.json]`创建本机输入包。当前GPT Agent负责模型评审，不假装有后台API；`review-import review-dir assessment.json`校验输入SHA、字幕片段引用、原模板字段、criterion覆盖，再写本地receipt。模型延迟不进入音频时机循环。细节见[语义回执](SEMANTIC_REVIEW.md)。
+`review-prepare bundle --template local.yaml --evidence-source server_text`创建文本输入包；recording_asr为兼容旧版的默认，支持`--asr raw.json`。server_text不读取ASR文件，只从实际绑定trace的封存事件取完整final替换快照；未取到时保留缺证并回退录音识别。原partial/final事件保留；每段有source、trace、native_segment_id、event_id、raw_line、received_monotonic_s，接收时间不是发声时间。
 
-旧SemanticReviewer(context,events)只针对日志辅助意见；不能替代以独立录音字幕为主的SemanticDialogueReviewer。后者可换模型服务，仍需保留原ASR与推测的边界。任何provider未提供task_id、说话人、实体动作或声学证据时应标未知，不能按预期补结果。
+当前GPT负责语义评审；模板criterion用evidence_scope=reply_semantics/input_recognition限定可由文本支持的PASS。未标scope及声学/硬件/真人/后台task等项目不能仅凭文本PASS。review-import核原运行与文本一致、片段引用、全部字段和criterion覆盖；模型延迟不进入播音循环。详见[语义回执](SEMANTIC_REVIEW.md)。
+
+旧SemanticReviewer(context,events)只针对日志辅助意见；SemanticDialogueReviewer接收明确标源的服务端文本或独立录音字幕，可替换模型提供方。任何provider未提供task_id、实体动作或声学证据时应标未知，不能按预期补结果。

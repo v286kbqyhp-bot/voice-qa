@@ -1,4 +1,12 @@
-# 原始ASR、GPT还原与语义回执
+# 服务端文本、录音ASR与GPT语义回执
+
+优先验证当轮服务端回复文本，使用`review-prepare <run> --template <local.yaml> --evidence-source server_text`。只选择实际bind_trace的当前会话，worker回复与device_input_asr分别标来源；source为dynamic_current等本地音频不会混入云端回答。保留原始partial/final与native segment_id，不拼接未知delta，也不把某一final当整轮完整。文本缺失或关键段截断时使用下方独立录音ASR路径；已有录音可后处理，无需重放。
+
+server_text模式中，模板criterion需明确`evidence_scope: reply_semantics`（回复文本语义）或`input_recognition`（设备输入识别），并引用相应final，才能凭文本PASS。声音实际播出、断续、首音、实体动作、真人验收、后台task/Tool Calls等标准不能凭文本PASS；默认未标scope也不开放文本PASS。原用例的声学标准不能被拆除，只因文本语义正常就签整例通过。
+
+输出为原模板字段＋服务端原文及设备输入识别＋GPT判断；不生成假ASR或逐字实听。`server-text-v1`保留trace、原segment、事件ID、原始日志行及客户端接收时间；后者不等于物理发声时间。CLI旧默认仍为recording_asr，调用server_text须明确选项，运行配置`asr.live:false`。
+
+## 独立录音ASR回退
 
 运行器负责时序；ASR负责独立录音字幕；当前OpenAI GPT Agent负责带引用的语义还原与判断；确定性代码校验引用/哈希并渲染模板。没有模型API自动调用也可以由调用skill的Agent完成评审，不能伪装后台服务。
 

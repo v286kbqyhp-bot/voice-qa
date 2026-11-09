@@ -1,6 +1,6 @@
 # 本地交付与维护
 
-最终交付是外部data_root内的原模板receipt.md、原始录音/字幕和独立GPT评审。`record`与`record-suite`也只导出本机records，不提交任何实测摘要到Git。先给用户简短结论和本地链接，需要录音/全文时直接给相应文件。
+最终交付是外部data_root内的原模板receipt.md、原始录音/标源文本和独立GPT评审。服务端文本模式明确“未运行独立ASR”，不可伪造ASR或实听栏。`record`与`record-suite`也只导出本机records，不提交任何实测摘要到Git。先给用户简短结论和本地链接，需要录音/全文时直接给相应文件。
 
 Git仅分发skill、runtime、接口/Schema、通用fixture与许可TTS库；pre-commit/pre-push检查实际快照，拒绝records/reports/sources/reviews等真实数据目录。旧数据迁移到本机archive，不重写Git历史；不要force-push。
 

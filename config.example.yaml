@@ -9,7 +9,10 @@ input_device: 0
 output_device: 1
 sample_rate: 16000
 bindings: {}
-# Enable after installing optional requirements-asr.txt and the model locally:
+# After a current-session probe confirms complete worker reply text, keep ASR off:
+asr:
+  live: false
+# Fallback when reply text is missing/incomplete; install optional requirements-asr.txt and local model:
 # asr:
 #   live: true
 #   python: /absolute/path/to/asr-env/bin/python

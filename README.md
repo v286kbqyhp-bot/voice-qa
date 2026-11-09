@@ -1,6 +1,6 @@
 # Voice QA skill
 
-用YAML和预生成语音驱动真实设备，独立录音ASR生成字幕，再由当前GPT Agent结合上下文还原对话、按用例判断回复语义并生成本地回执。Mac/Windows共用编排与接口，物理音频需各机核验。
+用YAML和预生成语音驱动真实设备，优先验证并读取服务端回复文本，由当前GPT Agent判断语义并生成本地回执。文本缺失时回退独立录音ASR。Mac/Windows共用编排与接口，录音继续保留，物理声音需各机核验。
 
 仓库只保存skill及其运行所需代码、Schema、示例、测试、接口文档和可复用TTS语音库。实际用例、来源、证据、字幕、GPT评审和回执都留本地；Git不再保存实测摘要或历史回执。
 
@@ -35,17 +35,17 @@ Windows使用`.venv\Scripts\python.exe`及`skills\voice-qa\scripts\voice-qa.cmd`
 
 1. 读取用户用例，按原模板准备字段和验收标准；原话术放本地YAML，准确音频优先复用语音库。
 2. 用`library-prepare <case> --output <data_root>/work/<new>/`生成清单，`run <case> --mode live --prepared-assets <manifest>`按时机播音、连续录音及抓日志。
-3. 本机`asr.live: true`启动独立CPU进程跟随麦克风WAV，生成`asr/live.jsonl`实时partial/final字幕和最终`asr/transcript.json`。它不阻塞精确播音时机，不用设备字幕提示识别。
-4. `review-prepare`打包原始ASR、播放/执行事实、原模板与标准；当前GPT Agent还原语义并写assessment，不覆盖原ASR。
-5. `review-import`核验音频/ASR/运行SHA、引用片段、字段和判定，生成本机回执：原模板字段＋ASR原文＋GPT推测对话＋逐项语义判断。
+3. 当轮探针验证当前trace、worker来源、分段final与替换语义。文本完整时配置`asr.live: false`；缺失时启用独立ASR，或对保留录音后处理。
+4. `review-prepare --evidence-source server_text`打包服务端原文、设备输入识别与原始事件；录音ASR路径使用`--evidence-source recording_asr`（为兼容旧调用的默认值）。当前GPT Agent按实际来源评审，不改写原文。
+5. `review-import`核验运行/证据SHA、片段引用、全部原字段和标准，生成本机回执。服务端文本仅可支持明确的文本语义/输入识别项，声音、时延、硬件及后台任务仍需对应证据。
 
 ```sh
-python qa.py review-prepare /local/runs/RUN --template /local/feedback-template.yaml
+python qa.py review-prepare /local/runs/RUN --template /local/feedback-template.yaml --evidence-source server_text
 # GPT Agent读取返回目录/request.json，依Schema写assessment.json
 python qa.py review-import /local/reviews/RUN/REVIEW /local/assessment.json
 ```
 
-模板格式和模型评审约束见[语义回执](docs/SEMANTIC_REVIEW.md)，实时ASR见[录音ASR](docs/RECORDED_AUDIO_ASR.md)。执行与复核详细入口在[Skill](skills/voice-qa/SKILL.md)。没有ASR或GPT评审时不能宣称流程完整；`run`的执行完成不等于产品PASS。GPT还原必须标明推测依据、不确定处，不能按预期编造没听到的回复。
+模板格式和模型评审约束见[语义回执](docs/SEMANTIC_REVIEW.md)，ASR回退见[录音ASR](docs/RECORDED_AUDIO_ASR.md)。执行与复核入口在[Skill](skills/voice-qa/SKILL.md)。有效服务端文本可以替代语义评审所需的独立ASR；`run`执行完成仍不等于产品PASS。不能按预期编造缺失回复，也不能把字幕收到写成实听完整。
 
 ## 可替换组件与验证
 

@@ -1,5 +1,56 @@
 schema_version: 1
 assets:
+- text: 我猜是月亮，对吗？
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-010b2a1e9b18004feb58a7cd
+  file: clips/tts-010b2a1e9b18004feb58a7cd.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.8963125
+  sha256: 2e25adf3d28e8c4a264b9d905911e4bb0488fd5b18f14b9ec7027d571288b193
+  bytes: 64778
+  created_at: '2026-11-09T13:31:49+00:00'
+  provenance:
+    kind: generated_now
+- text: 我有几张补勤卡？
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-0944d0d65d558f243d5318a0
+  file: clips/tts-0944d0d65d558f243d5318a0.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.640875
+  sha256: 2a2ba5a000382a23d73dc4060dd1afaa1a6b655d51c8a92f10948910d9800392
+  bytes: 56604
+  created_at: '2026-11-09T13:31:34+00:00'
+  provenance:
+    kind: generated_now
+- text: 三加五等于几？
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-0d3a4f81937d0d24d730520b
+  file: clips/tts-0d3a4f81937d0d24d730520b.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.3834375
+  sha256: d3de4fb297c1b894ce23b73279f6658b4776d6f8782acf0f3e23b4d7eb1eab0b
+  bytes: 48366
+  created_at: '2026-11-09T13:25:57+00:00'
+  provenance:
+    kind: generated_now
 - text: 不用查了
   voice: Tingting
   rate: 175
@@ -106,6 +157,23 @@ assets:
   created_at: '2026-10-27T08:35:21+00:00'
   provenance:
     kind: generated_now
+- text: 我的补勤卡还有多少？
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-194c40c925dbcb39d81ebe2c
+  file: clips/tts-194c40c925dbcb39d81ebe2c.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 2.0704375
+  sha256: 2ac60e5fcf3aedbd732684eeb72958ecb07db5464b123954a9cc13b830424ae7
+  bytes: 70350
+  created_at: '2026-11-09T13:31:35+00:00'
+  provenance:
+    kind: generated_now
 - text: 成都
   voice: Tingting
   rate: 175
@@ -178,6 +246,23 @@ assets:
   created_at: '2026-10-29T01:57:59+00:00'
   provenance:
     kind: generated_now
+- text: 帮我查一下深圳今天的天气，告诉我要不要带伞。
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-233d7b25d3ae9fe558b73496
+  file: clips/tts-233d7b25d3ae9fe558b73496.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 4.8529375
+  sha256: bedaaf3b1ff4bb82b681f64a6c3b9a7b0f9f32ed66787345fc644f8a4b22d027
+  bytes: 159390
+  created_at: '2026-11-09T13:31:38+00:00'
+  provenance:
+    kind: generated_now
 - text: 那我发到那条线外面一点，是不是就出界了？
   voice: Tingting
   rate: 175
@@ -227,6 +312,57 @@ assets:
   sha256: c725ec7217733393ad59a22bd2379de2af106abef4ded29b8e65c461517937c1
   bytes: 72042
   created_at: '2026-10-28T06:40:58+00:00'
+  provenance:
+    kind: generated_now
+- text: 补勤卡有什么用？
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-2cb9c114dc5d1cf582251e6a
+  file: clips/tts-2cb9c114dc5d1cf582251e6a.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.544125
+  sha256: 9dae9d761f2bd9e5df6d14dba074afcec3ffddadfdb8deb4964e66a3861c1311
+  bytes: 53508
+  created_at: '2026-11-09T13:31:31+00:00'
+  provenance:
+    kind: generated_now
+- text: 我今天有点累，简单安慰我一句。
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-2dde424ae0560ffd1468ab4d
+  file: clips/tts-2dde424ae0560ffd1468ab4d.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 3.1385625
+  sha256: f8710df541002c997186079c5327477759f710b6d6be9f1c553df4b976a3297e
+  bytes: 104530
+  created_at: '2026-11-09T13:31:44+00:00'
+  provenance:
+    kind: generated_now
+- text: 二加六等于几？
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-30ddd8023d68b12aaf1e15cd
+  file: clips/tts-30ddd8023d68b12aaf1e15cd.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.3751875
+  sha256: b74f3f183ee3f30c8c0582b7a8f9e0aa689e4cac5016c6797086c23ca4f7a10b
+  bytes: 48102
+  created_at: '2026-11-09T13:31:45+00:00'
   provenance:
     kind: generated_now
 - text: 我们聊聊小猫吧
@@ -333,6 +469,23 @@ assets:
   sha256: 3d0c16c04e4fa05d7510393ecb88cc0f735268d5227a594813cfb83759f6d9d3
   bytes: 84468
   created_at: '2026-10-28T06:21:04+00:00'
+  provenance:
+    kind: generated_now
+- text: 一周有几天？
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-48eaf22176523784dac0918d
+  file: clips/tts-48eaf22176523784dac0918d.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.176125
+  sha256: 4dda10a68e8d5e2e802d75f3d33c04eb45a921e778be15ecd32df2744b42d96d
+  bytes: 41732
+  created_at: '2026-11-09T13:31:41+00:00'
   provenance:
     kind: generated_now
 - text: 羽毛球双打发球后面的线到底算哪条？帮我查查。
@@ -479,6 +632,40 @@ assets:
   created_at: '2026-10-27T08:35:23+00:00'
   provenance:
     kind: generated_now
+- text: 帮我看看补签卡数量。
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-623818677dbadacf4034d92a
+  file: clips/tts-623818677dbadacf4034d92a.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 2.205875
+  sha256: 7c9c3f9e0a83fa67aae104d272e230d191423dc7b33a99a94898c1a4fd90f811
+  bytes: 74684
+  created_at: '2026-11-09T13:31:36+00:00'
+  provenance:
+    kind: generated_now
+- text: 请说出两种水果。
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-66749a1079a8c44cab6eef27
+  file: clips/tts-66749a1079a8c44cab6eef27.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.80475
+  sha256: bc8d3167762c31afda33dec31bbd0fbb59199955ae1d5a5cfbfbf62a278dfa5b
+  bytes: 61848
+  created_at: '2026-11-09T13:31:43+00:00'
+  provenance:
+    kind: generated_now
 - text: 今天这里下不下雨？
   voice: Tingting
   rate: 175
@@ -511,6 +698,23 @@ assets:
   sha256: 1f879613ccbbd5f746c32dc42787e4af29ba753a295d585f1201aa5d98b8ec7c
   bytes: 24696
   created_at: '2026-10-28T06:21:09+00:00'
+  provenance:
+    kind: generated_now
+- text: 星辰和金币有什么用？
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-6a98f9a85c874c9aded0b89a
+  file: clips/tts-6a98f9a85c874c9aded0b89a.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.988
+  sha256: 51e7bca1ed3da1c5bddca4b04959f3c75010be74419ba4dc71e41b677c3d5db2
+  bytes: 67712
+  created_at: '2026-11-09T13:31:33+00:00'
   provenance:
     kind: generated_now
 - text: 不用查了，我们聊别的
@@ -564,6 +768,40 @@ assets:
   created_at: '2026-10-30T01:32:44+00:00'
   provenance:
     kind: generated_now
+- text: 一周有几天
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-7ac804b49f6eeeca155f5685
+  file: clips/tts-7ac804b49f6eeeca155f5685.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.1761875
+  sha256: b4ffbc625ff0299853ead69a3f00b923b4ee33664466523b6f43aafdd4c2a11d
+  bytes: 41734
+  created_at: '2026-11-09T13:31:42+00:00'
+  provenance:
+    kind: generated_now
+- text: 先告诉我三加五等于几
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-7bb4c9cfe2c662910f078666
+  file: clips/tts-7bb4c9cfe2c662910f078666.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 2.3014375
+  sha256: 6b3faf975df0b646ddd8b6792d47b3f14e38d3b9944fe2336bee673e2cafab83
+  bytes: 77742
+  created_at: '2026-11-09T13:31:40+00:00'
+  provenance:
+    kind: generated_now
 - text: 你好
   voice: Tingting
   rate: 175
@@ -581,6 +819,23 @@ assets:
   created_at: '2026-10-28T06:26:30+00:00'
   provenance:
     kind: generated_now
+- text: 再加二呢？
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-7e99744f4cfbb9164ebddd0e
+  file: clips/tts-7e99744f4cfbb9164ebddd0e.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 0.9
+  sha256: 0e2e14809159da4e44714e5f192596c6f02812df053113a67138c2d00f1cef6c
+  bytes: 32896
+  created_at: '2026-11-09T13:31:46+00:00'
+  provenance:
+    kind: generated_now
 - text: 帮我查篮球为什么要运球
   voice: Tingting
   rate: 175
@@ -596,6 +851,23 @@ assets:
   sha256: 8bb96a353aa30facbd20f602f0f0030e08a021595934a99825e81959706c9a22
   bytes: 82858
   created_at: '2026-10-30T01:32:49+00:00'
+  provenance:
+    kind: generated_now
+- text: 请讲一个两百字左右的小故事，分成三段，最后说“故事结束”。
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-846648fea5442a814b08a0c0
+  file: clips/tts-846648fea5442a814b08a0c0.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 6.13525
+  sha256: 7e51a7e170f938629498892d5198a82c6e3f3bfa525d9d6c06e69f8b24f49f52
+  bytes: 200424
+  created_at: '2026-11-09T13:31:50+00:00'
   provenance:
     kind: generated_now
 - text: 帮我查一下霸王龙生活在哪个年代。
@@ -717,6 +989,23 @@ assets:
   created_at: '2026-10-30T01:32:47+00:00'
   provenance:
     kind: generated_now
+- text: 进入倾听模式
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-a272b9ea7c81684f08b7efa3
+  file: clips/tts-a272b9ea7c81684f08b7efa3.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.4331875
+  sha256: 9226d207b9f7341424503100c2a3599203b15eb0c6655f540ecc971e2e7ffdeb
+  bytes: 49958
+  created_at: '2026-11-09T13:31:37+00:00'
+  provenance:
+    kind: generated_now
 - text: 你觉得打羽毛球最有趣的是什么？
   voice: Tingting
   rate: 175
@@ -783,6 +1072,23 @@ assets:
   sha256: aff2b0e748fecc0f5d2775a03f3a70e59bfea379f4d456ef3f42fde81d22ad39
   bytes: 40666
   created_at: '2026-10-30T01:32:52+00:00'
+  provenance:
+    kind: generated_now
+- text: 停一下，直接告诉我三加五等于几。
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-a97e255b10c8f7ee7f8081e6
+  file: clips/tts-a97e255b10c8f7ee7f8081e6.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 3.4049375
+  sha256: d1db3f3005fee92bbdf5d078e96266b8c34287b9e6b73dfb9e0c654d02e4eb7c
+  bytes: 113054
+  created_at: '2026-11-09T13:31:52+00:00'
   provenance:
     kind: generated_now
 - text: 帮我查我的世界基岩版最新正式更新
@@ -904,6 +1210,23 @@ assets:
   created_at: '2026-10-30T01:32:45+00:00'
   provenance:
     kind: generated_now
+- text: 用一句话解释为什么天会黑。
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-c71f0b9e074e30691c386ebc
+  file: clips/tts-c71f0b9e074e30691c386ebc.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 2.6039375
+  sha256: 48ed30b450847a14900c28fe484ca27d05e0598e917a9ca63d30134b71bd08d4
+  bytes: 87422
+  created_at: '2026-11-09T13:31:47+00:00'
+  provenance:
+    kind: generated_now
 - text: 升高一点
   voice: Tingting
   rate: 175
@@ -953,6 +1276,23 @@ assets:
   sha256: e913a49afdb9536c99de7f79599bf08482bb26e99e197ca4690a6ea9cf5c5b3e
   bytes: 38906
   created_at: '2026-10-28T06:21:05+00:00'
+  provenance:
+    kind: generated_now
+- text: 补签卡有什么用？
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-d1826a79ef06ea5c2d454879
+  file: clips/tts-d1826a79ef06ea5c2d454879.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.5556875
+  sha256: 190fed6fa05392b86eb0a7ae460b6c19e8f8bca74b9e052cfd93c21715380bd6
+  bytes: 53878
+  created_at: '2026-11-09T13:31:32+00:00'
   provenance:
     kind: generated_now
 - text: 帮我查一下我的世界基岩版最近正式更新了什么。
@@ -1006,6 +1346,23 @@ assets:
   created_at: '2026-10-30T01:32:50+00:00'
   provenance:
     kind: generated_now
+- text: 再见
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-db339962e1432db18ed328d1
+  file: clips/tts-db339962e1432db18ed328d1.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 0.543625
+  sha256: 59570b3a748eeb2249ba6863d64f49eca44823cdad14590f6ea8be35cc71d8d6
+  bytes: 21492
+  created_at: '2026-11-09T13:31:31+00:00'
+  provenance:
+    kind: generated_now
 - text: 帮我查一下羽毛球双打后发球线是哪条。
   voice: Tingting
   rate: 175
@@ -1040,6 +1397,57 @@ assets:
   created_at: '2026-10-30T01:32:53+00:00'
   provenance:
     kind: generated_now
+- text: 最后鼓励我一句。
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-e3b9fb6a135be5d41afab32b
+  file: clips/tts-e3b9fb6a135be5d41afab32b.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.514
+  sha256: 4f103b1a892287a5ab420fc08762e07618bc9fc8a77f02d205dd803ca4f37461
+  bytes: 52544
+  created_at: '2026-11-09T13:31:50+00:00'
+  provenance:
+    kind: generated_now
+- text: 查一下深圳明天的天气。
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-ebb7ad086e3b4fd3c2bc1c18
+  file: clips/tts-ebb7ad086e3b4fd3c2bc1c18.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 2.283625
+  sha256: 254600d7fd8f9b60c078f2222e744892629d3f86317a05824dfa47c71cc20c11
+  bytes: 77172
+  created_at: '2026-11-09T13:31:39+00:00'
+  provenance:
+    kind: generated_now
+- text: 不用查了，取消搜索
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-f2dc8dc16674b2c903206014
+  file: clips/tts-f2dc8dc16674b2c903206014.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 2.182625
+  sha256: 6e43920a9e2d90bbbcbaa075dfc745b62c9030819b9036cbf7e321bbdedd0bba
+  bytes: 73940
+  created_at: '2026-11-09T13:31:41+00:00'
+  provenance:
+    kind: generated_now
 - text: 查北京今天的天气
   voice: Tingting
   rate: 175
@@ -1055,6 +1463,23 @@ assets:
   sha256: 65431dfb567e69477a00299fcd8ee66623b19d52d627ec0a16d580ccfa2823cf
   bytes: 66026
   created_at: '2026-10-30T01:32:48+00:00'
+  provenance:
+    kind: generated_now
+- text: 给我一个简单谜语。
+  voice: Tingting
+  rate: 175
+  locale: zh-CN
+  provider: macos_say
+  id: tts-fe85cdc7854c9aa89f1ddf60
+  file: clips/tts-fe85cdc7854c9aa89f1ddf60.wav
+  origin: generated_tts
+  encoding: PCM16_WAV
+  sample_rate: 16000
+  channels: 1
+  duration_s: 1.519625
+  sha256: be51036e5e1237b86060446f9a9569d9322b1f4a47e3e5ac62941fed6cc95bc3
+  bytes: 52724
+  created_at: '2026-11-09T13:31:48+00:00'
   provenance:
     kind: generated_now
 - text: 帮我查一下今天这里下不下雨，放学适合打球吗？

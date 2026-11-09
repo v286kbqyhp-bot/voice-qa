@@ -1,5 +1,15 @@
 # ASR与GPT语义复核
 
+## 已验证服务端文本时优先走此路径
+
+`VQA review-prepare /local/run --template /local/original-template.yaml --evidence-source server_text`。运行器只收集实际执行bind_trace所绑定会话的worker回复与输入ASR；按原segment保留final替换文本，partial/final完整原事件也收入输入包。没有final、缺段或未知替换语义时不补写，必要时回退下方录音ASR。服务端文本模式不读取旧ASR文件。
+
+当前GPT读取request.json，引用text-片段判断文本语义，直接引文标“服务端原文”；推测仍写明依据。模板criterion只有明确`evidence_scope: reply_semantics`或`input_recognition`且有相应final证据，才允许凭文本PASS。未标scope以及声学、硬件、真人、真实工具/任务等项目不能仅凭文本PASS；应保留不确定/阻塞及需补证据。原用例整体PASS仍取决于全部原标准。
+
+`review-import`验证文本确实来自封存事件、运行SHA、引用和全部原模板字段，并渲染“服务端回复文本与设备输入识别（原文）”。它不把文本改名为录音转写，也不宣称实际听到了完整声音。
+
+## 文本不可用时的录音ASR路径
+
 1. `verify <run>`核封存包，再读`results.json`确认实际执行到的步骤；没有ASR时先配置/运行独立录音识别，原WAV不修改。ASR实时流保留所有partial/final，最终字幕是模型原文，不能按日志/预期静默修字。
 2. `VQA review-prepare /local/run --template /local/original-template.yaml [--asr /local/raw-asr.json]`生成本地request.json和assessment.template.json。输入包绑定运行/音频/ASR SHA，含原模板和criterion；它不是已完成的GPT判断。
 3. 当前GPT Agent读取request.json，写独立assessment.json（见runtime `schema/semantic-review.schema.json`）：按片段还原对话，分别标测试输入/设备回复/未知说话人。同音错字可基于语义、已知播放输入和上下文推测，明确`推测还原`与rationale；参考字幕时也写明来源。不确定的词保留不确定，不用产品预期填设备没说出的回答。

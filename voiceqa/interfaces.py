@@ -85,8 +85,9 @@ class SemanticDialogueReviewer(Protocol):
     def review(self, request: dict) -> dict:
         """Current GPT agent or an explicitly configured provider.
 
-        Return semantic-review.schema.json: raw-ASR segment references,
+        Return semantic-review.schema.json: labeled server-text or raw-ASR references,
         reconstructed dialogue marked inferred/unclear, original criteria
-        verdicts and original receipt fields. Never rewrite raw ASR.
+        verdicts and original receipt fields. Never rewrite literal evidence or
+        promote received text to acoustic/physical/task acceptance.
         """
         ...

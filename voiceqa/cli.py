@@ -73,8 +73,9 @@ def main():
     p.add_argument('--port', type=int, default=8765)
     p.add_argument('--config', type=Path)
     p.add_argument('--root', type=Path, default=None)
-    p=sub.add_parser('review-prepare',help='Prepare local raw ASR and original template for the current GPT agent')
+    p=sub.add_parser('review-prepare',help='Prepare literal server text or independent ASR and the original template for GPT review')
     p.add_argument('bundle',type=Path);p.add_argument('--asr',type=Path);p.add_argument('--template',type=Path,required=True);p.add_argument('--output',type=Path)
+    p.add_argument('--evidence-source',choices=['recording_asr','server_text'],default='recording_asr')
     p=sub.add_parser('review-import',help='Validate GPT reconstruction and render a local source-template receipt')
     p.add_argument('review_dir',type=Path);p.add_argument('assessment',type=Path)
     sub.add_parser('paths')
@@ -179,7 +180,7 @@ def main():
             print(json.dumps(NativeAdapter().prepare({'text': args.text}, args.output), ensure_ascii=False))
         elif args.command=='review-prepare':
             from .semantic_review import prepare_review
-            print(prepare_review(args.bundle,args.asr,args.template,args.output))
+            print(prepare_review(args.bundle,args.asr,args.template,args.output,evidence_source=args.evidence_source))
         elif args.command=='review-import':
             from .semantic_review import import_review
             print(import_review(args.review_dir,args.assessment))
