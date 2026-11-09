@@ -101,6 +101,11 @@ class InteractionTests(unittest.TestCase):
         self.assertFalse(result['formal_turn_or_queue_completion'])
         self.assertGreaterEqual(result['quiet_s'],.12)
 
+    def test_weather_waiting_phrase_cannot_satisfy_body_completion(self):
+        events=[event('voice.tts_text_changed',3,source='worker',segment_id='ack',text='查查天气。',is_final='true'),
+                event('voice.tts_text_changed',5,source='worker',segment_id='answer',text='目标城市今天有小雨。',is_final='true')]
+        self.assertEqual([e['fields']['text'] for e in captions(events,'current',2,'body')],['目标城市今天有小雨。'])
+
     def test_interrupted_story_final_cannot_complete_the_next_question(self):
         self.clock=[3.5]
         events=[event('started',1),

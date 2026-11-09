@@ -7,7 +7,7 @@ import time
 from .core import Blocked
 from .lifecycle import session_status
 
-ACK_PHRASES=('我查查','我来查','我帮你查','我给你查','我查一下','我找找','我搜搜','稍等','帮你查一下','我帮你搜','我来看看')
+ACK_PHRASES=('我查查','查查天气','我来查','我帮你查','我给你查','我查一下','我找找','我搜搜','稍等','帮你查一下','我帮你搜','我来看看')
 
 
 def compact(text):
