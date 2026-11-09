@@ -101,6 +101,27 @@ class InteractionTests(unittest.TestCase):
         self.assertFalse(result['formal_turn_or_queue_completion'])
         self.assertGreaterEqual(result['quiet_s'],.12)
 
+    def test_interrupted_story_final_cannot_complete_the_next_question(self):
+        self.clock=[3.5]
+        events=[event('started',1),
+                event('voice.tts_text_changed',2.2,source='worker',segment_id='old',text='旧故事内容',is_final='false'),
+                event('voice.asr_text_changed',3,segment_id='question',text='三加五',is_final='true'),
+                event('voice.tts_text_changed',3.1,source='worker',segment_id='old',text='旧故事',is_final='true'),
+                event('worker_speaking',3.2,speaking='false')]
+        with self.assertRaisesRegex(Blocked,'execution_timeout'):
+            self.wait(self.adapter(events,rms=10),'wait_output',{'after_input_final':True,'quiet_s':.12,'timeout_s':.3})
+        events += [event('voice.tts_text_changed',4,source='worker',segment_id='new',text='八',is_final='true'),
+                   event('worker_speaking',4.1,speaking='false')]
+        self.clock=[4.2]
+        result=self.wait(self.adapter(events,rms=10),'wait_output',{'after_input_final':True,'quiet_s':.12,'timeout_s':1})
+        self.assertEqual(result['device_caption_text'],'八')
+
+    def test_input_gate_cannot_be_bypassed_by_disabling_captions(self):
+        self.clock=[4.0]
+        events=[event('started',1),event('worker_speaking',3,speaking='false')]
+        with self.assertRaisesRegex(Blocked,'execution_timeout'):
+            self.wait(self.adapter(events,rms=10),'wait_output',{'after_input_final':True,'require_caption':False,'quiet_s':.12,'timeout_s':.3})
+
     def test_idle_close_ends_wait_immediately_instead_of_waiting_for_timeout(self):
         self.clock=[4.0]
         adapter=self.adapter([event('started',1),event('session_end_requested',3,trace=None,reason='idle_timeout')])

@@ -20,6 +20,8 @@ CLI合同`voiceqa-cli-v2`；适配器HTTP仍`/v1`，详细请求/返回以[opena
 
 Native联合等待只用当前trace、字幕、说话状态、麦克风RMS与PCM计数辅助有界调度，不能当作语义或实际扬声器队列清空的证明。wait_speech支持role、text_contains_any、require_final、require_sound、delay_s、max_elapsed_s；wait_output支持role、text_contains_any、quiet_s、fail_if_body_started、require_caption。进入ending/closed/superseded立即返回session_ended_while_waiting。
 
+正常问答及打断后的wait_output应设置after_input_final:true：等待本次输入final，并排除该final之前已出现的回复segment，防止旧段被截断的迟到final冒充新回答完成。旧设备缺少输入final时保持阻塞，不能以静音绕过；该边界仍是客户端观察代理，不能冒充服务端turn/task_id。
+
 wait_event支持明确event/alternative_events、where、text_contains_any、after_last_play、same_trace、bind_trace、timeout_s。`after_last_play`按播放开始的turn_floor限制，避免漏掉文件结束前到达的识别事件；字段缺失不能伪造匹配。全局关闭事件不总有trace，应按本轮绑定和时间窗核对。
 
 device_action只支持exit_voice（真实Android Back），动作完成不等于退出验证；截图和关闭事件另存。cleanup可加if_session_active:true，已关闭不再发词。语音收尾可用idle_finish_before_s≤4与startup_budget_s≤2，预算不足跳过不伪造播放；idle_timeout不是语音退出成功。

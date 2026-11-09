@@ -43,6 +43,23 @@ def latest_state(events,trace,floor):
     return states[-1] if states else None
 
 
+def after_input_final(events,trace,floor,relevant):
+    """Exclude an interrupted segment's late final from the next reply candidate.
+
+    This is an observation boundary, not a native turn/task identity guarantee.
+    """
+    inputs=[e for e in events if e['event']=='voice.asr_text_changed' and e.get('trace')==trace and
+            e['received_monotonic_s']>=floor and e['fields'].get('is_final')=='true']
+    if not inputs:return [],None
+    boundary=inputs[-1]['received_monotonic_s'];first={}
+    for e in events:
+        if e['event']=='voice.tts_text_changed' and e.get('trace')==trace and e['fields'].get('source')=='worker':
+            segment=e['fields'].get('segment_id')
+            if segment:first[segment]=min(first.get(segment,float('inf')),e['received_monotonic_s'])
+    return [e for e in relevant if e['received_monotonic_s']>=boundary and
+            first.get(e['fields'].get('segment_id'),-1)>=boundary],inputs[-1]
+
+
 def attach_phase_label(adapter,result,label):
     if label:
         from .phase_labels import preserve_label
@@ -72,12 +89,16 @@ def wait_interaction(adapter,kind,params):
         if levels.get('errors') or now-levels['updated_monotonic_s']>1:
             raise Blocked('capture stream stale or errored during interaction')
         relevant=captions(events,adapter.trace,floor,'any' if params.get('phase_role') else role,params.get('text_contains_any'))
+        input_gate=True
         phase_label=None
         if params.get('phase_role'):
             from .phase_labels import matching_label
             matched=matching_label(adapter,events,params['phase_role'])
             relevant=[matched[0]] if matched else []
             phase_label=matched[1] if matched else None
+        if params.get('after_input_final'):
+            relevant,input_event=after_input_final(events,adapter.trace,floor,relevant)
+            input_gate=input_event is not None
         state=latest_state(events,adapter.trace,floor)
         speaking=state and state.get('fields',{}).get('speaking')=='true'
         # Captions and speaking flags are independent streams. An old bridge
@@ -118,7 +139,7 @@ def wait_interaction(adapter,kind,params):
                             'speaker_attribution':'unverified','physical_overlap':'requires recording review'}
                     attach_phase_label(adapter,result,phase_label)
                     adapter._notify('event_matched',received=result);return result
-        if kind=='wait_output' and (relevant or params.get('require_caption') is False):
+        if kind=='wait_output' and input_gate and (relevant or params.get('require_caption') is False):
             body_after_ack=bool(relevant) and role=='ack' and captions(events,adapter.trace,relevant[-1]['received_monotonic_s'],'body')
             if body_after_ack and params.get('fail_if_body_started'):
                 raise Blocked('timing_missed: search body started before acknowledgement gap')

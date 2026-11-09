@@ -85,7 +85,7 @@ def load_case(path: Path) -> dict:
         'audio_record': {'max_seconds'}, 'sleep': {'seconds'},
         'wait_event': {'event', 'alternative_events', 'where', 'text_contains_any', 'after_last_play', 'if_session_active', 'timeout_s', 'bind_trace', 'same_trace', 'require_audible_device_speech'},
         'wait_speech': {'role','phase_role','text_contains_any','timeout_s','require_final','require_sound','delay_s','max_elapsed_s'},
-        'wait_output': {'role','text_contains_any','timeout_s','quiet_s','fail_if_body_started','require_caption'},
+        'wait_output': {'role','text_contains_any','timeout_s','quiet_s','fail_if_body_started','require_caption','after_input_final'},
         'expect': {'contract'}, 'vision_expect': {'contract'},
         'device_action': {'action','if_session_active'},
     }
@@ -95,6 +95,8 @@ def load_case(path: Path) -> dict:
             raise ValueError('device_action only supports exit_voice')
         if set(params) - allowed_params[step['kind']]:
             raise ValueError('unsupported parameters in step: ' + step['name'])
+        if 'after_input_final' in params and not isinstance(params['after_input_final'],bool):
+            raise ValueError('after_input_final must be boolean')
         if 'if_session_active' in params and (step not in data.get('cleanup',[]) or params['if_session_active'] is not True):
             raise ValueError('if_session_active=true is only supported in cleanup')
         if 'idle_finish_before_s' in params and (not params.get('if_session_active') or not 0<params['idle_finish_before_s']<=4):
