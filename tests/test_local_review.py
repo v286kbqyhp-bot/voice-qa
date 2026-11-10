@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from voiceqa.core import ROOT, digest
+from voiceqa.core import ROOT, digest, dump
 from voiceqa.adapters import ReplayAdapter
 from voiceqa.runner import run, seal, verify_bundle
 from voiceqa.semantic_review import prepare_review, import_review, validate_review
@@ -46,6 +46,8 @@ class ReviewTests(unittest.TestCase):
         import wave
         with wave.open(str(self.bundle/'audio/mic_raw.wav'),'wb') as w:
             w.setparams((1,2,16000,0,'NONE','not compressed'));w.writeframes(b'\0\0'*1600)
+        from voiceqa.timing import build_timing
+        dump(self.bundle/'timing.json',build_timing(self.bundle))
         seal(self.bundle)
         self.asr=self.root/'asr.json';self.asr.write_text(json.dumps({'contract':'recording-asr-v1','audio_sha256':digest(self.bundle/'audio/mic_raw.wav'),'duration_s':.1,'segments':[{'start_s':0,'end_s':.08,'text':'这是原始错字','speaker':'unknown','confidence':None}]},ensure_ascii=False),encoding='utf-8')
         self.template=self.root/'template.yaml';self.template.write_text('fields: [现场SN, 原始字段]\ncriteria:\n- id: relevant\n  description: 回答应对应问题\n',encoding='utf-8')

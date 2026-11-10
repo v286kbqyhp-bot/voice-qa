@@ -112,3 +112,9 @@ class ServerReviewTests(unittest.TestCase):
     def test_text_mode_does_not_accept_asr_argument(self):
         with self.assertRaisesRegex(ValueError, 'does not consume'):
             prepare_review(self.bundle, self.root/'old-asr.json', self.template, self.root/'other', evidence_source='server_text')
+
+    def test_final_delivery_cannot_export_unresolved_required_criterion(self):
+        assessment=self.root/'final-assessment.json';dump(assessment,self.assessment)
+        with self.assertRaisesRegex(ValueError,'resolution or discussion'):
+            import_review(self.folder,assessment,final=True)
+        self.assertFalse((self.folder/'receipt.md').exists())

@@ -4,7 +4,7 @@
 
 `VQA review-prepare /local/run --template /local/original-template.yaml --evidence-source server_text`。运行器只收集实际执行bind_trace所绑定会话的worker回复与输入ASR；按原segment保留final替换文本，partial/final完整原事件也收入输入包。没有final、缺段或未知替换语义时不补写，必要时回退下方录音ASR。服务端文本模式不读取旧ASR文件。
 
-当前GPT读取request.json，引用text-片段判断文本语义，直接引文标“服务端原文”；推测仍写明依据。模板criterion只有明确`evidence_scope: reply_semantics`或`input_recognition`且有相应final证据，才允许凭文本PASS。未标scope以及声学、硬件、真人、真实工具/任务等项目不能仅凭文本PASS；应保留不确定/阻塞及需补证据。原用例整体PASS仍取决于全部原标准。
+当前GPT读取request.json，引用text-片段判断文本语义，直接引文标“服务端原文”；推测仍写明依据。模板criterion只有明确`evidence_scope: reply_semantics`或`input_recognition`且有相应final证据，才允许凭文本PASS。声学、硬件、真人、真实工具/任务等项目要取对应证据；未核清的必测项继续修复/补验，不能当作最终BLOCKED交付。按用户明确分工、豁免后的适用原标准给整体结论，不给所有用例添加泛化后台项。
 
 `review-import`验证文本确实来自封存事件、运行SHA、引用和全部原模板字段，并渲染“服务端回复文本与设备输入识别（原文）”。它不把文本改名为录音转写，也不宣称实际听到了完整声音。
 
@@ -14,7 +14,11 @@
 2. `VQA review-prepare /local/run --template /local/original-template.yaml [--asr /local/raw-asr.json]`生成本地request.json和assessment.template.json。输入包绑定运行/音频/ASR SHA，含原模板和criterion；它不是已完成的GPT判断。
 3. 当前GPT Agent读取request.json，写独立assessment.json（见runtime `schema/semantic-review.schema.json`）：按片段还原对话，分别标测试输入/设备回复/未知说话人。同音错字可基于语义、已知播放输入和上下文推测，明确`推测还原`与rationale；参考字幕时也写明来源。不确定的词保留不确定，不用产品预期填设备没说出的回答。
 4. 每个原criterion给pass/fail/inconclusive/blocked/not_run、理由、ASR片段引用和限制。语义判定看实际回复是否对应输入与预期；设备最终ASR缺词只是辅助线索。未执行/无有效音频/无关键字幕不能PASS，实体动作缺用户观察不能仅据播报通过。已完整识别但错误退出等语义异常应单独判断。
-5. 完整填写原模板每个字段；测试人、SN、时间、版本等只取本机事实，未核写未核。然后`VQA review-import /local/review-dir /local/assessment.json`校验并生成receipt.md，回读该文件，确认原始ASR、GPT还原和判定全部并列。
+5. 完整填写原模板字段；测试人、SN、时间、版本等只取本机事实。必填信息不明时先查再讨论，不在最终回执里填“未核验”。`VQA review-import /local/review-dir /local/assessment.json --final`校验并生成receipt.md，回读原文、GPT判断、逐轮时延和结果。未完成的工作导入不带--final，只留草稿。
+
+原模板metadata.user_waivers可记录用户明确免验的criterion：`{criterion_id: {reason: 原因, authorization: 用户决定原意, visibility: internal}}`。visibility=internal时仅保留在本地评审元数据，不渲染到最终文档。用户要求省略的原字段用metadata.user_field_omissions同样记录reason/authorization。不得自行新增这些决定，也不能把用户免验某项扩大为免验全部。
+
+新运行自动带timing.json；旧包先`VQA timing`补算，再用review-prepare的`--timing /local/timing.json`带入同轮评审。取录音估算与日志时延的实际数值，避免把采集总时长写成响应时间。
 
 原始字幕与推测永远是两栏。按已知输入进行角色归属属于GPT推断，不冒充说话人分离模型。录音是Mac麦克风时也明确，不推定等于设备麦克风收到的音质。实时JSONL与原始文件SHA保留，评审sidecar不修改已封存运行；修订则新建review。
 

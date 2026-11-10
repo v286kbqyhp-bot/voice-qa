@@ -91,6 +91,8 @@ class PcmAudio:
         self.wave = wave.open(self.wave_file, 'wb')
         self.wave.setparams((1, 2, self.rate, 0, 'NONE', 'not compressed'))
         self.anchor = time.monotonic()
+        self.capture_clock = {}
+        self.capture_received_frames = 0
 
         def write():
             try:
@@ -114,6 +116,16 @@ class PcmAudio:
                 raise sd.CallbackStop
             if status:
                 self.errors.append(str(status))
+            observed = time.monotonic()
+            if not self.capture_clock:
+                try:
+                    first_sample = observed - (timing.currentTime - timing.inputBufferAdcTime)
+                    method = 'portaudio_adc_clock_to_host_monotonic'
+                except (AttributeError, TypeError):
+                    first_sample = observed - frames/self.rate
+                    method = 'callback_observation_estimate'
+                self.capture_clock.update(first_sample_monotonic_s=first_sample, method=method)
+            self.capture_received_frames += frames
             try:
                 self.blocks.put_nowait(bytes(data))
             except queue.Full:
@@ -171,6 +183,7 @@ class PcmAudio:
             if getattr(self,'wave_file',None):self.wave_file.close()
         return {'frames': self.frames, 'peak': self.peak, 'sample_rate': self.rate,
                 'errors': self.errors, 'valid_capture': bool(self.frames and self.peak and not self.errors),
+                'capture_clock': getattr(self, 'capture_clock', {}),
                 'speaker_attribution': 'unverified', 'physical_onset_timing': 'unverified'}
 
     def levels(self):

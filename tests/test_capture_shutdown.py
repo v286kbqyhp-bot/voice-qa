@@ -16,7 +16,8 @@ class CaptureShutdownTests(unittest.TestCase):
         audio=PcmAudio(player=Mock())
         stream=Mock()
         def make_stream(**kwargs):
-            stream.start.side_effect=lambda:kwargs['callback'](array.array('h',[100,-100]*100).tobytes(),200,None,None)
+            clock=SimpleNamespace(currentTime=10.0,inputBufferAdcTime=9.95)
+            stream.start.side_effect=lambda:kwargs['callback'](array.array('h',[100,-100]*100).tobytes(),200,clock,None)
             return stream
         sd=SimpleNamespace(RawInputStream=make_stream,query_devices=lambda *a:{'name':'test'},CallbackStop=RuntimeError)
         with tempfile.TemporaryDirectory() as tmp,patch.dict('sys.modules',sounddevice=sd):
@@ -26,6 +27,8 @@ class CaptureShutdownTests(unittest.TestCase):
             with wave.open(str(target),'rb') as f:self.assertEqual(f.getnframes(),200)
             result=audio.stop()
             self.assertTrue(result['valid_capture']);stream.abort.assert_called_once();stream.close.assert_called_once()
+            self.assertEqual(result['capture_clock']['method'],'portaudio_adc_clock_to_host_monotonic')
+            self.assertLess(result['capture_clock']['first_sample_monotonic_s'],time.monotonic())
 
     def test_driver_timeout_still_closes_wav_and_marks_capture_invalid(self):
         audio=PcmAudio(player=Mock());audio.capture_stopping=threading.Event()

@@ -76,8 +76,13 @@ def main():
     p=sub.add_parser('review-prepare',help='Prepare literal server text or independent ASR and the original template for GPT review')
     p.add_argument('bundle',type=Path);p.add_argument('--asr',type=Path);p.add_argument('--template',type=Path,required=True);p.add_argument('--output',type=Path)
     p.add_argument('--evidence-source',choices=['recording_asr','server_text'],default='recording_asr')
+    p.add_argument('--timing',type=Path,help='Verified timing sidecar for an older sealed run')
     p=sub.add_parser('review-import',help='Validate GPT reconstruction and render a local source-template receipt')
     p.add_argument('review_dir',type=Path);p.add_argument('assessment',type=Path)
+    p.add_argument('--final', action='store_true', help='Refuse final delivery with unresolved required criteria')
+    p=sub.add_parser('timing',help='Calculate per-turn delays and acoustic estimates from a sealed run; never plays audio')
+    p.add_argument('bundle',type=Path);p.add_argument('--output',type=Path,required=True)
+    p.add_argument('--policy',type=Path,help='Recording SHA and reviewed body_segment_ids per step')
     sub.add_parser('paths')
     sub.add_parser('doctor')
     p = sub.add_parser('synthesize')
@@ -180,10 +185,14 @@ def main():
             print(json.dumps(NativeAdapter().prepare({'text': args.text}, args.output), ensure_ascii=False))
         elif args.command=='review-prepare':
             from .semantic_review import prepare_review
-            print(prepare_review(args.bundle,args.asr,args.template,args.output,evidence_source=args.evidence_source))
+            print(prepare_review(args.bundle,args.asr,args.template,args.output,evidence_source=args.evidence_source,timing_file=args.timing))
         elif args.command=='review-import':
             from .semantic_review import import_review
-            print(import_review(args.review_dir,args.assessment))
+            print(import_review(args.review_dir,args.assessment,final=args.final))
+        elif args.command=='timing':
+            from .timing import export_timing
+            policy=json.loads(args.policy.read_text(encoding='utf-8')) if args.policy else None
+            print(export_timing(args.bundle,args.output,policy))
         elif args.command=='paths':
             from .storage import data_root
             print(json.dumps({'runtime_root':str(ROOT),'data_root':str(data_root())},ensure_ascii=False))

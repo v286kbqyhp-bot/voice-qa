@@ -9,5 +9,7 @@
   "artifact_storage": "external-local-only",
   "semantic_review": "dialogue-review-request-v1",
   "review_evidence_sources": ["recording_asr", "server_text"],
-  "server_text_contract": "server-text-v1"
+  "server_text_contract": "server-text-v1",
+  "timing_contract": "voiceqa-timing-v1",
+  "final_delivery_gate": "review-import --final"
 }

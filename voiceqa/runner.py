@@ -236,6 +236,18 @@ def run(case_path: Path, adapter, mode: str, config=None, output_root=None, verb
                    else 'partial',
                'reason': failure, 'attempt': (context or {}).get('attempt_index',1), 'steps': steps}
     dump(output / 'results.json', results)
+    from .timing import build_timing
+    try:
+        timing = build_timing(output)
+        dump(output/'timing.json', timing)
+        results['timing_status'] = 'calculated'
+    except Exception as exc:
+        # Preserve the device run even if post-processing itself fails. The
+        # final-delivery check must repair this instead of hiding it as BLOCKED.
+        results['timing_status'] = 'analysis_error'
+        dump(output/'timing.json', {'contract':'voiceqa-timing-v1', 'error':type(exc).__name__,
+                                   'reason':str(exc), 'rows':[]})
+    dump(output/'results.json', results)
     asr_file=output/'asr/transcript.json'
     dump(output/'transcript.json',json.loads(asr_file.read_text(encoding='utf-8')) if asr_file.is_file() else {
         'status':'not_analyzed','segments':[], 'reason':'ASR unavailable/not configured; GPT semantic review is pending'})
@@ -307,7 +319,7 @@ def render_receipt(output, manifest, results):
     for step in results['steps']:
         file = f"steps/{step['index']:03d}-{step['step']}.json"
         rows.append(f"| {step['step']} | {step['execution_status']} | {step['product_status']} | [JSON]({file}) |")
-    for name in ['progress.jsonl', 'audio/mic_raw.wav', 'logs/device_redacted.log', 'playback.jsonl', 'events.jsonl', 'timeline.jsonl']:
+    for name in ['progress.jsonl', 'audio/mic_raw.wav', 'logs/device_redacted.log', 'playback.jsonl', 'events.jsonl', 'timeline.jsonl', 'timing.json']:
         if (output / name).exists():
             rows += ['', f'- [{name}]({name})']
     (output / 'evidence_index.md').write_text('\n'.join(rows) + '\n', encoding='utf-8')

@@ -34,4 +34,6 @@ GPT按`schema/semantic-review.schema.json`写assessment：request_sha256、revie
 
 `review-import <review-dir> <assessment.json>`复核原始包未变、ASR和音频匹配、所有字段和引用存在。产物review.json、receipt.md、review-integrity.json均为本机sidecar，不改封存run。回执先原模板字段，再原始ASR字幕、GPT推测对话、逐项语义判断和证据。
 
-PASS需要真实执行完成、有效录音和相关ASR引用。所有条件通过才overall=pass；任一fail为fail；其他未闭环则inconclusive/blocked/not_run。代码不能代替GPT验证语义是否真实，调用Agent必须遵守证据边界并回读。
+PASS需要真实执行和对应证据引用；server_text按上方明确scope处理。最终交付调用`review-import --final`：所有适用必测项必须为pass/fail，未知或尚未执行的项先查因修复、补测，无法自补则和用户讨论，不交最终回执。无--final仅产生工作草稿。内部兼容的inconclusive/blocked/not_run不是最终交付结论；不能为了通过门禁删原标准或假造验证。
+
+用户明确免验或跳过时，在原模板metadata.user_waivers记录对应criterion id及`reason`、`authorization`原意；最终结论限定实际核验范围。功能、体验、后台核对分别写，缺实听或计时不自动使已证实功能BLOCKED。时间约值由timing.json和原录音支持，不能把收到字幕当实际声音。

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Voice QA timing v1",
+  "type": "object",
+  "required": ["contract", "run_id", "audio_sha256", "capture_duration_s", "rows", "limitations"],
+  "properties": {
+    "contract": {"const": "voiceqa-timing-v1"},
+    "run_id": {"type": "string"},
+    "audio_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+    "capture_duration_s": {"type": "number", "minimum": 0},
+    "rows": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["step", "trace", "play_start_monotonic_s", "play_end_monotonic_s", "acoustic_estimate"],
+        "properties": {
+          "step": {"type": "string"},
+          "trace": {"type": ["string", "null"]},
+          "play_start_monotonic_s": {"type": "number"},
+          "play_end_monotonic_s": {"type": "number"},
+          "acoustic_estimate": {
+            "type": ["object", "null"],
+            "required": ["input_end_recording_s", "reply_onset_recording_s", "response_delay_s", "method", "uncertainty_s", "precision"],
+            "properties": {
+              "input_end_recording_s": {"type": "number", "minimum": 0},
+              "reply_onset_recording_s": {"type": "number", "minimum": 0},
+              "response_delay_s": {"type": "number", "minimum": 0},
+              "uncertainty_s": {"type": ["number", "null"], "minimum": 0},
+              "method": {"type": "string"},
+              "precision": {"const": "estimate_not_calibrated_T5"}
+            }
+          }
+        }
+      }
+    },
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  }
+}

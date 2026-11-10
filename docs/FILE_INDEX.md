@@ -3,6 +3,7 @@
 - `skills/voice-qa/`：Agent skill、平台启动器与分任务指南。
 - `voiceqa/storage.py`：外部本地数据根与输出边界。
 - `voiceqa/runner.py`、`batch.py`：YAML动作、采证与失败策略。
+- `voiceqa/timing.py`：逐轮主机时延、录音包络定位与声音响应估算；旧包补算保存在外部sidecar。
 - `voiceqa/streaming_asr.py`：独立实时字幕进程；`recording_asr.py`：历史WAV后处理。
 - `voiceqa/server_text.py`：实际绑定会话的服务端回复/输入识别原文及分段final，独立于录音ASR。
 - `voiceqa/semantic_review.py`、`schema/semantic-review.schema.json`：GPT输入包、还原/判定校验与原模板回执。

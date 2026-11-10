@@ -1,5 +1,6 @@
 """Labeled server text or recording ASR -> GPT -> local source-template receipt."""
 import json
+import re
 from pathlib import Path
 import uuid
 import jsonschema
@@ -9,7 +10,7 @@ from .runner import verify_bundle, now
 from .storage import data_root, outside_checkout
 
 
-def prepare_review(bundle,asr_file,template_file,destination=None,*,evidence_source='recording_asr'):
+def prepare_review(bundle,asr_file,template_file,destination=None,*,evidence_source='recording_asr',timing_file=None):
     # Older sealed execution placeholders may truncate a long source template.
     # Verify their immutable evidence; validate the final receipt's own complete
     # source-template fields independently, without rewriting the sealed run.
@@ -38,6 +39,11 @@ def prepare_review(bundle,asr_file,template_file,destination=None,*,evidence_sou
     target=outside_checkout(destination) if destination else data_root()/'reviews'/bundle.name/uuid.uuid4().hex[:10];target.mkdir(parents=True,exist_ok=False)
     request={'contract':'dialogue-review-request-v1','created_at':now(),'run_id':bundle.name,'case_id':results['case_id'],'bundle':str(bundle),'bundle_integrity_sha256':digest(bundle/'integrity.json'),'audio_file':str(audio),'audio_sha256':digest(audio) if audio.is_file() else None,'asr_file':str(asr_file),'asr_sha256':digest(asr_file) if asr_file.is_file() else None,'raw_asr':asr,'segments':segments,'case':case,'execution':results,'manifest':manifest,'diagnostic_device_text_not_audio_asr':diagnostics,'template_fields':fields,'template_values':template.get('values',{}),'criteria':criteria,'metadata':template.get('metadata',{}),'review_instructions':['Read ASR raw text first. Case/known input and device text are auxiliary context, never overwrite raw ASR.','Correct homophones only in reconstructed dialogue, cite source segment ids and mark inferred/unclear.','Expected device answers cannot fill missing speech. Unclear critical speech => inconclusive.','Judge actual reply semantics against each criterion; device ASR text mismatch alone is not a product failure.','Keep physical actions, trace/task identity and silence/overlap unverified unless their evidence establishes them.']}
     request['evidence_source']=evidence_source
+    timing_file=Path(timing_file).resolve() if timing_file else bundle/'timing.json'
+    if timing_file.is_file():
+        from .timing import validate_timing
+        timing=validate_timing(json.loads(timing_file.read_text(encoding='utf-8')),bundle)
+        request.update(timing_file=str(timing_file),timing_sha256=digest(timing_file),timing=timing)
     if evidence_source=='server_text':
         request.update(server_text=server_text,asr_file=None,asr_sha256=None,
                        review_instructions=['Read literal trace-bound server reply text and device input ASR. Neither is independent acoustic ASR.',
@@ -59,6 +65,11 @@ def validate_review(folder,assessment):
     if digest(bundle/'integrity.json')!=req['bundle_integrity_sha256']:raise ValueError('run changed since review preparation')
     if req['audio_sha256'] and digest(Path(req['audio_file']))!=req['audio_sha256']:raise ValueError('recording changed')
     if req['asr_sha256'] and digest(Path(req['asr_file']))!=req['asr_sha256']:raise ValueError('raw ASR changed')
+    if req.get('timing_sha256'):
+        if digest(Path(req['timing_file']))!=req['timing_sha256']:raise ValueError('timing changed')
+        from .timing import validate_timing
+        if validate_timing(json.loads(Path(req['timing_file']).read_text(encoding='utf-8')),bundle)!=req['timing']:
+            raise ValueError('timing differs from reviewed evidence')
     ids={s['segment_id'] for s in req['segments']}
     for item in assessment['dialogue']+assessment['criteria']:
         if not set(item['segment_ids'])<=ids:raise ValueError('review cites an unknown ASR segment')
@@ -88,9 +99,46 @@ def validate_review(folder,assessment):
     return req,overall
 
 
-def render_receipt(folder,assessment,req,overall):
-    text=f"# {req['case_id']} 测试回执\n\n判定：**{overall}**。{assessment['summary']}\n\n测试人：{req['metadata'].get('tester',req['manifest'].get('operator','未提供'))}；语义评审：{assessment['reviewer']}。\n\n"
-    for f in req['template_fields']:text+=f"- {f}：{assessment['receipt_fields'][f]}\n"
+def delivery_readiness(req, assessment):
+    """Missing verification is work to resolve, not a final BLOCKED verdict.
+
+    A source criterion can only be excluded by a recorded user decision. The
+    caller must not invent waivers merely to make the delivery check pass.
+    """
+    ids = {c['id'] for c in req['criteria']}
+    waivers = req.get('metadata', {}).get('user_waivers', {})
+    if not isinstance(waivers, dict):raise ValueError('user_waivers must be an object')
+    for key, decision in waivers.items():
+        if key not in ids or not isinstance(decision, dict) or not decision.get('authorization') or not decision.get('reason'):
+            raise ValueError('waiver requires an original criterion, reason and explicit user authorization')
+    definitions={c['id']:c for c in req['criteria']}
+    verdicts={c['id']:c['verdict'] for c in assessment['criteria']}
+    def stopped_by_verified_failure(c):
+        deps=definitions[c['id']].get('depends_on',[])
+        return c['verdict']=='not_run' and bool(deps) and all(verdicts.get(dep)=='fail' for dep in deps)
+    unresolved = [{'id': c['id'], 'reason': c['reason'],
+                   'action': 'repair environment/capture/executor, verify again, or discuss the concrete missing condition with the user'}
+                  for c in assessment['criteria'] if c['id'] not in waivers and c['verdict'] not in ('pass','fail')
+                  and not stopped_by_verified_failure(c)]
+    omissions=req.get('metadata',{}).get('user_field_omissions',{})
+    if not isinstance(omissions,dict):raise ValueError('user_field_omissions must be an object')
+    for field,decision in omissions.items():
+        if field not in req.get('template_fields',[]) or not isinstance(decision,dict) or not decision.get('authorization') or not decision.get('reason'):
+            raise ValueError('field omission requires an original field and explicit user authorization')
+    for field,value in assessment.get('receipt_fields',{}).items():
+        if field not in omissions and re.search(r'BLOCKED|未核|未测|未验|待补证',value,re.I):
+            unresolved.append({'id':'field:'+field,'reason':value,'action':'complete verification or discuss this field with the user'})
+    required = [c['verdict'] for c in assessment['criteria'] if c['id'] not in waivers]
+    return {'ready': not unresolved, 'unresolved': unresolved, 'user_waivers': waivers, 'user_field_omissions':omissions,
+            'functional_result': 'fail' if 'fail' in required else 'pass' if required and not unresolved else 'not_run' if not required else 'pending'}
+
+
+def render_receipt(folder,assessment,req,overall,*,final=False):
+    status = '最终回执' if final else '评审草稿（待完成核验，不交付）'
+    text=f"# {req['case_id']} 测试回执\n\n状态：{status}。判定：**{overall}**。{assessment['summary']}\n\n测试人：{req['metadata'].get('tester',req['manifest'].get('operator','未提供'))}；语义评审：{assessment['reviewer']}。\n\n"
+    omissions=req.get('metadata',{}).get('user_field_omissions',{}) if final else {}
+    for f in req['template_fields']:
+        if f not in omissions:text+=f"- {f}：{assessment['receipt_fields'][f]}\n"
     server_mode=req.get('evidence_source')=='server_text'
     if server_mode:
         text+='\n## 服务端回复文本与设备输入识别（原文）\n\n本轮未运行独立ASR。下列为当前绑定会话的final文本；partial/final完整事件保留在评审输入包。客户端收到文本不等于扬声器已完整播放，观察时间不是物理首音。\n\n'
@@ -106,16 +154,27 @@ def render_receipt(folder,assessment,req,overall):
     text+='\n## GPT推测／还原对话\n\n这是基于字幕与上下文的语义还原，不冒充逐字实听。\n\n'
     for turn in assessment['dialogue']:text+=f"- **{turn['speaker']}**：{turn['text']} 〔{turn['certainty']}；依据 {', '.join(turn['segment_ids'])}〕\n  - 还原依据：{turn['rationale']}\n"
     text+='\n## 逐项语义判断\n\n'
-    for c in assessment['criteria']:text+=f"- **{c['id']} / {c['verdict']}**：{c['reason']}（依据：{', '.join(c['segment_ids']) or '未执行/缺证据'}）\n"+''.join(f"  - 限制：{x}\n" for x in c['limitations'])
+    waivers=req.get('metadata',{}).get('user_waivers',{})
+    for c in assessment['criteria']:
+        if final and c['id'] in waivers:
+            if waivers[c['id']].get('visibility') != 'internal':
+                text+=f"- **{c['id']} / 本轮免验**：{waivers[c['id']]['reason']}（用户决定：{waivers[c['id']]['authorization']}）\n"
+        else:
+            text+=f"- **{c['id']} / {c['verdict']}**：{c['reason']}（依据：{', '.join(c['segment_ids']) or '未执行/缺证据'}）\n"+''.join(f"  - 限制：{x}\n" for x in c['limitations'])
     text+=f"\n## 本机证据\n\n- [原录音](<{req['audio_file']}>)\n"
     if req['asr_file']:text+=f"- [ASR原文件](<{req['asr_file']}>)\n"
     text+=f"- [原始运行](<{req['bundle']}>)\n- [评审输入包](<{folder/'request.json'}>)\n\n服务端回复文本、设备输入ASR与独立录音ASR分别标注，不互相冒充。\n"
     return text
 
 
-def import_review(folder,assessment_file):
+def import_review(folder,assessment_file,*,final=False):
     folder=outside_checkout(folder);assessment_file=outside_checkout(assessment_file);assessment=json.loads(assessment_file.read_text(encoding='utf-8'));req,overall=validate_review(folder,assessment)
+    readiness=delivery_readiness(req,assessment)
+    if final and not readiness['ready']:
+        raise ValueError('final delivery requires resolution or discussion first: '+', '.join(c['id'] for c in readiness['unresolved']))
+    if final:overall=readiness['functional_result']
     if (folder/'review.json').exists() or (folder/'receipt.md').exists():raise FileExistsError('preserve earlier semantic review; prepare a new review to revise it')
-    dump(folder/'review.json',assessment);(folder/'receipt.md').write_text(render_receipt(folder,assessment,req,overall),encoding='utf-8')
+    dump(folder/'delivery-readiness.json',readiness)
+    dump(folder/'review.json',assessment);(folder/'receipt.md').write_text(render_receipt(folder,assessment,req,overall,final=final),encoding='utf-8')
     dump(folder/'review-integrity.json',{'request_sha256':digest(folder/'request.json'),'review_sha256':digest(folder/'review.json'),'receipt_sha256':digest(folder/'receipt.md'),'overall':overall,'created_at':now()})
     return folder/'receipt.md'
