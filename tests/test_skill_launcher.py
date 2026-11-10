@@ -33,6 +33,8 @@ class SkillLauncherTests(unittest.TestCase):
             self.assertEqual(Path(info['runtime_root']),ROOT)
             self.assertEqual(info['cli_contract'],'voiceqa-cli-v2')
             self.assertIn('server_text',info['review_evidence_sources'])
+            self.assertEqual(info['timing_contract'],'voiceqa-timing-v1')
+            self.assertEqual(info['final_delivery_gate'],'review-import --final')
             self.assertEqual(list(Path(tmp).iterdir()),[])
 
     def test_copied_skill_uses_explicit_checkout_and_its_relative_case_paths(self):

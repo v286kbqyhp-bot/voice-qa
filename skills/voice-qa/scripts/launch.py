@@ -52,6 +52,8 @@ def describe(root, executable):
     contract = json.loads((root/'voiceqa/runtime-contract.json').read_text(encoding='utf-8'))
     return {'runtime_root': str(root), 'python': executable, 'cli_contract': CONTRACT,
             'review_evidence_sources': contract.get('review_evidence_sources', ['recording_asr']),
+            'timing_contract': contract.get('timing_contract'),
+            'final_delivery_gate': contract.get('final_delivery_gate'),
             'relative_paths_base': str(root), **info}
 
 
